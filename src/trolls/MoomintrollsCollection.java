@@ -1,5 +1,6 @@
 package trolls;
 
+import java.awt.*;
 import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Random;
@@ -54,6 +55,7 @@ public class MoomintrollsCollection extends PriorityQueue<Moomintroll> {
                 (r.nextInt(200) - 100),
                 Wight.BodyColor.white
         );
+        moomintroll.setRgbBodyColor(new Color(r.nextInt()));
         add(moomintroll);
     }
 }

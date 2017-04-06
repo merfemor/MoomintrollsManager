@@ -1,6 +1,7 @@
 package gui;
 
 import trolls.Moomintroll;;
+import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 
 public class MoomintrollsTableModel extends DefaultTableModel {
@@ -18,7 +19,7 @@ public class MoomintrollsTableModel extends DefaultTableModel {
         Object[] fields = {
                 moomintroll.getName(),
                 moomintroll.isMale() ? "m" : "w",
-                moomintroll.getBodyColor(),
+                moomintroll.getRgbBodyColor(),
                 moomintroll.getEmotionalCondition(),
                 moomintroll.getPosition()
         };

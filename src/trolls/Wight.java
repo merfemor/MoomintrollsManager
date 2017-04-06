@@ -1,5 +1,8 @@
 package trolls;
 
+import javax.swing.*;
+import java.awt.*;
+
 public abstract class Wight {
     public enum BodyColor {
         redAsLobster, white, lightGreen
@@ -7,6 +10,7 @@ public abstract class Wight {
     protected String name;
     protected boolean isMale;
     protected BodyColor bodyColor;
+    protected Color rgbBodyColor;
     protected int position;
 
     // занять позицию так, чтобы находиться на расстоянии не большем, чем указанное
@@ -17,6 +21,7 @@ public abstract class Wight {
         this.isMale = isMale;
         this.bodyColor = bodyColor;
         this.position = position;
+        this.rgbBodyColor = Color.WHITE;
     }
 
     public Wight(String name) {
@@ -41,6 +46,14 @@ public abstract class Wight {
 
     public BodyColor getBodyColor() {
         return bodyColor;
+    }
+
+    public Color getRgbBodyColor() {
+        return rgbBodyColor;
+    }
+
+    public void setRgbBodyColor(Color rgbBodyColor) {
+        this.rgbBodyColor = rgbBodyColor;
     }
 
     public boolean isMale() {
