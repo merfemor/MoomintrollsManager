@@ -30,7 +30,7 @@ public class Moomintroll extends Wight implements BowTo, Emotionable, Comparable
     }
     public transient ActionLog actionLog;
     private transient TongueCondition tongueCondition;
-    private transient Emotion emotionalCondition;
+    private Emotion emotionalCondition;
     private Map<Action, Integer> maxDistance;
 
     public Moomintroll(String name, boolean isMale, int position, Wight.BodyColor bodyColor) {

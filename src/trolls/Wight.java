@@ -39,6 +39,10 @@ public abstract class Wight {
         return position;
     }
 
+    public BodyColor getBodyColor() {
+        return bodyColor;
+    }
+
     public boolean isMale() {
         return isMale;
     }
