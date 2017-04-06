@@ -34,12 +34,31 @@ public class FileManager {
     }
 
     public static String readFromFile(String path) throws FileNotFoundException {
-        Scanner sc = new Scanner(new File(path));
-        String fileContent = "";
-        while (sc.hasNextLine()) {
-            fileContent += (sc.nextLine() + "\n");
+        try (Scanner sc = new Scanner(new File(path))){
+            String fileContent = "";
+            while (sc.hasNextLine()) {
+                fileContent += (sc.nextLine() + "\n");
+            }
+            return fileContent;
+        } catch (Exception e) {
+            throw e;
         }
-        return fileContent;
+    }
+
+
+    public static String readFromFile(String path, boolean printText) {
+        try {
+            return readFromFile(path);
+        } catch (FileNotFoundException|NullPointerException e) {
+            if(printText) {
+                System.out.println("Can't load: \"" + path + "\" isn't exist or isn't a file");
+            }
+        } catch (Exception e) {
+            if(printText) {
+                System.out.println("Can't load: undefined exception when reading file \"" + path + "\"");
+            }
+        }
+        return null;
     }
 
     public static void writeToFile(String path, String s) throws IOException, NullPointerException {

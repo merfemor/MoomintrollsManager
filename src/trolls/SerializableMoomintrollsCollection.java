@@ -5,29 +5,34 @@ import com.google.gson.reflect.TypeToken;
 import utils.FileManager;
 import utils.JsonParser;
 
+import javax.swing.text.html.HTMLDocument;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Iterator;
 import java.util.PriorityQueue;
 
 public class SerializableMoomintrollsCollection extends MoomintrollsCollection implements Serializable{
 
-    private void fromJson(String json) {
+    private boolean fromJson(String json) {
         try {
-            // TODO: make it without PriorityQueue<Moomintroll> : SOLID
-            this.moomintrolls = JsonParser.jsonToObject(
+            MoomintrollsCollection moomintrollsCollection = JsonParser.jsonToObject(
                     json,
-                    new TypeToken<PriorityQueue<Moomintroll>>(){}.getType()
+                    new TypeToken<MoomintrollsCollection>(){}.getType()
             );
+            clear();
+            this.addAll(moomintrollsCollection);
+            return true;
         } catch (JsonSyntaxException e) {
             System.out.println("Can't convert: error when parsing JSON: bad format");
         } catch (Exception e) {
             System.out.println("Can't convert: undefined exception when parsing JSON");
         }
+        return false;
     }
 
     private String toJson() {
-        return JsonParser.objectToJson(this.moomintrolls);
+        return JsonParser.objectToJson(this);
     }
 
     public void saveToFile(String path) {
@@ -50,27 +55,8 @@ public class SerializableMoomintrollsCollection extends MoomintrollsCollection i
      * Loads moomintrolls collection from path
      */
     public void loadFromFile(String path) {
-        String fileContent;
-        if(path == null) {
-            System.out.println("Can't load: file path is undefined");
-            return;
-        }
-        try {
-            fileContent = FileManager.readFromFile(path);
-        } catch (FileNotFoundException e) {
-            System.out.println("Can't load: \"" + path + "\" isn't exist or isn't a file");
-            return;
-        } catch (Exception e) {
-            System.out.println("Can't load: undefined exception when reading file \"" + path + "\"");
-            return;
-        }
-        if(fileContent.isEmpty()) {
-            System.out.println("Can't load: unknown error when reading file \"" + path + "\"");
-            return;
-        }
-        MoomintrollsCollection lastMoomintrollsCollection = this;
-        fromJson(fileContent);
-        if(lastMoomintrollsCollection != this) {
+        String fileContent = FileManager.readFromFile(path, true);
+        if(fromJson(fileContent)) {
             System.out.println("Objects successfully loaded from \"" + path + "\"");
         }
     }

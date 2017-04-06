@@ -1,20 +1,18 @@
 package trolls;
 
 import java.util.PriorityQueue;
+import java.util.Queue;
 import java.util.Random;
 
-public class MoomintrollsCollection {
-
-    protected PriorityQueue <Moomintroll> moomintrolls = new PriorityQueue<>();
-
+public class MoomintrollsCollection extends PriorityQueue<Moomintroll> {
     /**
      * Removes first element in moomintrolls collection
      */
     public void remove_first() {
-        if (moomintrolls.isEmpty()) {
+        if (this.isEmpty()) {
             System.out.println("Nothing to remove: collection is already empty");
         } else {
-            moomintrolls.poll();
+            poll();
             System.out.println("First element was successfully deleted");
         }
     }
@@ -24,7 +22,7 @@ public class MoomintrollsCollection {
      * @param moomintroll element to add
      */
     public void add_if_max(Moomintroll moomintroll) {
-        if (moomintroll.compareTo(moomintrolls.peek()) < 0) {
+        if (moomintroll.compareTo(peek()) < 0) {
             add(moomintroll);
             System.out.println("Object successfully added");
         } else {
@@ -38,19 +36,11 @@ public class MoomintrollsCollection {
      */
     public void remove_greater(Moomintroll moomintroll) {
         int deletedElementsNum = 0;
-        while (!moomintrolls.isEmpty() && moomintroll.compareTo(moomintrolls.peek()) > 0) {
-            moomintrolls.poll();
+        while (!isEmpty() && moomintroll.compareTo(peek()) > 0) {
+            poll();
             deletedElementsNum++;
         }
         System.out.println(deletedElementsNum + " elements were deleted");
-    }
-
-    /**
-     * Just adds moomintroll into collection
-     * @param moomintroll Moomintroll to add
-     */
-    public void add(Moomintroll moomintroll) {
-        moomintrolls.add(moomintroll);
     }
 
     /**
@@ -65,11 +55,5 @@ public class MoomintrollsCollection {
                 Wight.BodyColor.white
         );
         add(moomintroll);
-    }
-
-    @Override
-    public String toString() {
-        return moomintrolls.toString();
-
     }
 }
