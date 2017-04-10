@@ -17,7 +17,7 @@ public class MainWindow extends JFrame {
         super("Moomintrolls Manager");
         initComponents();
         setSize(900, 500);
-
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
     }
 
     private void initComponents() {

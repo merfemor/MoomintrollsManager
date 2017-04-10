@@ -2,10 +2,8 @@ package gui;
 
 import trolls.Moomintroll;
 import trolls.MoomintrollsCollection;
-
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.TableModel;
 import java.awt.*;
 
 public class MoomintrollsTable extends JTable{

@@ -1,7 +1,6 @@
 package gui;
 
-import trolls.Moomintroll;;
-import javax.swing.*;
+import trolls.Moomintroll;
 import javax.swing.table.DefaultTableModel;
 
 public class MoomintrollsTableModel extends DefaultTableModel {
