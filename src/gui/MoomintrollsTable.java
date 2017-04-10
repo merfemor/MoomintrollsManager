@@ -9,6 +9,21 @@ import javax.swing.table.TableModel;
 import java.awt.*;
 
 public class MoomintrollsTable extends JTable{
+    class ColorRenderer extends DefaultTableCellRenderer {
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int col)  {
+            Color color = table.getBackground();
+            if(value instanceof Color) {
+                color = (Color) value;
+                value = " ";
+            }
+            Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, col);
+            if(isSelected) {
+                color = color.darker();
+            }
+            c.setBackground(color);
+            return c;
+        }
+    }
 
     private MoomintrollsCollection moomintrollsCollection = new MoomintrollsCollection();
     private MoomintrollsTableModel moomintrollsDataModel;
@@ -37,21 +52,4 @@ public class MoomintrollsTable extends JTable{
         }
     }
 
-}
-
-
-class ColorRenderer extends DefaultTableCellRenderer {
-    public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int col)  {
-        Color color = table.getBackground();
-        if(value instanceof Color) {
-            color = (Color) value;
-            value = " ";
-        }
-        Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, col);
-        if(isSelected) {
-            color = color.darker();
-        }
-        c.setBackground(color);
-        return c;
-    }
 }
