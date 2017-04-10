@@ -10,7 +10,7 @@ public class MoomintrollsTableModel extends DefaultTableModel {
         columnIdentifiers.add("Name");
         columnIdentifiers.add("Gender");
         columnIdentifiers.add("Body color");
-        columnIdentifiers.add("Emotional condition");
+        columnIdentifiers.add("Kindness");
         columnIdentifiers.add("Position");
     }
 
@@ -19,7 +19,7 @@ public class MoomintrollsTableModel extends DefaultTableModel {
                 moomintroll.getName(),
                 moomintroll.isMale() ? "m" : "w",
                 moomintroll.getRgbBodyColor(),
-                moomintroll.getEmotionalCondition(),
+                moomintroll.getKindness(),
                 moomintroll.getPosition()
         };
         addRow(fields);

@@ -52,10 +52,11 @@ public class MoomintrollsCollection extends PriorityQueue<Moomintroll> {
         Moomintroll moomintroll = new Moomintroll(
                 "Random",
                 r.nextBoolean(),
-                (r.nextInt(200) - 100),
+                (r.nextInt() % 500 - 250),
                 Wight.BodyColor.white
         );
         moomintroll.setRgbBodyColor(new Color(r.nextInt()));
+        moomintroll.setKindness(new Kindness(r.nextInt() % 2000 - 1000));
         add(moomintroll);
     }
 }
