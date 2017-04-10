@@ -9,9 +9,20 @@ import javax.swing.*;
 
 public class MainWindow extends JFrame {
     private JMenuBar menuBar = new JMenuBar();
+    private JMenu fileIOMenu = new JMenu("File");
+    private JMenuItem load = new JMenuItem("Load"),
+    save_and_exit = new JMenuItem("Save"),
+    exit = new JMenuItem("Exit");
+    private JMenu commandMenu = new JMenu("Command");
+    private JMenuItem remove_first = new JMenuItem("Remove first"),
+    add_if_max = new JMenuItem("Add if max..."),
+    remove_greater = new JMenuItem("Remove greater...");
+
     private JToolBar toolBar = new JToolBar();
-    private JButton addButton = new JButton("Add");
-    private JButton removeButton = new JButton("Remove");
+    // CRUD:
+    private JButton addButton = new JButton("Add"),
+            removeButton = new JButton("Remove"),
+            editButton = new JButton("Edit");
     private MoomintrollsTable moomintrollsTable = new MoomintrollsTable();
     private MoomintrollsTree moomintrollsTree = new MoomintrollsTree(moomintrollsTable);
 
@@ -29,9 +40,18 @@ public class MainWindow extends JFrame {
 
         // add menu items
         setJMenuBar(menuBar);
+        menuBar.add(fileIOMenu);
+        fileIOMenu.add(load);
+        fileIOMenu.add(save_and_exit);
+        fileIOMenu.add(exit);
+        menuBar.add(commandMenu);
+        commandMenu.add(remove_first);
+        commandMenu.add(remove_greater);
+        commandMenu.add(add_if_max);
 
         toolBar.add(addButton);
         toolBar.add(removeButton);
+        toolBar.add(editButton);
         toolBar.setFloatable(false);
 
         JScrollPane jScrollPane = new JScrollPane(moomintrollsTable);
