@@ -5,6 +5,8 @@ import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Random;
 
+import static utils.Random.randomInt;
+
 public class MoomintrollsCollection extends PriorityQueue<Moomintroll> {
     /**
      * Removes first element in moomintrolls collection
@@ -48,15 +50,17 @@ public class MoomintrollsCollection extends PriorityQueue<Moomintroll> {
      * Generate random troll and add to collection
      */
     public void add_random_troll() {
-        Random r = new Random();
+
         Moomintroll moomintroll = new Moomintroll(
                 "Random",
-                r.nextBoolean(),
-                (r.nextInt() % 500 - 250),
+                Math.random() > 0.5,
+                randomInt(-500, 500),
                 Wight.BodyColor.white
         );
-        moomintroll.setRgbBodyColor(new Color(r.nextInt()));
-        moomintroll.setKindness(new Kindness(r.nextInt() % 2000 - 1000));
+        moomintroll.setRgbBodyColor(
+                new Color(randomInt(0, 255), randomInt(0, 255), randomInt(0, 255))
+        );
+        moomintroll.setKindness(new Kindness(randomInt(Kindness.DEVIL.value(), Kindness.ANGEL.value() - 1)));
         add(moomintroll);
     }
 }
