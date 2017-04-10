@@ -12,6 +12,7 @@ public class MainWindow extends JFrame {
     private JButton addButton = new JButton("Add");
     private JButton removeButton = new JButton("Remove");
     private MoomintrollsTable moomintrollsTable = new MoomintrollsTable();
+    private MoomintrollsTree moomintrollsTree = new MoomintrollsTree(moomintrollsTable);
 
     public MainWindow() {
         super("Moomintrolls Manager");
@@ -35,16 +36,12 @@ public class MainWindow extends JFrame {
         JScrollPane jScrollPane = new JScrollPane(moomintrollsTable);
         contentPane.add(toolBar, BorderLayout.NORTH);
         contentPane.add(jScrollPane, BorderLayout.CENTER);
+        JScrollPane jScrollPane1 = new JScrollPane(moomintrollsTree);
+        contentPane.add(jScrollPane1, BorderLayout.WEST);
+        moomintrollsTable.registerMoomintrollsTree(moomintrollsTree);
 
-        addButton.addMouseListener(new MouseClickListener() {
-            @Override
-            public void mouseClicked(MouseEvent mouseEvent) {
-                Moomintroll moomintrollToAdd = null;
-                // TODO: create add dialog
-                moomintrollsTable.add(moomintrollToAdd);
-            }
-        });
 
+        // TODO: same action for tree selection
         removeButton.addMouseListener(new MouseClickListener() {
             @Override
             public void mouseClicked(MouseEvent mouseEvent) {
@@ -71,6 +68,13 @@ public class MainWindow extends JFrame {
                 }
             }
         });
+        addButton.addMouseListener(new MouseClickListener() {
+            @Override
+            public void mouseClicked(MouseEvent mouseEvent) {
+                Moomintroll moomintrollToAdd = null;
+                // TODO: create add dialog
+                moomintrollsTable.add(moomintrollToAdd);
+            }
+        });
     }
-
 }

@@ -1,5 +1,3 @@
-import gui.GraphicalMoomintrollsManager;
-
 public class MoomintrollsManager {
     public static void main(String[] args) {
 
