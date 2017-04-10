@@ -8,6 +8,7 @@ import javax.swing.table.TableColumn;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.Comparator;
 
 public class MoomintrollsTable extends JTable{
     class ColorRenderer extends DefaultTableCellRenderer {
@@ -34,17 +35,7 @@ public class MoomintrollsTable extends JTable{
         super(new MoomintrollsTableModel());
         moomintrollsDataModel = (MoomintrollsTableModel) dataModel;
         setDefaultRenderer(Object.class, new ColorRenderer());
-        getTableHeader().addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent mouseEvent) {
-                if(mouseEvent.getClickCount() < 2) {
-                    return;
-                }
-                int col = columnAtPoint(mouseEvent.getPoint());
-                // TODO: sorting code
-                System.out.println("Clicked \"" + getColumnName(col) + "\" col");
-            }
-        });
+        setAutoCreateRowSorter(true);
     }
 
     public void registerMoomintrollsTree(MoomintrollsTree tree) {

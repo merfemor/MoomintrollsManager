@@ -2,16 +2,17 @@ package gui;
 
 import trolls.Moomintroll;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
 
 public class MoomintrollsTableModel extends DefaultTableModel {
     MoomintrollsTableModel() {
         super();
         columnIdentifiers.clear();
-        columnIdentifiers.add("Name");
-        columnIdentifiers.add("Gender");
-        columnIdentifiers.add("Body color");
-        columnIdentifiers.add("Kindness");
-        columnIdentifiers.add("Position");
+        addColumn("Name");
+        addColumn("Gender");
+        addColumn("Body color");
+        addColumn("Kindness");
+        addColumn("Position");
     }
 
     public void addRow(Moomintroll moomintroll) {
