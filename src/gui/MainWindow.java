@@ -3,6 +3,7 @@ package gui;
 import trolls.Moomintroll;
 
 import java.awt.*;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.*;
 
@@ -42,7 +43,7 @@ public class MainWindow extends JFrame {
 
 
         // TODO: same action for tree selection
-        removeButton.addMouseListener(new MouseClickListener() {
+        removeButton.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent mouseEvent) {
                 int seletedRowsCount = moomintrollsTable.getSelectedRows().length;
@@ -68,7 +69,7 @@ public class MainWindow extends JFrame {
                 }
             }
         });
-        addButton.addMouseListener(new MouseClickListener() {
+        addButton.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent mouseEvent) {
                 Moomintroll moomintrollToAdd = null;
