@@ -30,7 +30,8 @@ public class Moomintroll extends Wight implements BowTo, Emotionable, Comparable
     }
     public transient ActionLog actionLog;
     private transient TongueCondition tongueCondition;
-    private Emotion emotionalCondition;
+    private transient Emotion emotionalCondition;
+    private Kindness kindness;
     private Map<Action, Integer> maxDistance;
 
     public Moomintroll(String name, boolean isMale, int position, Wight.BodyColor bodyColor) {
@@ -42,10 +43,7 @@ public class Moomintroll extends Wight implements BowTo, Emotionable, Comparable
         maxDistance.put(Action.bow, 1);
         maxDistance.put(Action.handshake, 0);
         maxDistance.put(Action.hug, 0);
-    }
-
-    public Moomintroll(String name) {
-        super(name);
+        this.kindness = Kindness.NORMAL;
     }
 
     public void stepForward() {
@@ -60,12 +58,10 @@ public class Moomintroll extends Wight implements BowTo, Emotionable, Comparable
         this.actionLog.push(Action.movement);
     }
 
-    @Override
     public Emotion getEmotionalCondition() {
         return emotionalCondition;
     }
 
-    @Override
     public void setEmotionalCondition(Emotion emotionalCondition) {
         if(this.emotionalCondition == Emotion.embarrassment && emotionalCondition == Emotion.embarrassment) {
             emotionalCondition = Emotion.bigEmbrassment;
@@ -83,6 +79,14 @@ public class Moomintroll extends Wight implements BowTo, Emotionable, Comparable
         // после того как проверили все исключительне ситуации, устанавливаем новое настроение
         this.emotionalCondition = emotionalCondition;
         System.out.println(name + " " + this.emotionalCondition.toString());
+    }
+
+    public Kindness getKindness() {
+        return kindness;
+    }
+
+    public void setKindness(Kindness kindness) {
+        this.kindness = kindness;
     }
 
     @Override
