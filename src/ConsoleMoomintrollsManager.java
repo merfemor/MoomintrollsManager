@@ -92,25 +92,21 @@ public class ConsoleMoomintrollsManager {
             System.exit(0);
         }
         else if (command.equals("remove_first")) {
-            moomintrollsCollection.remove_first();
+            if (moomintrollsCollection.isEmpty()) {
+                System.out.println("Nothing to remove: collection is already empty");
+            } else {
+                moomintrollsCollection.poll();
+                System.out.println("First element was successfully deleted");
+            }
         }
         else if (command.equals("load")) {
             moomintrollsCollection.loadFromFile(path);
-        }
-        else if (command.equals("add_random_troll")) {
-            moomintrollsCollection.add_random_troll();
         }
         else if (command.equals("print")) {
             System.out.println(moomintrollsCollection);
         }
         else if (command.startsWith("use_file")) {
             path = command.substring("use_file".length());
-        }
-        else if (command.startsWith("add_random_trolls")) {
-            int howMuch = Integer.parseInt(command.substring("add_random_trolls".length()));
-            for(int i = 0; i < howMuch; i++) {
-                moomintrollsCollection.add_random_troll();
-            }
         }
 
         // commands with JSON trolls.Moomintroll object argument
@@ -138,9 +134,6 @@ public class ConsoleMoomintrollsManager {
                     break;
                 case "add":
                     moomintrollsCollection.add(moomintroll);
-                    break;
-                case "add_random_troll":
-                    moomintrollsCollection.add_random_troll();
                     break;
                 default:
 

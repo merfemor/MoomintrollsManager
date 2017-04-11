@@ -2,18 +2,13 @@ package gui;
 
 import trolls.Moomintroll;
 import trolls.SerializableMoomintrollsCollection;
-import utils.FileManager;
 
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
 import javax.swing.*;
-import javax.swing.event.MenuDragMouseEvent;
-import javax.swing.event.MenuDragMouseListener;
 
 public class MainWindow extends JFrame {
     private String path;
@@ -21,12 +16,11 @@ public class MainWindow extends JFrame {
     private JMenuBar menuBar = new JMenuBar();
     private JMenu fileIOMenu = new JMenu("File");
     private JMenuItem load = new JMenuItem("Load"),
-    save = new JMenuItem("Save"),
-    exit = new JMenuItem("Exit");
-    private JMenu commandMenu = new JMenu("Command");
-    private JMenuItem remove_first = new JMenuItem("Remove first"),
-    add_if_max = new JMenuItem("Add if max..."),
-    remove_greater = new JMenuItem("Remove greater...");
+            save = new JMenuItem("Save"),
+            saveAs = new JMenuItem("Save As..");
+    private JMenu tableMenu = new JMenu("Table");
+    private JMenuItem add_if_max = new JMenuItem("Add if max.."),
+            remove_greater = new JMenuItem("Remove greater..");
 
     private JToolBar toolBar = new JToolBar();
     // CRUD:
@@ -54,11 +48,10 @@ public class MainWindow extends JFrame {
         menuBar.add(fileIOMenu);
         fileIOMenu.add(load);
         fileIOMenu.add(save);
-        fileIOMenu.add(exit);
-        menuBar.add(commandMenu);
-        commandMenu.add(remove_first);
-        commandMenu.add(remove_greater);
-        commandMenu.add(add_if_max);
+        fileIOMenu.add(saveAs);
+        menuBar.add(tableMenu);
+        tableMenu.add(remove_greater);
+        tableMenu.add(add_if_max);
 
         toolBar.add(addButton);
         toolBar.add(removeButton);
@@ -110,42 +103,68 @@ public class MainWindow extends JFrame {
         });
 
         save.addActionListener(actionEvent -> save());
+        saveAs.addActionListener(actionEvent -> saveAs());
         load.addActionListener(actionEvent -> load());
     }
 
     public void save() {
-            try {
-                ((SerializableMoomintrollsCollection) moomintrollsTable.getMoomintrollsCollection()).saveToFile(path);
-                Object[] options = {"OK"};
-                JOptionPane.showOptionDialog(this,
-                        "Successfully saved into \"" + path + "\"",
-                        "Successfully saved",
-                        JOptionPane.DEFAULT_OPTION,
-                        JOptionPane.INFORMATION_MESSAGE,
-                        null,
-                        options,
-                        options[0]);
+        if(!isPathSet) {
+            saveAs();
+            return;
+        }
 
-            }
-            catch (Exception e) {
-                if(isPathSet) {
+        try {
+            successfullSave(path);
+            return;
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null,
+                    "Failed save to \"" + path + "\"\nSelect file again.",
+                    "Error: failed to save",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        }
+        saveAs();
+    }
+
+    public void saveAs() {
+        String newPath;
+
+        while (true){
+            JFileChooser chooser = new JFileChooser();
+            if (chooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+                newPath = chooser.getSelectedFile().getPath();
+                if(!newPath.endsWith(".json")) {
+                    newPath += ".json";
+                }
+                try {
+                    successfullSave(newPath);
+                    this.path = newPath;
+                    isPathSet = true;
+                    break;
+                } catch (Exception e) {
                     JOptionPane.showMessageDialog(null,
                             "Failed save to \"" + path + "\"\nSelect file again.",
                             "Error: failed to save",
                             JOptionPane.ERROR_MESSAGE
                     );
                 }
-                JFileChooser chooser = new JFileChooser();
-                int res = chooser.showSaveDialog(null);
-                if (res == JFileChooser.APPROVE_OPTION) {
-                    path = chooser.getSelectedFile().getPath();
-                    if(!path.endsWith(".json")) {
-                        path += ".json";
-                    }
-                    isPathSet = true;
-                    save();
-                }
+            } else { // pushed "cancel" button
+                break;
             }
+        }
+    }
+    private void successfullSave(String path) throws IOException {
+        ((SerializableMoomintrollsCollection) moomintrollsTable.getMoomintrollsCollection()).saveToFile(path);
+        Object[] options = {"OK"};
+        JOptionPane.showOptionDialog(this,
+                "Successfully saved into \"" + path + "\"",
+                "Successfully saved",
+                JOptionPane.DEFAULT_OPTION,
+                JOptionPane.INFORMATION_MESSAGE,
+                null,
+                options,
+                options[0]);
+        this.setTitle(new File(path).getName() + " - Moomintrolls Manager");
     }
 
     public void load() {

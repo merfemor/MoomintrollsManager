@@ -1,24 +1,8 @@
 package trolls;
 
-import java.awt.*;
 import java.util.PriorityQueue;
-import java.util.Queue;
-import java.util.Random;
-
-import static utils.Random.randomInt;
 
 public class MoomintrollsCollection extends PriorityQueue<Moomintroll> {
-    /**
-     * Removes first element in moomintrolls collection
-     */
-    public void remove_first() {
-        if (this.isEmpty()) {
-            System.out.println("Nothing to remove: collection is already empty");
-        } else {
-            poll();
-            System.out.println("First element was successfully deleted");
-        }
-    }
 
     /**
      * Adds moomintroll object into collection of moomintrolls if it is bigger than the maximum element in collection
@@ -44,23 +28,5 @@ public class MoomintrollsCollection extends PriorityQueue<Moomintroll> {
             deletedElementsNum++;
         }
         System.out.println(deletedElementsNum + " elements were deleted");
-    }
-
-    /**
-     * Generate random troll and add to collection
-     */
-    public void add_random_troll() {
-
-        Moomintroll moomintroll = new Moomintroll(
-                "Random",
-                Math.random() > 0.5,
-                randomInt(-500, 500),
-                Wight.BodyColor.white
-        );
-        moomintroll.setRgbBodyColor(
-                new Color(randomInt(0, 255), randomInt(0, 255), randomInt(0, 255))
-        );
-        moomintroll.setKindness(new Kindness(randomInt(Kindness.DEVIL.value(), Kindness.ANGEL.value() - 1)));
-        add(moomintroll);
     }
 }

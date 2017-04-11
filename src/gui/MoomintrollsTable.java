@@ -2,6 +2,8 @@ package gui;
 
 import trolls.Moomintroll;
 import trolls.MoomintrollsCollection;
+import utils.Random;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.*;
@@ -76,7 +78,7 @@ public class MoomintrollsTable extends JTable{
 
     public void add(Moomintroll moomintroll) {
         if(moomintroll == null) {
-            moomintrollsCollection.add_random_troll();
+            moomintrollsCollection.add(Random.randomTroll());
             moomintroll = moomintrollsCollection.element();
         } else {
             moomintrollsCollection.add(moomintroll);
