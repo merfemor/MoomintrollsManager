@@ -53,7 +53,7 @@ public class ConsoleMoomintrollsManager {
     private static String loadPathVariable(String pathVariableName) {
         String path = System.getenv(pathVariableName);
         if (path == null || path.isEmpty()) {
-            System.out.println("Can't load path variable: \"" + pathVariableName + "\" is undefined or empty");
+            System.out.println("Can't open path variable: \"" + pathVariableName + "\" is undefined or empty");
             path = FileManager.findSimilarFileName("trolls", ".json");
             if(path != null) {
                 System.out.println("Path automatically set to " + path);
@@ -80,7 +80,7 @@ public class ConsoleMoomintrollsManager {
                             "===================\n" +
                             "save_and_exit\n" +
                             "remove_first\n" +
-                            "load\n" +
+                            "open\n" +
                             "add_if_max {element}\n" +
                             "remove_greater {element}\n" +
                             "===================\n"
@@ -99,7 +99,7 @@ public class ConsoleMoomintrollsManager {
                 System.out.println("First element was successfully deleted");
             }
         }
-        else if (command.equals("load")) {
+        else if (command.equals("open")) {
             moomintrollsCollection.loadFromFile(path);
         }
         else if (command.equals("print")) {

@@ -11,6 +11,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
 import javax.swing.*;
@@ -95,7 +96,7 @@ public class MainWindow extends JFrame {
 
         save.addActionListener(actionEvent -> save());
         saveAs.addActionListener(actionEvent -> saveAs());
-        open.addActionListener(actionEvent -> load());
+        open.addActionListener(actionEvent -> { closeFile(); open(); });
         close.addActionListener(actionEvent -> closeFile());
 
         this.addWindowListener(new WindowAdapter() {
@@ -163,7 +164,9 @@ public class MainWindow extends JFrame {
         String newPath;
 
         while (true){
-            JFileChooser chooser = new JFileChooser();
+            JFileChooser chooser = new JFileChooser(path);
+            chooser.setMultiSelectionEnabled(false);
+            chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
             if (chooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
                 newPath = chooser.getSelectedFile().getPath();
                 try {
@@ -211,10 +214,38 @@ public class MainWindow extends JFrame {
         updateTitle();
     }
 
-    public void load() {
-        SerializableMoomintrollsCollection moomintrollsCollection = new SerializableMoomintrollsCollection();
-        moomintrollsCollection.loadFromFile(path);
-        moomintrollsTable.setMoomintrollsCollection(moomintrollsCollection);
+    public void open() {
+        JFileChooser chooser = new JFileChooser(path);
+        chooser.setMultiSelectionEnabled(false);
+        chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        while (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION){
+            File file = chooser.getSelectedFile();
+            String fileContent;
+            try {
+                fileContent = FileManager.readFromFile(file.getPath());
+                SerializableMoomintrollsCollection moomintrollsCollection = new SerializableMoomintrollsCollection(fileContent);
+                moomintrollsTable.setMoomintrollsCollection(moomintrollsCollection);
+                path = file.getPath();
+                isPathSet = true;
+                isSaved = true;
+                updateTitle();
+                break;
+            } catch (IOException e) {
+                JOptionPane.showMessageDialog(this,
+                        "Failed to open " + file.getPath() + "\nSelect file again.",
+                        "Error: failed to open",
+                        JOptionPane.ERROR_MESSAGE
+                );
+                e.printStackTrace();
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this,
+                        "Failed to read " + file.getPath() + "\nFile is in the wrong format.\nSelect file again.",
+                        "Error: failed to read",
+                        JOptionPane.ERROR_MESSAGE
+                );
+                e.printStackTrace();
+            }
+        }
     }
 
     public int closeFile() {
