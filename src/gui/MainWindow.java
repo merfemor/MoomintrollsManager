@@ -2,6 +2,7 @@ package gui;
 
 import trolls.Moomintroll;
 import trolls.SerializableMoomintrollsCollection;
+import utils.FileManager;
 import utils.Random;
 
 import java.awt.*;
@@ -11,6 +12,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileAlreadyExistsException;
 import javax.swing.*;
 
 public class MainWindow extends JFrame {
@@ -147,7 +149,7 @@ public class MainWindow extends JFrame {
                 successfullSave(path, false);
                 return;
             } catch (Exception e) {
-                JOptionPane.showMessageDialog(null,
+                JOptionPane.showMessageDialog(this,
                         "Failed save to \"" + path + "\"\nSelect file again.",
                         "Error: failed to save",
                         JOptionPane.ERROR_MESSAGE
@@ -164,15 +166,23 @@ public class MainWindow extends JFrame {
             JFileChooser chooser = new JFileChooser();
             if (chooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
                 newPath = chooser.getSelectedFile().getPath();
-                if(!newPath.endsWith(".json")) {
-                    newPath += ".json";
-                }
                 try {
+                    if(FileManager.pathExists(newPath)) {
+                        int reply = JOptionPane.showConfirmDialog(this,
+                                "File is already exitst.\nOverwrite it?",
+                                "Warning: overwriting file",
+                                JOptionPane.YES_NO_OPTION,
+                                JOptionPane.QUESTION_MESSAGE
+                        );
+                        if(reply == JOptionPane.NO_OPTION) {
+                            throw new FileAlreadyExistsException(newPath);
+                        }
+                    }
                     successfullSave(newPath, true);
                     break;
                 } catch (Exception e) {
-                    JOptionPane.showMessageDialog(null,
-                            "Failed save to \"" + path + "\"\nSelect file again.",
+                    JOptionPane.showMessageDialog(this,
+                            "Failed to save into " + newPath + "\nSelect file again.",
                             "Error: failed to save",
                             JOptionPane.ERROR_MESSAGE
                     );
