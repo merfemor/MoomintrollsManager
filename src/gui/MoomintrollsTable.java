@@ -4,11 +4,7 @@ import trolls.Moomintroll;
 import trolls.MoomintrollsCollection;
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.TableColumn;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.util.Comparator;
 
 public class MoomintrollsTable extends JTable{
     class ColorRenderer extends DefaultTableCellRenderer {
@@ -47,6 +43,10 @@ public class MoomintrollsTable extends JTable{
         if(moomintrollsTree == null) {
             return;
         }
+
+        // TODO: idea: remove moomintrollsCollection and store only moomintrolls data
+        // TODO: idea: make special class for converting Moomintroll to Object[] data and vice versa
+        // TODO: or: make moomintrolls indexes
         moomintrollsTree.removeAll();
         for(Moomintroll moomintroll: moomintrollsCollection) {
             moomintrollsTree.add(moomintroll);
@@ -64,11 +64,18 @@ public class MoomintrollsTable extends JTable{
         updateTree();
     }
 
+    public void add(Moomintroll[] moomintrolls) {
+        for (Moomintroll moomintroll: moomintrolls) {
+            add(moomintroll);
+        }
+    }
+
     public void removeSelectedRows() {
 
         int[] rows = getSelectedRows();
         for (int i = rows.length - 1; i >= 0; i--) {
             moomintrollsDataModel.removeRow(rows[i]);
+
         }
         // TODO: remove appropriate elements from moomintrollsCollection
         updateTree();
