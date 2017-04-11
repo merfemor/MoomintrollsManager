@@ -4,6 +4,7 @@ import trolls.SerializableMoomintrollsCollection;
 import utils.FileManager;
 import utils.JsonParser;
 
+import java.io.IOException;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 import java.util.Stack;
@@ -15,7 +16,18 @@ public class ConsoleMoomintrollsManager {
     private String pathVariableName;
 
     public void start() {
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> moomintrollsCollection.saveToFile(path)));
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            if (path == null) {
+                System.out.println("File path is undefined");
+                path = FileManager.generateFileName("trolls", ".json");
+                System.out.println("File path was automatically set to \"" + path + "\"");
+            }
+            try {
+                moomintrollsCollection.saveToFile(path);
+            } catch (IOException e) {
+                System.out.println("Failed to save: error when writing to \"" + path + "\"");
+            }
+        }));
         System.out.println(" ----------------------------------------------\n" +
                 "| Welcome to Moomintrolls Command Line Manager |\n" +
                 " ----------------------------------------------\n");

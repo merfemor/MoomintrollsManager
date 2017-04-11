@@ -23,7 +23,7 @@ public class MoomintrollsTable extends JTable{
         }
     }
 
-    private MoomintrollsCollection moomintrollsCollection = new MoomintrollsCollection();
+    private MoomintrollsCollection moomintrollsCollection;
     private MoomintrollsTableModel moomintrollsDataModel;
     private MoomintrollsTree moomintrollsTree;
 
@@ -32,10 +32,31 @@ public class MoomintrollsTable extends JTable{
         moomintrollsDataModel = (MoomintrollsTableModel) dataModel;
         setDefaultRenderer(Object.class, new ColorRenderer());
         setAutoCreateRowSorter(true);
+        moomintrollsCollection = new MoomintrollsCollection();
+    }
+
+    MoomintrollsTable(MoomintrollsCollection moomintrollsCollection) {
+        super(new MoomintrollsTableModel());
+        moomintrollsDataModel = (MoomintrollsTableModel) dataModel;
+        setDefaultRenderer(Object.class, new ColorRenderer());
+        setAutoCreateRowSorter(true);
+        this.moomintrollsCollection = moomintrollsCollection;
+        for(Moomintroll moomintroll: moomintrollsCollection) {
+            ((MoomintrollsTableModel) dataModel).addRow(moomintroll);
+        }
     }
 
     public void registerMoomintrollsTree(MoomintrollsTree tree) {
         this.moomintrollsTree = tree;
+        updateTree();
+    }
+
+    public void setMoomintrollsCollection(MoomintrollsCollection moomintrollsCollection) {
+        this.moomintrollsCollection = moomintrollsCollection;
+        moomintrollsDataModel.clear();
+        for(Moomintroll moomintroll: moomintrollsCollection) {
+            moomintrollsDataModel.addRow(moomintroll);
+        }
         updateTree();
     }
 
@@ -68,14 +89,17 @@ public class MoomintrollsTable extends JTable{
         for (Moomintroll moomintroll: moomintrolls) {
             add(moomintroll);
         }
+        updateTree();
+    }
+
+    public MoomintrollsCollection getMoomintrollsCollection() {
+        return moomintrollsCollection;
     }
 
     public void removeSelectedRows() {
-
         int[] rows = getSelectedRows();
         for (int i = rows.length - 1; i >= 0; i--) {
             moomintrollsDataModel.removeRow(rows[i]);
-
         }
         // TODO: remove appropriate elements from moomintrollsCollection
         updateTree();

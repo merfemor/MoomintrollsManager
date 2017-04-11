@@ -25,4 +25,10 @@ public class MoomintrollsTableModel extends DefaultTableModel {
         };
         addRow(fields);
     }
+
+    public void clear() {
+        for(int i = getRowCount() - 1; i >= 0; i--) {
+            removeRow(i);
+        }
+    }
 }

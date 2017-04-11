@@ -53,6 +53,7 @@ public class FileManager {
             if(printText) {
                 System.out.println("Can't load: \"" + path + "\" isn't exist or isn't a file");
             }
+
         } catch (Exception e) {
             if(printText) {
                 System.out.println("Can't load: undefined exception when reading file \"" + path + "\"");

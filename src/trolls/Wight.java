@@ -9,7 +9,7 @@ public abstract class Wight {
     }
     protected String name;
     protected boolean isMale;
-    protected BodyColor bodyColor;
+    protected transient BodyColor bodyColor;
     protected Color rgbBodyColor;
     protected int position;
 

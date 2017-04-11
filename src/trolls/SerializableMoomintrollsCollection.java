@@ -12,6 +12,8 @@ import java.io.Serializable;
 import java.util.Iterator;
 import java.util.PriorityQueue;
 
+import static utils.FileManager.findSimilarFileName;
+
 public class SerializableMoomintrollsCollection extends MoomintrollsCollection implements Serializable{
 
     private boolean fromJson(String json) {
@@ -35,19 +37,10 @@ public class SerializableMoomintrollsCollection extends MoomintrollsCollection i
         return JsonParser.objectToJson(this);
     }
 
-    public void saveToFile(String path) {
+    public void saveToFile(String path) throws IOException {
         System.out.println("Saving collection...");
-        if (path == null) {
-            System.out.println("File path is undefined");
-            path = FileManager.generateFileName("trolls", ".json");
-            System.out.println("File path was automatically set to \"" + path + "\"");
-        }
-        try {
-            FileManager.writeToFile(path, toJson());
-            System.out.println("Successfully saved to \"" + path + "\"");
-        } catch (IOException e) {
-            System.out.println("Failed to save: error when writing to \"" + path + "\"");
-        }
+        FileManager.writeToFile(path, toJson());
+        System.out.println("Successfully saved to \"" + path + "\"");
     }
 
 

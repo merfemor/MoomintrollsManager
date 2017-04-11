@@ -1,17 +1,27 @@
 package gui;
 
 import trolls.Moomintroll;
+import trolls.SerializableMoomintrollsCollection;
+import utils.FileManager;
 
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
+import java.io.IOException;
 import javax.swing.*;
+import javax.swing.event.MenuDragMouseEvent;
+import javax.swing.event.MenuDragMouseListener;
 
 public class MainWindow extends JFrame {
+    private String path;
+    private boolean isPathSet = false;
     private JMenuBar menuBar = new JMenuBar();
     private JMenu fileIOMenu = new JMenu("File");
     private JMenuItem load = new JMenuItem("Load"),
-    save_and_exit = new JMenuItem("Save"),
+    save = new JMenuItem("Save"),
     exit = new JMenuItem("Exit");
     private JMenu commandMenu = new JMenu("Command");
     private JMenuItem remove_first = new JMenuItem("Remove first"),
@@ -23,14 +33,15 @@ public class MainWindow extends JFrame {
     private JButton addButton = new JButton("Add"),
             removeButton = new JButton("Remove"),
             editButton = new JButton("Edit");
-    private MoomintrollsTable moomintrollsTable = new MoomintrollsTable();
+    private MoomintrollsTable moomintrollsTable;
     private MoomintrollsTree moomintrollsTree = new MoomintrollsTree(moomintrollsTable);
 
     public MainWindow() {
         super("Moomintrolls Manager");
-        initComponents();
         setSize(900, 500);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
+        moomintrollsTable = new MoomintrollsTable(new SerializableMoomintrollsCollection());
+        initComponents();
     }
 
     private void initComponents() {
@@ -42,7 +53,7 @@ public class MainWindow extends JFrame {
         setJMenuBar(menuBar);
         menuBar.add(fileIOMenu);
         fileIOMenu.add(load);
-        fileIOMenu.add(save_and_exit);
+        fileIOMenu.add(save);
         fileIOMenu.add(exit);
         menuBar.add(commandMenu);
         commandMenu.add(remove_first);
@@ -97,5 +108,49 @@ public class MainWindow extends JFrame {
                 moomintrollsTable.add(moomintrollToAdd);
             }
         });
+
+        save.addActionListener(actionEvent -> save());
+        load.addActionListener(actionEvent -> load());
+    }
+
+    public void save() {
+            try {
+                ((SerializableMoomintrollsCollection) moomintrollsTable.getMoomintrollsCollection()).saveToFile(path);
+                Object[] options = {"OK"};
+                JOptionPane.showOptionDialog(this,
+                        "Successfully saved into \"" + path + "\"",
+                        "Successfully saved",
+                        JOptionPane.DEFAULT_OPTION,
+                        JOptionPane.INFORMATION_MESSAGE,
+                        null,
+                        options,
+                        options[0]);
+
+            }
+            catch (Exception e) {
+                if(isPathSet) {
+                    JOptionPane.showMessageDialog(null,
+                            "Failed save to \"" + path + "\"\nSelect file again.",
+                            "Error: failed to save",
+                            JOptionPane.ERROR_MESSAGE
+                    );
+                }
+                JFileChooser chooser = new JFileChooser();
+                int res = chooser.showSaveDialog(null);
+                if (res == JFileChooser.APPROVE_OPTION) {
+                    path = chooser.getSelectedFile().getPath();
+                    if(!path.endsWith(".json")) {
+                        path += ".json";
+                    }
+                    isPathSet = true;
+                    save();
+                }
+            }
+    }
+
+    public void load() {
+        SerializableMoomintrollsCollection moomintrollsCollection = new SerializableMoomintrollsCollection();
+        moomintrollsCollection.loadFromFile(path);
+        moomintrollsTable.setMoomintrollsCollection(moomintrollsCollection);
     }
 }
