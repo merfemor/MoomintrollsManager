@@ -54,7 +54,7 @@ public class MoomintrollsTable extends JTable{
     }
 
     public void setMoomintrollsCollection(MoomintrollsCollection moomintrollsCollection) {
-        removeMoomintrollsCollection();
+        clear();
         this.moomintrollsCollection = moomintrollsCollection;
         for(Moomintroll moomintroll: moomintrollsCollection) {
             moomintrollsDataModel.addRow(moomintroll);
@@ -62,9 +62,10 @@ public class MoomintrollsTable extends JTable{
         updateTree();
     }
 
-    public void removeMoomintrollsCollection() {
-        this.moomintrollsCollection = null;
+    public void clear() {
+        this.moomintrollsCollection.clear();
         moomintrollsDataModel.clear();
+        updateTree();
     }
 
     private void updateTree() {

@@ -169,7 +169,7 @@ public class MainWindow extends JFrame {
         String newPath;
 
         while (true){
-            JFileChooser chooser = new JFileChooser(path);
+            JFileChooser chooser = new JFileChooser(isPathSet? path : new File(".").getPath());
             chooser.setMultiSelectionEnabled(false);
             chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
             if (chooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
@@ -190,10 +190,11 @@ public class MainWindow extends JFrame {
                     break;
                 } catch (Exception e) {
                     JOptionPane.showMessageDialog(this,
-                            "Failed to save into " + newPath + "\nSelect file again.",
+                            "Failed to save into \n" + newPath + "\nSelect file again.",
                             "Error: failed to save",
                             JOptionPane.ERROR_MESSAGE
                     );
+                    e.printStackTrace();
                 }
             } else { // pushed "cancel" button
                 break;
@@ -220,7 +221,7 @@ public class MainWindow extends JFrame {
     }
 
     public void open() {
-        JFileChooser chooser = new JFileChooser(path);
+        JFileChooser chooser = new JFileChooser(isPathSet? path : new File(".").getPath());
         chooser.setMultiSelectionEnabled(false);
         chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
         while (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION){
@@ -254,11 +255,12 @@ public class MainWindow extends JFrame {
     }
 
     public int closeFile() {
-        if(!isPathSet && isSaved) {
+        /*if(!isPathSet && isSaved) {
             return JOptionPane.YES_OPTION;
-        }
+        } */
+        int reply = JOptionPane.YES_OPTION;
         if(!isSaved) {
-            int reply  = JOptionPane.showConfirmDialog(this,
+            reply  = JOptionPane.showConfirmDialog(this,
                     "Current collection is not saved.\nDo you want to save it before closing?",
                     "Warning: unsaved collection",
                     JOptionPane.YES_NO_CANCEL_OPTION,
@@ -266,15 +268,17 @@ public class MainWindow extends JFrame {
             );
             if(reply == JOptionPane.YES_OPTION) {
                 save();
+            } else if (reply == JOptionPane.CANCEL_OPTION) {
+                return JOptionPane.CANCEL_OPTION;
             }
-            return JOptionPane.CANCEL_OPTION;
         }
         path = NO_PATH;
         isPathSet = false;
         isSaved = true;
-        moomintrollsTable.removeMoomintrollsCollection();
+        moomintrollsTable.clear();
+        moomintrollsTable.setMoomintrollsCollection(new SerializableMoomintrollsCollection());
         updateTitle();
-        return JOptionPane.YES_OPTION;
+        return reply;
     }
 
     public void updateTitle() {
