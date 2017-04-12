@@ -3,6 +3,7 @@ package gui;
 import trolls.Moomintroll;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
+import java.awt.*;
 
 public class MoomintrollsTableModel extends DefaultTableModel {
     MoomintrollsTableModel() {
@@ -30,5 +31,19 @@ public class MoomintrollsTableModel extends DefaultTableModel {
         for(int i = getRowCount() - 1; i >= 0; i--) {
             removeRow(i);
         }
+    }
+
+    @Override
+    public boolean isCellEditable(int row, int column) {
+        return false;
+    }
+
+    @Override
+    public Class<?> getColumnClass(int column) {
+        // TODO: beautiful sorting for Colour column
+        if (column == 4) {
+            return Integer.class;
+        }
+        return super.getColumnClass(column);
     }
 }
