@@ -1,6 +1,5 @@
 package gui;
 
-import trolls.Moomintroll;
 import trolls.SerializableMoomintrollsCollection;
 import utils.FileManager;
 import utils.Random;
@@ -11,7 +10,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
 import javax.swing.*;
@@ -111,9 +109,16 @@ public class MainWindow extends JFrame {
     }
 
     public void add() {
-        Moomintroll moomintrollToAdd = Random.randomTroll();
-        // TODO: create add dialog
-        moomintrollsTable.add(moomintrollToAdd);
+        MoomintrollsFrame moomintrollsFrame = new MoomintrollsFrame();
+        if(moomintrollsFrame.showAddDialog(this) == MoomintrollsFrame.OK) {
+            moomintrollsTable.add(moomintrollsFrame.getMoomintroll());
+            isSaved = false;
+            updateTitle();
+        }
+    }
+
+    public void addRandom() {
+        moomintrollsTable.add(Random.randomTroll());
         isSaved = false;
         updateTitle();
     }
