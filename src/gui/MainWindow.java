@@ -205,7 +205,7 @@ public class MainWindow extends JFrame {
         Object[] options = {"OK"};
         if(showDialog) {
             JOptionPane.showOptionDialog(this,
-                    "Successfully saved into " + path,
+                    "Successfully saved into\n" + path,
                     "Successfully saved",
                     JOptionPane.DEFAULT_OPTION,
                     JOptionPane.INFORMATION_MESSAGE,
@@ -266,9 +266,8 @@ public class MainWindow extends JFrame {
             );
             if(reply == JOptionPane.YES_OPTION) {
                 save();
-            } else if (reply == JOptionPane.CANCEL_OPTION) {
-                return JOptionPane.CANCEL_OPTION;
             }
+            return JOptionPane.CANCEL_OPTION;
         }
         path = NO_PATH;
         isPathSet = false;
