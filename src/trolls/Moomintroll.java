@@ -1,5 +1,6 @@
 package trolls;
 
+import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -44,6 +45,14 @@ public class Moomintroll extends Wight implements BowTo, Emotionable, Comparable
         maxDistance.put(Action.handshake, 0);
         maxDistance.put(Action.hug, 0);
         this.kindness = Kindness.NORMAL;
+    }
+
+    public Moomintroll(String name, boolean isMale, int position, Color bodyColor, Kindness kindness) {
+        super(name);
+        this.isMale = isMale;
+        this.position = position;
+        this.rgbBodyColor = bodyColor;
+        this.kindness = kindness;
     }
 
     public void stepForward() {

@@ -3,15 +3,15 @@ package trolls;
 public class Kindness implements Comparable<Kindness> {
     protected int kindness;
     public static final Kindness DEVIL = new Kindness(-666);
-    public static final Kindness VERY_BAD = new Kindness(-100);
-    public static final Kindness BULLY = new Kindness(-50);
-    public static final Kindness BAD = new Kindness(-25);
+    public static final Kindness VERY_BAD = new Kindness(-500);
+    public static final Kindness BULLY = new Kindness(-320);
+    public static final Kindness BAD = new Kindness(-150);
     public static final Kindness NORMAL = new Kindness(0);
-    public static final Kindness GOOD = new Kindness(25);
-    public static final Kindness GREAT = new Kindness(50);
-    public static final Kindness BEAUTIFUL = new Kindness(75);
-    public static final Kindness BRILLIANT = new Kindness(100);
-    public static final Kindness ANGEL = new Kindness(200);
+    public static final Kindness GOOD = new Kindness(140);
+    public static final Kindness GREAT = new Kindness(280);
+    public static final Kindness BEAUTIFUL = new Kindness(420);
+    public static final Kindness BRILLIANT = new Kindness(560);
+    public static final Kindness ANGEL = new Kindness(700);
 
     public Kindness(final int kindness) {
         this.kindness = kindness;

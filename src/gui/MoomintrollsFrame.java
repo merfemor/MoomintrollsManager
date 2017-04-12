@@ -1,9 +1,15 @@
 package gui;
 
+import trolls.Kindness;
 import trolls.Moomintroll;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.Hashtable;
 
 public class MoomintrollsFrame extends JPanel {
     public static int OK = JOptionPane.OK_OPTION;
@@ -14,88 +20,128 @@ public class MoomintrollsFrame extends JPanel {
     private JLabel nameLabel = new JLabel("Name"),
             positionLabel = new JLabel("Position"),
             kindnessLabel = new JLabel("Kindness"),
-            colorTextLabel = new JLabel("Body Color: "),
+            colorTextLabel = new JLabel("Body Color"),
             colorLabel = new JLabel(),
             genderLabel = new JLabel("Gender");
-    private JTextField nameField = new JTextField(15);
-    private JSpinner positionSpinner = new JSpinner();
+    private JColorChooser colorChooser = new JColorChooser();
+    private JTextField nameField = new JTextField(13);
+    private JSpinner positionSpinner;
     private JButton okButton = new JButton("OK"),
             cancelButton = new JButton("Cancel"),
             colorButton = new JButton("Choose");
-    private JSlider kindnessSlider = new JSlider();
+    private JSlider kindnessSlider = new JSlider(
+            JSlider.HORIZONTAL,
+            Kindness.DEVIL.value(),
+            Kindness.ANGEL.value(),
+            Kindness.NORMAL.value()
+    );
     private JToolBar buttonsToolBar = new JToolBar();
     private ButtonGroup genderButtons = new ButtonGroup();
     private JRadioButton genderMaleButton = new JRadioButton("male"),
             genderFemaleButton = new JRadioButton("female");
 
     public MoomintrollsFrame() {
-        super(new GridLayout(5, 0, 10, 10));
-        initComponents();
-    }
-
-    private void initComponents() {
+        super(new GridLayout(5, 0, 0, 8));
         add(nameLabel);
         add(nameField);
 
         add(genderLabel);
         genderButtons.add(genderMaleButton);
         genderButtons.add(genderFemaleButton);
-        JPanel genderButtonsPanel = new JPanel(new GridLayout(1, 2));
+        JPanel genderButtonsPanel = new JPanel(new GridLayout(1, 2, 15, 10));
         genderButtonsPanel.add(genderMaleButton);
         genderButtonsPanel.add(genderFemaleButton);
         add(genderButtonsPanel);
 
         add(colorTextLabel);
-        JPanel colorPanel = new JPanel(new GridLayout(1, 2));
+        JPanel colorPanel = new JPanel(new GridLayout(1, 2, 45, 15));
         colorPanel.add(colorLabel);
+        colorLabel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        colorLabel.setOpaque(true);
         colorPanel.add(colorButton);
+
+        colorButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent mouseEvent) {
+                int res = JOptionPane.showConfirmDialog(
+                        colorButton,
+                        colorChooser,
+                        "Choose color",
+                        JOptionPane.OK_CANCEL_OPTION,
+                        JOptionPane.PLAIN_MESSAGE
+                );
+                if(res == JOptionPane.OK_OPTION) {
+                    colorLabel.setBackground(colorChooser.getColor());
+                }
+            }
+        });
         add(colorPanel);
 
         add(kindnessLabel);
+        Hashtable <Integer, JLabel> values = new Hashtable<>();
+        values.put(kindnessSlider.getMaximum(), new JLabel("angel"));
+        values.put((kindnessSlider.getMaximum() + kindnessSlider.getMinimum()) / 2,
+                new JLabel(Kindness.NORMAL.toString()));
+        values.put(kindnessSlider.getMinimum(), new JLabel("devil"));
+        kindnessSlider.setLabelTable(values);
+        kindnessSlider.setPaintLabels(true);
         add(kindnessSlider);
 
         add(positionLabel);
+        positionSpinner= new JSpinner(new SpinnerNumberModel(
+                 0, Integer.MIN_VALUE, Integer.MAX_VALUE, 1
+        ));
+        positionSpinner.setEditor(new JSpinner.NumberEditor(positionSpinner));
+        ((JSpinner.NumberEditor)positionSpinner.getEditor()).getTextField().addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyTyped(KeyEvent keyEvent) {
+                char c = keyEvent.getKeyChar();
+                if(!Character.isDigit(c) && c != KeyEvent.VK_BACK_SPACE && c != KeyEvent.VK_MINUS) {
+                    keyEvent.consume();
+                }
+            }
+        });
         add(positionSpinner);
+
+        // set defaults
+        genderMaleButton.setSelected(true);
+        positionSpinner.setValue(0);
+        colorLabel.setBackground(Color.LIGHT_GRAY);
+
+        kindnessSlider.setValue((kindnessSlider.getMaximum() + kindnessSlider.getMinimum()) / 2);
     }
 
     public int showAddDialog(Component owner) {
-        int result = JOptionPane.showConfirmDialog(
-                owner,
-                this,
-                "Add",
-                JOptionPane.OK_CANCEL_OPTION,
-                JOptionPane.PLAIN_MESSAGE
-        );
-
-        //TODO: add actions
-
-        return result;
+        return showEditDialog(owner, null);
     }
 
     public int showEditDialog(Component owner, Moomintroll moomintroll) {
-        // TODO: set components fields to moomintrolls fields values
+        String title = "Add";
+        if(moomintroll != null) {
+            title = "Edit" + moomintroll.getName();
+            // TODO: set components fields to moomintrolls fields values
+        }
 
         int result = JOptionPane.showConfirmDialog(
                 owner,
                 this,
-                "Edit: " + moomintroll.getName(),
+                title,
                 JOptionPane.OK_CANCEL_OPTION,
                 JOptionPane.PLAIN_MESSAGE
         );
-
-        // TODO: edit actions
-
+        if(result == JOptionPane.OK_OPTION) {
+            parseMoomintroll();
+        }
         return result;
     }
 
-    /**
-     * Parse moomintroll from components content
-     * @return true - if successfully parsed, else - false
-     */
-    private boolean parseMoomintroll() {
-        // TODO: check components
-
-        return true;
+    private void parseMoomintroll() {
+        moomintroll = new Moomintroll(nameField.getText(),
+                genderMaleButton.isSelected(),
+                (int) positionSpinner.getValue(),
+                colorLabel.getBackground(),
+                new Kindness(kindnessSlider.getValue())
+        );
     }
 
     public Moomintroll getMoomintroll() {
