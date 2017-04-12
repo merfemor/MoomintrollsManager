@@ -10,7 +10,7 @@ import java.io.Serializable;
 
 public class SerializableMoomintrollsCollection extends MoomintrollsCollection implements Serializable{
 
-    public SerializableMoomintrollsCollection(String json) throws Exception {
+    public SerializableMoomintrollsCollection(String json) {
         super();
         fromJson(json);
     }

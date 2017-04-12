@@ -10,6 +10,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
 import javax.swing.*;
@@ -17,6 +18,8 @@ import javax.swing.*;
 public class MainWindow extends JFrame {
     private final String NO_PATH = "New Collection";
     private final String NO_PATH_UNSAVED = "Unsaved Collection";
+    private String ENV_NAME;
+    private String PROPERTY_NAME = "MOOMINTROLLS_MANAGER_COLLECTION_PATH";
     private String path = NO_PATH;
     private boolean isPathSet = false;
     private boolean isSaved = true;
@@ -38,8 +41,9 @@ public class MainWindow extends JFrame {
     private MoomintrollsTable moomintrollsTable;
     private MoomintrollsTree moomintrollsTree = new MoomintrollsTree(moomintrollsTable);
 
-    public MainWindow() {
+    public MainWindow(String pathVariableName) {
         super("Moomintrolls Manager");
+        this.ENV_NAME = pathVariableName;
         setSize(900, 500);
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         moomintrollsTable = new MoomintrollsTable(new SerializableMoomintrollsCollection());
@@ -85,6 +89,9 @@ public class MainWindow extends JFrame {
                 removeSelected();
             }
         });
+        moomintrollsTable.getSelectionModel().addListSelectionListener(listSelectionEvent -> {
+            removeButton.setEnabled(moomintrollsTable.getSelectedRows().length == 0);
+        });
         addButton.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent mouseEvent) {
@@ -105,7 +112,25 @@ public class MainWindow extends JFrame {
                     System.exit(0);
                 }
             }
+
+            @Override
+            public void windowOpened(WindowEvent windowEvent) {
+                if(loadFromEnv(ENV_NAME)) {
+                    System.out.println("Successful loading " + path + " from env \"" + ENV_NAME + "\"");
+                } else {
+                    System.out.println("Failed to load from env");
+                }
+            }
         });
+    }
+
+    public boolean loadFromEnv(String envName) {
+        try {
+            successfullLoad(new File(System.getenv(envName)));
+            return true;
+        } catch (Exception ignored) {
+            return false;
+        }
     }
 
     public void add() {
@@ -217,6 +242,18 @@ public class MainWindow extends JFrame {
         isSaved = true;
         isPathSet = true;
         this.path = path;
+        System.setProperty(PROPERTY_NAME, path);
+        updateTitle();
+    }
+
+    private void successfullLoad(File file) throws FileNotFoundException {
+        String fileContent = FileManager.readFromFile(file.getPath());
+        SerializableMoomintrollsCollection moomintrollsCollection = new SerializableMoomintrollsCollection(fileContent);
+        moomintrollsTable.setMoomintrollsCollection(moomintrollsCollection);
+        path = file.getPath();
+        isPathSet = true;
+        isSaved = true;
+        System.setProperty(PROPERTY_NAME, path);
         updateTitle();
     }
 
@@ -226,15 +263,8 @@ public class MainWindow extends JFrame {
         chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
         while (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION){
             File file = chooser.getSelectedFile();
-            String fileContent;
             try {
-                fileContent = FileManager.readFromFile(file.getPath());
-                SerializableMoomintrollsCollection moomintrollsCollection = new SerializableMoomintrollsCollection(fileContent);
-                moomintrollsTable.setMoomintrollsCollection(moomintrollsCollection);
-                path = file.getPath();
-                isPathSet = true;
-                isSaved = true;
-                updateTitle();
+                successfullLoad(file);
                 break;
             } catch (IOException e) {
                 JOptionPane.showMessageDialog(this,
@@ -242,22 +272,17 @@ public class MainWindow extends JFrame {
                         "Error: failed to open",
                         JOptionPane.ERROR_MESSAGE
                 );
-                e.printStackTrace();
             } catch (Exception e) {
                 JOptionPane.showMessageDialog(this,
                         "Failed to read " + file.getPath() + "\nFile is in the wrong format.\nSelect file again.",
                         "Error: failed to read",
                         JOptionPane.ERROR_MESSAGE
                 );
-                e.printStackTrace();
             }
         }
     }
 
     public int closeFile() {
-        /*if(!isPathSet && isSaved) {
-            return JOptionPane.YES_OPTION;
-        } */
         int reply = JOptionPane.YES_OPTION;
         if(!isSaved) {
             reply  = JOptionPane.showConfirmDialog(this,
