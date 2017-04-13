@@ -19,7 +19,7 @@ class MoomintrollsTreeModel extends DefaultTreeModel {
         node.insert(new DefaultMutableTreeNode("gender: " + (moomintroll.isMale()? "male" : "female") ), 0);
         node.insert(new DefaultMutableTreeNode("position: " + moomintroll.getPosition()), 1);
         node.insert(new DefaultMutableTreeNode("kindness: " + moomintroll.getKindness().toString()), 2);
-        // TODO: fix color property view
+        // TODO: make color property view
         node.insert(new DefaultMutableTreeNode("color"), 3);
         return node;
     }

@@ -16,6 +16,9 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 public class MainWindow extends JFrame {
+    // TODO: add collection filtering
+    // TODO: add threads for i/o methods
+
     private final String NO_PATH = "New Collection";
     private final String NO_PATH_UNSAVED = "Unsaved Collection";
     private String ENV_NAME;
@@ -92,7 +95,6 @@ public class MainWindow extends JFrame {
         contentPane.add(treeScrollPane, BorderLayout.WEST);
         MoomintrollsFrame.setDefaultNewMoomintrollName("Unknown");
 
-        // TODO: same action for tree selection
         removeButton.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent mouseEvent) {

@@ -83,10 +83,6 @@ public class MoomintrollsTable extends JTable{
         if(moomintrollsTree == null) {
             return;
         }
-
-        // TODO: idea: remove moomintrollsCollection and store only moomintrolls data
-        // TODO: idea: make special class for converting Moomintroll to Object[] data and vice versa
-        // TODO: or: make moomintrolls indexes
         moomintrollsTree.removeAll();
         for(int i = 0; i < getRowCount(); i++) {
             moomintrollsTree.add(getRow(i));
