@@ -23,7 +23,7 @@ public class Kindness implements Comparable<Kindness> {
 
     @Override
     public String toString() {
-        if(kindness <= DEVIL.kindness) return "DEVIL IN THE FLESH!!";
+        if(kindness <= DEVIL.kindness) return "devil";
         else if(kindness <= VERY_BAD.kindness) return "very bad";
         else if(kindness <= BULLY.kindness) return "bully";
         else if(kindness <= BAD.kindness) return "bad";

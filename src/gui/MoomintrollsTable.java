@@ -7,6 +7,7 @@ import utils.Random;
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumn;
+import javax.swing.table.TableRowSorter;
 import java.awt.*;
 
 public class MoomintrollsTable extends JTable{
@@ -51,6 +52,12 @@ public class MoomintrollsTable extends JTable{
         }
     }
 
+    public void setRowSorter(MoomintrollsRowFilter moomintrollsRowFilter) {
+        ((TableRowSorter)getRowSorter()).setRowFilter(moomintrollsRowFilter);
+        reloadTable();
+        reloadTree();
+    }
+
     public void registerMoomintrollsTree(MoomintrollsTree tree) {
         this.moomintrollsTree = tree;
         reloadTree();
@@ -59,8 +66,16 @@ public class MoomintrollsTable extends JTable{
     private void reloadCollection() {
         this.moomintrollsCollection.clear();
         int rows = moomintrollsDataModel.getRowCount();
+
         for(int i = 0; i < rows; i++) {
             moomintrollsCollection.add(moomintrollsDataModel.getRow(i));
+        }
+    }
+
+    private void reloadTable() {
+        moomintrollsDataModel.clear();
+        for(Moomintroll moomintroll: moomintrollsCollection) {
+            moomintrollsDataModel.addRow(moomintroll);
         }
     }
 
