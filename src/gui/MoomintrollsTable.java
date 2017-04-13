@@ -88,15 +88,16 @@ public class MoomintrollsTable extends JTable{
         // TODO: idea: make special class for converting Moomintroll to Object[] data and vice versa
         // TODO: or: make moomintrolls indexes
         moomintrollsTree.removeAll();
-        for(Moomintroll moomintroll: moomintrollsCollection) {
-            moomintrollsTree.add(moomintroll);
+        for(int i = 0; i < getRowCount(); i++) {
+            moomintrollsTree.add(getRow(i));
         }
     }
 
     public void addRow(Moomintroll moomintroll) {
         moomintrollsCollection.add(moomintroll);
         moomintrollsDataModel.addRow(moomintroll);
-        reloadTree();
+        if(moomintrollsTree != null)
+            moomintrollsTree.add(moomintroll);
     }
 
 

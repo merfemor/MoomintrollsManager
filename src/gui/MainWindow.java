@@ -39,19 +39,21 @@ public class MainWindow extends JFrame {
             removeButton = new JButton("Remove"),
             editButton = new JButton("Edit");
     private MoomintrollsTable moomintrollsTable;
-    private MoomintrollsTree moomintrollsTree = new MoomintrollsTree(moomintrollsTable);
+    private MoomintrollsTree moomintrollsTree;
 
     public MainWindow(String pathVariableName) {
         super("Moomintrolls Manager");
         this.ENV_NAME = pathVariableName;
         setSize(900, 500);
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-        moomintrollsTable = new MoomintrollsTable(new SerializableMoomintrollsCollection());
         initComponents();
         updateTitle();
     }
 
     private void initComponents() {
+        moomintrollsTable = new MoomintrollsTable(new SerializableMoomintrollsCollection());
+        moomintrollsTree = new MoomintrollsTree(moomintrollsTable);
+        moomintrollsTable.registerMoomintrollsTree(moomintrollsTree);
 
         Container contentPane = getContentPane();
         contentPane.setLayout(new BorderLayout());
@@ -88,7 +90,6 @@ public class MainWindow extends JFrame {
         contentPane.add(tableScrollPane, BorderLayout.CENTER);
         JScrollPane treeScrollPane = new JScrollPane(moomintrollsTree);
         contentPane.add(treeScrollPane, BorderLayout.WEST);
-        moomintrollsTable.registerMoomintrollsTree(moomintrollsTree);
         MoomintrollsFrame.setDefaultNewMoomintrollName("Unknown");
 
         // TODO: same action for tree selection
