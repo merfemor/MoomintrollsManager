@@ -100,9 +100,9 @@ public class MainWindow extends JFrame {
             }
         });
         moomintrollsTable.getSelectionModel().addListSelectionListener(listSelectionEvent -> {
-            boolean somethingSelected = moomintrollsTable.getSelectedRows().length != 0;
-            removeButton.setEnabled(somethingSelected);
-            editButton.setEnabled(somethingSelected);
+            int selectedRowsNum = moomintrollsTable.getSelectedRows().length;
+            removeButton.setEnabled(selectedRowsNum > 0);
+            editButton.setEnabled(selectedRowsNum == 1);
         });
         addButton.addMouseListener(new MouseAdapter() {
             @Override
