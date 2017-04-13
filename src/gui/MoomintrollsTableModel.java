@@ -55,6 +55,10 @@ public class MoomintrollsTableModel extends DefaultTableModel {
         addRow(moomintrollToData(moomintroll));
     }
 
+    public void insertRow(int row, Moomintroll moomintroll) {
+        insertRow(row, moomintrollToData(moomintroll));
+    }
+
     public void clear() {
         for(int i = getRowCount() - 1; i >= 0; i--) {
             removeRow(i);

@@ -1,5 +1,6 @@
 package gui;
 
+import trolls.Moomintroll;
 import trolls.SerializableMoomintrollsCollection;
 import utils.FileManager;
 import utils.Random;
@@ -53,7 +54,7 @@ public class MainWindow extends JFrame {
         Container contentPane = getContentPane();
         contentPane.setLayout(new BorderLayout());
 
-        // add menu items
+        // addRow menu items
         save.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK));
         open.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, KeyEvent.CTRL_DOWN_MASK));
         close.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, KeyEvent.CTRL_DOWN_MASK));
@@ -71,6 +72,7 @@ public class MainWindow extends JFrame {
         tableMenu.add(add_if_max);
 
         removeButton.setEnabled(false);
+        editButton.setEnabled(false);
         toolBar.add(addButton);
         toolBar.add(removeButton);
         toolBar.add(editButton);
@@ -93,12 +95,23 @@ public class MainWindow extends JFrame {
             }
         });
         moomintrollsTable.getSelectionModel().addListSelectionListener(listSelectionEvent -> {
-            removeButton.setEnabled(moomintrollsTable.getSelectedRows().length != 0);
+            boolean somethingSelected = moomintrollsTable.getSelectedRows().length != 0;
+            removeButton.setEnabled(somethingSelected);
+            editButton.setEnabled(somethingSelected);
         });
         addButton.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent mouseEvent) {
                 add();
+            }
+        });
+        editButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent mouseEvent) {
+                if(editButton.isEnabled()) {
+                    int row = moomintrollsTable.getSelectedRow();
+                    editRow(row);
+                }
             }
         });
 
@@ -111,7 +124,7 @@ public class MainWindow extends JFrame {
         getRootPane().getActionMap().put(ADD_RANDOM, new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                moomintrollsTable.add(Random.randomTroll());
+                moomintrollsTable.addRow(Random.randomTroll());
             }
         });
 
@@ -152,14 +165,14 @@ public class MainWindow extends JFrame {
     public void add() {
         MoomintrollsFrame moomintrollsFrame = new MoomintrollsFrame();
         if(moomintrollsFrame.showAddDialog(this) == MoomintrollsFrame.OK) {
-            moomintrollsTable.add(moomintrollsFrame.getMoomintroll());
+            moomintrollsTable.addRow(moomintrollsFrame.getMoomintroll());
             isSaved = false;
             updateTitle();
         }
     }
 
     public void addRandom() {
-        moomintrollsTable.add(Random.randomTroll());
+        moomintrollsTable.addRow(Random.randomTroll());
         isSaved = false;
         updateTitle();
     }
@@ -188,6 +201,15 @@ public class MainWindow extends JFrame {
         }
         isSaved = false;
         updateTitle();
+    }
+
+    public void editRow(int row) {
+        Moomintroll moomintroll = moomintrollsTable.getRow(row);
+        MoomintrollsFrame editFrame = new MoomintrollsFrame();
+        if (editFrame.showEditDialog(this, moomintroll)
+                == MoomintrollsFrame.OK) {
+            moomintrollsTable.setRow(row, editFrame.getMoomintroll());
+        }
     }
 
     public void save() {

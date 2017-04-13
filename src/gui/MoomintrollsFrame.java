@@ -15,7 +15,6 @@ public class MoomintrollsFrame extends JPanel {
     public static int OK = JOptionPane.OK_OPTION;
     public static int CANCEL = JOptionPane.CANCEL_OPTION;
     private static String DEFAULT_NEW_MOOMINTROLL_NAME = "Moomintroll";
-    private JFrame owner;
     private Moomintroll moomintroll;
 
     private JLabel nameLabel = new JLabel("Name"),
@@ -114,14 +113,21 @@ public class MoomintrollsFrame extends JPanel {
         if(moomintroll == null) {
             title = "Add";
             // set defaults
+            nameField.setText(DEFAULT_NEW_MOOMINTROLL_NAME);
             genderMaleButton.setSelected(true);
             positionSpinner.setValue(0);
             colorLabel.setBackground(Color.LIGHT_GRAY);
             kindnessSlider.setValue((kindnessSlider.getMaximum() + kindnessSlider.getMinimum()) / 2);
-            nameField.setText(DEFAULT_NEW_MOOMINTROLL_NAME);
         } else {
             title = "Edit" + moomintroll.getName();
-            // TODO: set components fields to moomintrolls fields values
+            nameField.setText(moomintroll.getName());
+            if(moomintroll.isMale())
+                genderMaleButton.setSelected(true);
+            else
+                genderFemaleButton.setSelected(true);
+            positionSpinner.setValue(moomintroll.getPosition());
+            colorLabel.setBackground(moomintroll.getRgbBodyColor());
+            kindnessSlider.setValue(moomintroll.getKindness().value());
         }
 
         int result = JOptionPane.showConfirmDialog(

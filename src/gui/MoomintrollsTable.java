@@ -91,10 +91,22 @@ public class MoomintrollsTable extends JTable{
         }
     }
 
-    public void add(Moomintroll moomintroll) {
+    public void addRow(Moomintroll moomintroll) {
         moomintrollsCollection.add(moomintroll);
         moomintrollsDataModel.addRow(moomintroll);
         reloadTree();
+    }
+
+
+    public void setRow(int row, Moomintroll moomintroll) {
+        moomintrollsDataModel.removeRow(row);
+        moomintrollsDataModel.insertRow(row, moomintroll);
+        reloadCollection();
+        reloadTree();
+    }
+
+    public Moomintroll getRow(int row) {
+        return moomintrollsDataModel.getRow(row);
     }
 
     public MoomintrollsCollection getMoomintrollsCollection() {
