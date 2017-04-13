@@ -38,10 +38,11 @@ public class MoomintrollsTableModel extends DefaultTableModel {
     }
 
     public Moomintroll getRow(int row) {
-        String kindness = getValueAt(row, 3).toString();
-        kindness = kindness.substring(kindness.indexOf('[') + 1, kindness.indexOf(']'));
         TableCellRenderer cellRenderer = table.getCellRenderer(row, 2);
         Color bodyColor = table.prepareRenderer(cellRenderer, row, 2).getBackground();
+        row = table.getRowSorter().convertRowIndexToModel(row);
+        String kindness = getValueAt(row, 3).toString();
+        kindness = kindness.substring(kindness.indexOf('[') + 1, kindness.indexOf(']'));
         return new Moomintroll(
                 getValueAt(row, 0).toString(),
                 getValueAt(row, 1).toString().equals("male"),

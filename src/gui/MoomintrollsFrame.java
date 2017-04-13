@@ -119,7 +119,7 @@ public class MoomintrollsFrame extends JPanel {
             colorLabel.setBackground(Color.LIGHT_GRAY);
             kindnessSlider.setValue((kindnessSlider.getMaximum() + kindnessSlider.getMinimum()) / 2);
         } else {
-            title = "Edit" + moomintroll.getName();
+            title = "Edit " + moomintroll.getName();
             nameField.setText(moomintroll.getName());
             if(moomintroll.isMale())
                 genderMaleButton.setSelected(true);

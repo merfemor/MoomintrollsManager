@@ -101,6 +101,7 @@ public class MoomintrollsTable extends JTable{
 
 
     public void setRow(int row, Moomintroll moomintroll) {
+        row = getRowSorter().convertRowIndexToModel(row);
         moomintrollsDataModel.removeRow(row);
         moomintrollsDataModel.insertRow(row, moomintroll);
         reloadCollection();
