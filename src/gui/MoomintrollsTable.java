@@ -109,10 +109,12 @@ public class MoomintrollsTable extends JTable{
     }
 
     public Moomintroll getRow(int row) {
-        int selectedRow = getSelectedRow();
+        int[] selectedRows = getSelectedRows();
         clearSelection();
         Moomintroll moomintroll = moomintrollsDataModel.getRow(row);
-        setRowSelectionInterval(selectedRow, selectedRow);
+        for (int selectedRow : selectedRows) {
+            setRowSelectionInterval(selectedRow, selectedRow);
+        }
         return moomintroll;
     }
 

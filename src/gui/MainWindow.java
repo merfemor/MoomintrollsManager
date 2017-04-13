@@ -12,8 +12,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 public class MainWindow extends JFrame {
     // TODO: add collection filtering
@@ -22,7 +20,6 @@ public class MainWindow extends JFrame {
     private final String NO_PATH = "New Collection";
     private final String NO_PATH_UNSAVED = "Unsaved Collection";
     private String ENV_NAME;
-    private String PROPERTY_NAME = "MOOMINTROLLS_MANAGER_COLLECTION_PATH";
     private String path = NO_PATH;
     private boolean isPathSet = false;
     private boolean isSaved = true;
@@ -292,7 +289,6 @@ public class MainWindow extends JFrame {
         isSaved = true;
         isPathSet = true;
         this.path = path;
-        System.setProperty(PROPERTY_NAME, path);
         updateTitle();
     }
 
@@ -303,7 +299,6 @@ public class MainWindow extends JFrame {
         path = file.getPath();
         isPathSet = true;
         isSaved = true;
-        System.setProperty(PROPERTY_NAME, path);
         updateTitle();
     }
 
