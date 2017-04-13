@@ -82,7 +82,7 @@ public class MainWindow extends JFrame {
         JScrollPane jScrollPane1 = new JScrollPane(moomintrollsTree);
         contentPane.add(jScrollPane1, BorderLayout.WEST);
         moomintrollsTable.registerMoomintrollsTree(moomintrollsTree);
-
+        MoomintrollsFrame.setDefaultNewMoomintrollName("Unknown");
 
         // TODO: same action for tree selection
         removeButton.addMouseListener(new MouseAdapter() {

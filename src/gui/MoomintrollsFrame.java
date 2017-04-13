@@ -14,6 +14,7 @@ import java.util.Hashtable;
 public class MoomintrollsFrame extends JPanel {
     public static int OK = JOptionPane.OK_OPTION;
     public static int CANCEL = JOptionPane.CANCEL_OPTION;
+    private static String DEFAULT_NEW_MOOMINTROLL_NAME = "Moomintroll";
     private JFrame owner;
     private Moomintroll moomintroll;
 
@@ -102,13 +103,6 @@ public class MoomintrollsFrame extends JPanel {
             }
         });
         add(positionSpinner);
-
-        // set defaults
-        genderMaleButton.setSelected(true);
-        positionSpinner.setValue(0);
-        colorLabel.setBackground(Color.LIGHT_GRAY);
-
-        kindnessSlider.setValue((kindnessSlider.getMaximum() + kindnessSlider.getMinimum()) / 2);
     }
 
     public int showAddDialog(Component owner) {
@@ -116,8 +110,16 @@ public class MoomintrollsFrame extends JPanel {
     }
 
     public int showEditDialog(Component owner, Moomintroll moomintroll) {
-        String title = "Add";
-        if(moomintroll != null) {
+        String title;
+        if(moomintroll == null) {
+            title = "Add";
+            // set defaults
+            genderMaleButton.setSelected(true);
+            positionSpinner.setValue(0);
+            colorLabel.setBackground(Color.LIGHT_GRAY);
+            kindnessSlider.setValue((kindnessSlider.getMaximum() + kindnessSlider.getMinimum()) / 2);
+            nameField.setText(DEFAULT_NEW_MOOMINTROLL_NAME);
+        } else {
             title = "Edit" + moomintroll.getName();
             // TODO: set components fields to moomintrolls fields values
         }
@@ -146,5 +148,9 @@ public class MoomintrollsFrame extends JPanel {
 
     public Moomintroll getMoomintroll() {
         return moomintroll;
+    }
+
+    public static void setDefaultNewMoomintrollName(String defaultNewMoomintrollName) {
+        DEFAULT_NEW_MOOMINTROLL_NAME = defaultNewMoomintrollName;
     }
 }
