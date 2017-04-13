@@ -6,21 +6,29 @@ import utils.Random;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableColumn;
 import java.awt.*;
 
 public class MoomintrollsTable extends JTable{
     class ColorRenderer extends DefaultTableCellRenderer {
         public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int col)  {
             Color color = table.getBackground();
+            boolean isColorCell = false;
             if(value instanceof Color) {
+                isColorCell = true;
                 color = (Color) value;
-                value = " ";
+                value = Integer.toString(color.getRGB());
             }
-            Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, col);
+            Component c = super.getTableCellRendererComponent(table, value, isSelected, false, row, col);
             if(isSelected) {
                 color = color.darker();
             }
             c.setBackground(color);
+            Color foregroundColor = table.getForeground();
+            if(isColorCell) {
+                foregroundColor = c.getBackground();
+            }
+            c.setForeground(foregroundColor);
             return c;
         }
     }
@@ -29,18 +37,11 @@ public class MoomintrollsTable extends JTable{
     private MoomintrollsTableModel moomintrollsDataModel;
     private MoomintrollsTree moomintrollsTree;
 
-    MoomintrollsTable() {
-        super(new MoomintrollsTableModel());
-        moomintrollsDataModel = (MoomintrollsTableModel) dataModel;
-        setDefaultRenderer(Object.class, new ColorRenderer());
-        setAutoCreateRowSorter(true);
-        moomintrollsCollection = new MoomintrollsCollection();
-    }
-
     MoomintrollsTable(MoomintrollsCollection moomintrollsCollection) {
         super(new MoomintrollsTableModel());
         moomintrollsDataModel = (MoomintrollsTableModel) dataModel;
         setDefaultRenderer(Object.class, new ColorRenderer());
+        moomintrollsDataModel.registerTable(this);
         setAutoCreateRowSorter(true);
         this.moomintrollsCollection = moomintrollsCollection;
         for(Moomintroll moomintroll: moomintrollsCollection) {
@@ -50,7 +51,15 @@ public class MoomintrollsTable extends JTable{
 
     public void registerMoomintrollsTree(MoomintrollsTree tree) {
         this.moomintrollsTree = tree;
-        updateTree();
+        reloadTree();
+    }
+
+    private void reloadCollection() {
+        this.moomintrollsCollection.clear();
+        int rows = moomintrollsDataModel.getRowCount();
+        for(int i = 0; i < rows; i++) {
+            moomintrollsCollection.add(moomintrollsDataModel.getRow(i));
+        }
     }
 
     public void setMoomintrollsCollection(MoomintrollsCollection moomintrollsCollection) {
@@ -59,16 +68,16 @@ public class MoomintrollsTable extends JTable{
         for(Moomintroll moomintroll: moomintrollsCollection) {
             moomintrollsDataModel.addRow(moomintroll);
         }
-        updateTree();
+        reloadTree();
     }
 
     public void clear() {
         this.moomintrollsCollection.clear();
         moomintrollsDataModel.clear();
-        updateTree();
+        moomintrollsTree.removeAll();
     }
 
-    private void updateTree() {
+    private void reloadTree() {
         if(moomintrollsTree == null) {
             return;
         }
@@ -83,21 +92,9 @@ public class MoomintrollsTable extends JTable{
     }
 
     public void add(Moomintroll moomintroll) {
-        if(moomintroll == null) {
-            moomintrollsCollection.add(Random.randomTroll());
-            moomintroll = moomintrollsCollection.element();
-        } else {
-            moomintrollsCollection.add(moomintroll);
-        }
+        moomintrollsCollection.add(moomintroll);
         moomintrollsDataModel.addRow(moomintroll);
-        updateTree();
-    }
-
-    public void add(Moomintroll[] moomintrolls) {
-        for (Moomintroll moomintroll: moomintrolls) {
-            add(moomintroll);
-        }
-        updateTree();
+        reloadTree();
     }
 
     public MoomintrollsCollection getMoomintrollsCollection() {
@@ -107,9 +104,9 @@ public class MoomintrollsTable extends JTable{
     public void removeSelectedRows() {
         int[] rows = getSelectedRows();
         for (int i = rows.length - 1; i >= 0; i--) {
-            moomintrollsDataModel.removeRow(rows[i]);
+            moomintrollsDataModel.removeRow(convertRowIndexToModel(rows[i]));
         }
-        // TODO: remove appropriatmoomintrollsTable.setMoomintrollsCollection(new Mo);e elements from moomintrollsCollection
-        updateTree();
+        reloadCollection();
+        reloadTree();
     }
 }

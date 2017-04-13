@@ -5,10 +5,7 @@ import utils.FileManager;
 import utils.Random;
 
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -57,6 +54,10 @@ public class MainWindow extends JFrame {
         contentPane.setLayout(new BorderLayout());
 
         // add menu items
+        save.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK));
+        open.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, KeyEvent.CTRL_DOWN_MASK));
+        close.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, KeyEvent.CTRL_DOWN_MASK));
+        saveAs.setAccelerator(KeyStroke.getKeyStroke("control shift S"));
         setJMenuBar(menuBar);
         menuBar.add(fileIOMenu);
         fileIOMenu.add(open);
@@ -69,6 +70,7 @@ public class MainWindow extends JFrame {
         tableMenu.add(remove_greater);
         tableMenu.add(add_if_max);
 
+        removeButton.setEnabled(false);
         toolBar.add(addButton);
         toolBar.add(removeButton);
         toolBar.add(editButton);
@@ -86,11 +88,12 @@ public class MainWindow extends JFrame {
         removeButton.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent mouseEvent) {
-                removeSelected();
+                if(removeButton.isEnabled())
+                    removeSelected();
             }
         });
         moomintrollsTable.getSelectionModel().addListSelectionListener(listSelectionEvent -> {
-            removeButton.setEnabled(moomintrollsTable.getSelectedRows().length == 0);
+            removeButton.setEnabled(moomintrollsTable.getSelectedRows().length != 0);
         });
         addButton.addMouseListener(new MouseAdapter() {
             @Override
@@ -103,6 +106,19 @@ public class MainWindow extends JFrame {
         saveAs.addActionListener(actionEvent -> saveAs());
         open.addActionListener(actionEvent -> { closeFile(); open(); });
         close.addActionListener(actionEvent -> closeFile());
+
+        final String ADD_RANDOM = "Add Random";
+        getRootPane().getActionMap().put(ADD_RANDOM, new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                moomintrollsTable.add(Random.randomTroll());
+            }
+        });
+
+        this.getRootPane().getInputMap().put(
+                KeyStroke.getKeyStroke("control alt R"),
+                ADD_RANDOM
+        );
 
         this.addWindowListener(new WindowAdapter() {
             @Override
