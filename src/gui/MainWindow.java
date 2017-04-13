@@ -12,6 +12,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 public class MainWindow extends JFrame {
     private final String NO_PATH = "New Collection";
@@ -30,7 +32,7 @@ public class MainWindow extends JFrame {
     private JMenu tableMenu = new JMenu("Table");
     private JMenuItem add_if_max = new JMenuItem("Add if max.."),
             remove_greater = new JMenuItem("Remove greater..");
-
+    private JCheckBoxMenuItem showTree = new JCheckBoxMenuItem("Show tree", true);
     private JToolBar toolBar = new JToolBar();
     // CRUD:
     private JButton addButton = new JButton("Add"),
@@ -67,9 +69,12 @@ public class MainWindow extends JFrame {
         fileIOMenu.add(saveAs);
         fileIOMenu.addSeparator();
         fileIOMenu.add(close);
-        menuBar.add(tableMenu);
+        JMenu viewMenu = new JMenu("View");
+        menuBar.add(viewMenu);
+        viewMenu.add(showTree);
+        /*menuBar.add(tableMenu);
         tableMenu.add(remove_greater);
-        tableMenu.add(add_if_max);
+        tableMenu.add(add_if_max);*/
 
         removeButton.setEnabled(false);
         editButton.setEnabled(false);
@@ -78,11 +83,11 @@ public class MainWindow extends JFrame {
         toolBar.add(editButton);
         toolBar.setFloatable(false);
 
-        JScrollPane jScrollPane = new JScrollPane(moomintrollsTable);
+        JScrollPane tableScrollPane = new JScrollPane(moomintrollsTable);
         contentPane.add(toolBar, BorderLayout.NORTH);
-        contentPane.add(jScrollPane, BorderLayout.CENTER);
-        JScrollPane jScrollPane1 = new JScrollPane(moomintrollsTree);
-        contentPane.add(jScrollPane1, BorderLayout.WEST);
+        contentPane.add(tableScrollPane, BorderLayout.CENTER);
+        JScrollPane treeScrollPane = new JScrollPane(moomintrollsTree);
+        contentPane.add(treeScrollPane, BorderLayout.WEST);
         moomintrollsTable.registerMoomintrollsTree(moomintrollsTree);
         MoomintrollsFrame.setDefaultNewMoomintrollName("Unknown");
 
@@ -127,7 +132,6 @@ public class MainWindow extends JFrame {
                 moomintrollsTable.addRow(Random.randomTroll());
             }
         });
-
         this.getRootPane().getInputMap().put(
                 KeyStroke.getKeyStroke("control alt R"),
                 ADD_RANDOM
@@ -150,6 +154,11 @@ public class MainWindow extends JFrame {
                     System.out.println("Failed to load from env");
                 }
             }
+        });
+
+        showTree.addActionListener(actionEvent -> {
+            treeScrollPane.setVisible(showTree.getState());
+            revalidate();
         });
     }
 
