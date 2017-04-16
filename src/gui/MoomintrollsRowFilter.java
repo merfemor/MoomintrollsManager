@@ -35,7 +35,7 @@ public class MoomintrollsRowFilter extends RowFilter <MoomintrollsTableModel, Ob
             return false;
         String kindnessStr = entry.getStringValue(3);
         kindnessStr = kindnessStr.substring(kindnessStr.indexOf(" ["));
-        if(kindness.equals(kindnessStr))
+        if(kindness != null && kindness.equals(kindnessStr))
             return false;
         return true;
     }

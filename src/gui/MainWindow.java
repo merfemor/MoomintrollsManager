@@ -13,51 +13,62 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.nio.file.FileAlreadyExistsException;
+import java.security.Key;
 import javax.swing.*;
+import javax.swing.text.PlainDocument;
+
+// TODO: add collection filtering
+// TODO: add threads for i/o methods
+
 
 public class MainWindow extends JFrame {
-    // TODO: add collection filtering
-    // TODO: add threads for i/o methods
 
+    private String ENV_NAME;
+
+    // for managing current work path
     private final String NO_PATH = "New Collection";
     private final String NO_PATH_UNSAVED = "Unsaved Collection";
-    private String ENV_NAME;
     private String path = NO_PATH;
     private boolean isPathSet = false;
     private boolean isSaved = true;
+
+    // components
     private JMenuBar menuBar = new JMenuBar();
-    private JMenu fileIOMenu = new JMenu("File");
+    private JMenu fileIOMenu = new JMenu("File"),
+            viewMenu = new JMenu("View");
     private JMenuItem open = new JMenuItem("Open.."),
             save = new JMenuItem("Save"),
             saveAs = new JMenuItem("Save As.."),
             close = new JMenuItem("Close");
-    private JMenu tableMenu = new JMenu("Table");
     private JMenuItem add_if_max = new JMenuItem("Add if max.."),
             remove_greater = new JMenuItem("Remove greater..");
     private JCheckBoxMenuItem showTree = new JCheckBoxMenuItem("Show tree", true);
-    private JToolBar toolBar = new JToolBar();
+    private JPanel toolBarsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+    private JToolBar crudToolBar = new JToolBar(),
+            filterToolBar = new JToolBar("filtering");
     // CRUD:
     private JButton addButton = new JButton("Add"),
             removeButton = new JButton("Remove"),
             editButton = new JButton("Edit");
-    private MoomintrollsTable moomintrollsTable;
-    private MoomintrollsTree moomintrollsTree;
-
     // Filtering:
-    private JTextField nameFilter = new JTextField(10),
-            positionFromFilter = new JTextField(5),
-            positionToFilter = new JTextField(5);
+    private JTextField nameFilter = new JTextField(15),
+            positionFromFilter = new JTextField(8),
+            positionToFilter = new JTextField(8);
     private JCheckBox enableMales = new JCheckBox("male", true),
             enableFemales = new JCheckBox("female", true);
-    private JComboBox <Kindness> kindnessFilter;
-    //private JSpinner positionFromFilter, positionToFilter;
+
+    private JScrollPane treeScrollPane;
+    private MoomintrollsTable moomintrollsTable;
+    private MoomintrollsTree moomintrollsTree;
 
     public MainWindow(String pathVariableName) {
         super("Moomintrolls Manager");
         this.ENV_NAME = pathVariableName;
-        setSize(900, 500);
+        //setSize(900, 500);
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         initComponents();
+        initActions();
+        initHiddenFunctions();
         updateTitle();
         pack();
     }
@@ -70,11 +81,6 @@ public class MainWindow extends JFrame {
         Container contentPane = getContentPane();
         contentPane.setLayout(new BorderLayout());
 
-        // addRow menu items
-        save.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK));
-        open.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, KeyEvent.CTRL_DOWN_MASK));
-        close.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, KeyEvent.CTRL_DOWN_MASK));
-        saveAs.setAccelerator(KeyStroke.getKeyStroke("control shift S"));
         setJMenuBar(menuBar);
         menuBar.add(fileIOMenu);
         fileIOMenu.add(open);
@@ -83,74 +89,94 @@ public class MainWindow extends JFrame {
         fileIOMenu.add(saveAs);
         fileIOMenu.addSeparator();
         fileIOMenu.add(close);
-        JMenu viewMenu = new JMenu("View");
         menuBar.add(viewMenu);
         viewMenu.add(showTree);
 
+        JScrollPane tableScrollPane = new JScrollPane(moomintrollsTable);
+        contentPane.add(toolBarsPanel, BorderLayout.NORTH);
+        toolBarsPanel.add(crudToolBar);
+        toolBarsPanel.add(filterToolBar);
+        contentPane.add(tableScrollPane, BorderLayout.CENTER);
+        treeScrollPane = new JScrollPane(moomintrollsTree);
+        contentPane.add(treeScrollPane, BorderLayout.WEST);
+        MoomintrollsFrame.setDefaultNewMoomintrollName("Unknown");
+
         removeButton.setEnabled(false);
         editButton.setEnabled(false);
-        toolBar.add(addButton);
-        toolBar.add(removeButton);
-        toolBar.add(editButton);
-        toolBar.setFloatable(false);
+        crudToolBar.add(addButton);
+        crudToolBar.add(removeButton);
+        crudToolBar.add(editButton);
+        crudToolBar.setFloatable(false);
 
-        toolBar.add(new JLabel("Filtering: "));
-        toolBar.add(nameFilter);
-        toolBar.add(enableMales);
-        toolBar.add(enableFemales);
-        kindnessFilter = new JComboBox<>();
-        for (Field field : Kindness.class.getFields()) {
-            try {
-                kindnessFilter.addItem((Kindness)(field.get(null)));
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-            }
-        }
-        //toolBar.add(kindnessFilter);
-        KeyAdapter keyAdapter = new KeyAdapter() {
+        filterToolBar.setFloatable(false);
+        filterToolBar.add(new JLabel("Name: "));
+        filterToolBar.add(nameFilter);
+        filterToolBar.add(new JLabel("Gender: "));
+        filterToolBar.add(enableMales);
+        filterToolBar.add(enableFemales);
+        filterToolBar.add(new JLabel("Position: "));
+        filterToolBar.add(new JLabel("from"));
+        filterToolBar.add(positionFromFilter);
+        filterToolBar.add(new JLabel("to"));
+        filterToolBar.add(positionToFilter);
+        positionFromFilter.setTransferHandler(null);
+        positionToFilter.setTransferHandler(null);
+    }
+
+    private void initActions() {
+        save.addActionListener(actionEvent -> save());
+        saveAs.addActionListener(actionEvent -> saveAs());
+        open.addActionListener(actionEvent -> { closeFile(); open(); });
+        close.addActionListener(actionEvent -> closeFile());
+
+        save.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK));
+        open.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, KeyEvent.CTRL_DOWN_MASK));
+        close.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, KeyEvent.CTRL_DOWN_MASK));
+        saveAs.setAccelerator(KeyStroke.getKeyStroke("control shift S"));
+
+        KeyAdapter preventLettersKeyAdapter = new KeyAdapter() {
             @Override
-            public void keyReleased(KeyEvent keyEvent) {
+            public void keyTyped(KeyEvent keyEvent) {
                 Character c = keyEvent.getKeyChar();
                 JTextField component = (JTextField) keyEvent.getComponent();
-                if(!Character.isDigit(c) && c != KeyEvent.VK_BACK_SPACE && c != KeyEvent.VK_MINUS) {
-                    keyEvent.consume();
-                    component.setText(component.getText().replace(Character.toString(c), ""));
-                    return;
-                }
 
-                if(c == KeyEvent.VK_MINUS && !component.getText().startsWith("-")) {
-                    component.setText(component.getText().replace("-", ""));
+                if((component.getText().length() > 8 && c != KeyEvent.VK_BACK_SPACE) || !(Character.isDigit(c) || c == KeyEvent.VK_BACK_SPACE || c == KeyEvent.VK_MINUS)) {
+                    keyEvent.consume();
                 }
-                if(component.getText().equals("-0")) {
-                    component.setText("0");
+                if(c == KeyEvent.VK_MINUS) {
+                    if(!component.getText().contains("-")) {
+                        component.setText("-" + component.getText());
+                    }
+                    keyEvent.consume();
                 }
-                if(!component.getText().equals("-"))
+                if(Character.isDigit(c) && component.getSelectionStart() == 0 && component.getText().contains("-")) {
+                    keyEvent.consume();
+                }
+            }
+            @Override
+            public void keyReleased(KeyEvent keyEvent) {
+                if(!((JTextField)keyEvent.getComponent()).getText().equals("-"))
                     parseFilters();
             }
         };
-        positionFromFilter.addKeyListener(keyAdapter);
-        positionToFilter.addKeyListener(keyAdapter);
-        toolBar.add(new JLabel("Position: "));
-        toolBar.add(positionFromFilter);
-        toolBar.add(positionToFilter);
-        KeyAdapter keyAdapter1 = new KeyAdapter() {
+
+        positionFromFilter.addKeyListener(preventLettersKeyAdapter);
+        positionToFilter.addKeyListener(preventLettersKeyAdapter);
+
+        nameFilter.addKeyListener(new KeyAdapter() {
             @Override
             public void keyReleased(KeyEvent keyEvent) {
                 parseFilters();
             }
-        };
-        nameFilter.addKeyListener(keyAdapter1);
-        //positionFromFilter.addKeyListener(keyAdapter);
-        //positionToFilter.addKeyListener(keyAdapter);
+        });
         enableMales.addActionListener(actionEvent -> parseFilters());
         enableFemales.addActionListener(actionEvent -> parseFilters());
 
-        JScrollPane tableScrollPane = new JScrollPane(moomintrollsTable);
-        contentPane.add(toolBar, BorderLayout.NORTH);
-        contentPane.add(tableScrollPane, BorderLayout.CENTER);
-        JScrollPane treeScrollPane = new JScrollPane(moomintrollsTree);
-        contentPane.add(treeScrollPane, BorderLayout.WEST);
-        MoomintrollsFrame.setDefaultNewMoomintrollName("Unknown");
+        moomintrollsTable.getSelectionModel().addListSelectionListener(listSelectionEvent -> {
+            int selectedRowsNum = moomintrollsTable.getSelectedRows().length;
+            removeButton.setEnabled(selectedRowsNum > 0);
+            editButton.setEnabled(selectedRowsNum == 1);
+        });
 
         removeButton.addMouseListener(new MouseAdapter() {
             @Override
@@ -159,17 +185,14 @@ public class MainWindow extends JFrame {
                     removeSelected();
             }
         });
-        moomintrollsTable.getSelectionModel().addListSelectionListener(listSelectionEvent -> {
-            int selectedRowsNum = moomintrollsTable.getSelectedRows().length;
-            removeButton.setEnabled(selectedRowsNum > 0);
-            editButton.setEnabled(selectedRowsNum == 1);
-        });
+
         addButton.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent mouseEvent) {
                 add();
             }
         });
+
         editButton.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent mouseEvent) {
@@ -179,23 +202,6 @@ public class MainWindow extends JFrame {
                 }
             }
         });
-
-        save.addActionListener(actionEvent -> save());
-        saveAs.addActionListener(actionEvent -> saveAs());
-        open.addActionListener(actionEvent -> { closeFile(); open(); });
-        close.addActionListener(actionEvent -> closeFile());
-
-        final String ADD_RANDOM = "Add Random";
-        getRootPane().getActionMap().put(ADD_RANDOM, new AbstractAction() {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent) {
-                moomintrollsTable.addRow(Random.randomTroll());
-            }
-        });
-        this.getRootPane().getInputMap().put(
-                KeyStroke.getKeyStroke("control alt R"),
-                ADD_RANDOM
-        );
 
         this.addWindowListener(new WindowAdapter() {
             @Override
@@ -222,6 +228,7 @@ public class MainWindow extends JFrame {
         });
     }
 
+
     public boolean loadFromEnv(String envName) {
         try {
             successfullLoad(new File(System.getenv(envName)));
@@ -229,6 +236,23 @@ public class MainWindow extends JFrame {
         } catch (Exception ignored) {
             return false;
         }
+    }
+
+
+    private void initHiddenFunctions() {
+
+        // adding random moominrroll
+        final String ADD_RANDOM = "Add Random";
+        getRootPane().getActionMap().put(ADD_RANDOM, new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                moomintrollsTable.addRow(Random.randomTroll());
+            }
+        });
+        this.getRootPane().getInputMap().put(
+                KeyStroke.getKeyStroke("control alt R"),
+                ADD_RANDOM
+        );
     }
 
     public void add() {
@@ -241,12 +265,11 @@ public class MainWindow extends JFrame {
     }
 
     public void parseFilters() {
-        System.out.println("reparsing");
         moomintrollsTable.setRowSorter(new MoomintrollsRowFilter(
                 nameFilter.getText(),
                 enableMales.isSelected(),
                 enableFemales.isSelected(),
-                kindnessFilter.getSelectedItem().toString(),
+                null,
                 positionFromFilter.getText().isEmpty()? Integer.MIN_VALUE : Integer.parseInt(positionFromFilter.getText()),
                 positionToFilter.getText().isEmpty()? Integer.MAX_VALUE : Integer.parseInt(positionToFilter.getText())
         ));
