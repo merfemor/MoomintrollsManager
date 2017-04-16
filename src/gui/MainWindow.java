@@ -155,8 +155,7 @@ public class MainWindow extends JFrame {
             }
             @Override
             public void keyReleased(KeyEvent keyEvent) {
-                if(!((JTextField)keyEvent.getComponent()).getText().equals("-"))
-                    parseFilters();
+                parseFilters();
             }
         };
 
@@ -265,13 +264,24 @@ public class MainWindow extends JFrame {
     }
 
     public void parseFilters() {
+        int posFrom, posTo;
+        try {
+            posFrom = Integer.parseInt(positionFromFilter.getText());
+        } catch (Exception e) {
+            posFrom = Integer.MIN_VALUE;
+        }
+        try {
+            posTo = Integer.parseInt(positionToFilter.getText());
+        } catch (Exception e) {
+            posTo = Integer.MAX_VALUE;
+        }
         moomintrollsTable.setRowSorter(new MoomintrollsRowFilter(
                 nameFilter.getText(),
                 enableMales.isSelected(),
                 enableFemales.isSelected(),
                 null,
-                positionFromFilter.getText().isEmpty()? Integer.MIN_VALUE : Integer.parseInt(positionFromFilter.getText()),
-                positionToFilter.getText().isEmpty()? Integer.MAX_VALUE : Integer.parseInt(positionToFilter.getText())
+                posFrom,
+                posTo
         ));
     }
 
