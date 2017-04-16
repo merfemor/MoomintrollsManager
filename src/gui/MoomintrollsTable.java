@@ -41,7 +41,9 @@ public class MoomintrollsTable extends JTable{
     MoomintrollsTable(MoomintrollsCollection moomintrollsCollection) {
         super(new MoomintrollsTableModel());
         moomintrollsDataModel = (MoomintrollsTableModel) dataModel;
-        setDefaultRenderer(Object.class, new ColorRenderer());
+        setDefaultRenderer(Color.class, new ColorRenderer());
+        setDefaultRenderer(String.class, new ColorRenderer());
+        setDefaultRenderer(Integer.class, new ColorRenderer());
         moomintrollsDataModel.registerTable(this);
         setAutoCreateRowSorter(true);
         getTableHeader().setReorderingAllowed(false);

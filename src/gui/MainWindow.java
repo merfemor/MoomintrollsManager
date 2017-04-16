@@ -17,7 +17,6 @@ import java.security.Key;
 import javax.swing.*;
 import javax.swing.text.PlainDocument;
 
-// TODO: add collection filtering
 // TODO: add threads for i/o methods
 
 
