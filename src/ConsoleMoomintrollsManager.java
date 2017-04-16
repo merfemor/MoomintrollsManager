@@ -64,8 +64,7 @@ public class ConsoleMoomintrollsManager {
 
     private void executeCommand(String command) {
         if (!command.contains("{")) {
-            // TODO: just trim it
-            command = command.replaceAll(" ", "").replaceAll("\t", "");
+            command = command.trim();
         } else {
             command = command.substring(0, command.indexOf("{")).replaceAll(" ", "").replaceAll("\t", "")
                     + command.substring(command.indexOf("{"));
