@@ -5,6 +5,9 @@ import trolls.Moomintroll;
 import trolls.Wight;
 
 import java.awt.*;
+import java.math.BigInteger;
+import java.security.SecureRandom;
+import java.util.UUID;
 
 public class Random {
     public static int randomInt(int from, int to) {
@@ -16,8 +19,10 @@ public class Random {
      * @return randomized moomintroll
      */
     public static Moomintroll randomTroll() {
+
+        String name = UUID.randomUUID().toString().replace("-", "").substring(0, 10);
         Moomintroll moomintroll = new Moomintroll(
-                "Random",
+                name,
                 Math.random() > 0.5,
                 randomInt(-500, 500),
                 Wight.BodyColor.white
