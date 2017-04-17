@@ -39,19 +39,33 @@ public class MoomintrollsTree extends JTree {
                     if(getPathForRow(i).getPathCount() == 2)
                         row++;
                 }
-                row = moomintrollsTable.convertRowIndexToView(row - 1);
-                moomintrollsTable.setRowSelectionInterval(row, row);
-                moomintrollsTable.scrollRectToVisible(new Rectangle(moomintrollsTable.getCellRect(row, 0, true)));
+                System.out.println("In tree: "  + (row - 1));
+                //moomintrollsTable.
+                row = moomintrollsTable.getRowSorter().convertRowIndexToView(row - 1);
+                //row = moomintrollsTable.getRowSorter().convertRowIndexToView(row - 1);
+                System.out.println("After: "  + row);
+                // moomintrollsTable.convertRowIndexToView(row - 1)
+                if(row != -1) {
+                    moomintrollsTable.setRowSelectionInterval(row, row);
+                    moomintrollsTable.scrollRectToVisible(new Rectangle(moomintrollsTable.getCellRect(row, 0, true)));
+                }
             }
         });
     }
 
     public void removeAll() {
+        super.removeAll();
         moomintrollsTreeModel.removeAll();
     }
 
     public void add(Moomintroll moomintroll) {
         moomintrollsTreeModel.add(moomintroll);
         expandRow(0);
+    }
+
+    public void reload() {
+        removeAll();
+        for(int i = 0; i < moomintrollsTable.getRowCount(); i++)
+            add(moomintrollsTable.getRow(i));
     }
 }

@@ -2,11 +2,9 @@ package gui;
 
 import trolls.Moomintroll;
 import trolls.MoomintrollsCollection;
-import utils.Random;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.TableColumn;
 import javax.swing.table.TableRowSorter;
 import java.awt.*;
 
@@ -56,8 +54,7 @@ public class MoomintrollsTable extends JTable{
 
     public void setRowSorter(MoomintrollsRowFilter moomintrollsRowFilter) {
         ((TableRowSorter)getRowSorter()).setRowFilter(moomintrollsRowFilter);
-        reloadTable();
-        reloadTree();
+        moomintrollsDataModel.fireTableDataChanged();
     }
 
     public void registerMoomintrollsTree(MoomintrollsTree tree) {
@@ -66,7 +63,7 @@ public class MoomintrollsTable extends JTable{
     }
 
     private void reloadCollection() {
-        this.moomintrollsCollection.clear();
+        moomintrollsCollection.clear();
         int rows = moomintrollsDataModel.getRowCount();
 
         for(int i = 0; i < rows; i++) {
@@ -74,35 +71,18 @@ public class MoomintrollsTable extends JTable{
         }
     }
 
-    private void reloadTable() {
-        moomintrollsDataModel.clear();
-        for(Moomintroll moomintroll: moomintrollsCollection) {
-            moomintrollsDataModel.addRow(moomintroll);
-        }
-    }
-
     public void setMoomintrollsCollection(MoomintrollsCollection moomintrollsCollection) {
-        clear();
         this.moomintrollsCollection = moomintrollsCollection;
+        moomintrollsDataModel.clear();
         for(Moomintroll moomintroll: moomintrollsCollection) {
             moomintrollsDataModel.addRow(moomintroll);
         }
         reloadTree();
     }
 
-    public void clear() {
-        this.moomintrollsCollection.clear();
-        moomintrollsDataModel.clear();
-        moomintrollsTree.removeAll();
-    }
-
     private void reloadTree() {
-        if(moomintrollsTree == null) {
-            return;
-        }
-        moomintrollsTree.removeAll();
-        for(int i = 0; i < getRowCount(); i++) {
-            moomintrollsTree.add(getRow(i));
+        if(moomintrollsTree != null) {
+            moomintrollsTree.reload();
         }
     }
 
@@ -144,7 +124,8 @@ public class MoomintrollsTable extends JTable{
         for (int i = rows.length - 1; i >= 0; i--) {
             moomintrollsDataModel.removeRow(convertRowIndexToModel(rows[i]));
         }
-        reloadCollection();
+        moomintrollsDataModel.fireTableDataChanged();
+        // TODO: don't reload all tree, only removed nodes
         reloadTree();
     }
 }

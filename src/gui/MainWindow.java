@@ -443,7 +443,6 @@ public class MainWindow extends JFrame {
         path = NO_PATH;
         isPathSet = false;
         isSaved = true;
-        moomintrollsTable.clear();
         moomintrollsTable.setMoomintrollsCollection(new SerializableMoomintrollsCollection());
         updateTitle();
         return reply;

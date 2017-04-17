@@ -38,6 +38,7 @@ public class MoomintrollsTableModel extends DefaultTableModel {
     }
 
     public Moomintroll getRow(int row) {
+        //table.getRowSorter().convertRowIndexToView()
         TableCellRenderer cellRenderer = table.getCellRenderer(row, 2);
         Color bodyColor = table.prepareRenderer(cellRenderer, row, 2).getBackground();
         row = table.getRowSorter().convertRowIndexToModel(row);
