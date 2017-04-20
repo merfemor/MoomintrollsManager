@@ -75,7 +75,6 @@ public class MoomintrollsTableModel extends DefaultTableModel {
     @Override
     public Class<?> getColumnClass(int column) {
         // TODO: beautiful sorting for Colour column
-        // TODO: sorting position as integer without breaking cellrender work
         switch (column) {
             case 0:
                 return String.class;
