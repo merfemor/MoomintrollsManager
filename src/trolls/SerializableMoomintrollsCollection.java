@@ -28,7 +28,7 @@ public class SerializableMoomintrollsCollection extends MoomintrollsCollection i
         this.addAll(moomintrollsCollection);
     }
 
-    private String toJson() {
+    public String toJson() {
         return JsonParser.objectToJson(this);
     }
 
