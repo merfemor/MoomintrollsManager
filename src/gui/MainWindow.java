@@ -18,7 +18,8 @@ import javax.swing.*;
 import javax.swing.text.PlainDocument;
 
 // TODO: add threads for i/o methods
-
+// TODO: add help menuItem with question form
+// TODO: program license security
 
 public class MainWindow extends JFrame {
 

@@ -120,7 +120,5 @@ public class MoomintrollsTable extends JTable{
             }
         }
         moomintrollsDataModel.fireTableDataChanged();
-        // TODO: don't reloadFromTable all tree, only removed nodes
-        //reloadTree();
     }
 }

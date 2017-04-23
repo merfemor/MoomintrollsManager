@@ -53,6 +53,7 @@ public class MoomintrollsTree extends JTree {
     }
 
     public void insert(Moomintroll moomintroll) {
+        // TODO: add icons
         moomintrollsTreeModel.insert(moomintrollsTreeModel.getRootChildCount(), moomintroll);
         expandRow(0);
     }
