@@ -7,7 +7,6 @@ import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.File;
 
 public class MoomintrollsTree extends JTree {
     MoomintrollsTable moomintrollsTable;
@@ -39,12 +38,7 @@ public class MoomintrollsTree extends JTree {
                     if(getPathForRow(i).getPathCount() == 2)
                         row++;
                 }
-                System.out.println("In tree: "  + (row - 1));
-                //moomintrollsTable.
                 row = moomintrollsTable.getRowSorter().convertRowIndexToView(row - 1);
-                //row = moomintrollsTable.getRowSorter().convertRowIndexToView(row - 1);
-                System.out.println("After: "  + row);
-                // moomintrollsTable.convertRowIndexToView(row - 1)
                 if(row != -1) {
                     moomintrollsTable.setRowSelectionInterval(row, row);
                     moomintrollsTable.scrollRectToVisible(new Rectangle(moomintrollsTable.getCellRect(row, 0, true)));
@@ -58,14 +52,23 @@ public class MoomintrollsTree extends JTree {
         moomintrollsTreeModel.removeAll();
     }
 
-    public void add(Moomintroll moomintroll) {
-        moomintrollsTreeModel.add(moomintroll);
+    public void insert(Moomintroll moomintroll) {
+        moomintrollsTreeModel.insert(moomintrollsTreeModel.getRootChildCount(), moomintroll);
         expandRow(0);
     }
 
-    public void reload() {
+    public void reloadFromTable() {
         removeAll();
         for(int i = 0; i < moomintrollsTable.getRowCount(); i++)
-            add(moomintrollsTable.getRow(i));
+            insert(moomintrollsTable.getRow(i));
+    }
+
+    public void remove(int node) {
+        moomintrollsTreeModel.remove(node);
+    }
+
+    public void setNode(int node, Moomintroll moomintroll) {
+        remove(node);
+        moomintrollsTreeModel.insert(node, moomintroll);
     }
 }

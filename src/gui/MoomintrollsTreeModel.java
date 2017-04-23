@@ -26,14 +26,21 @@ class MoomintrollsTreeModel extends DefaultTreeModel {
         return node;
     }
 
-    public void add(Moomintroll moomintroll) {
-        insertNodeInto(toTreeNode(moomintroll), muteRoot, muteRoot.getChildCount());
-    }
-
     public void removeAll() {
         for(int i = root.getChildCount() - 1; i >= 0; i--) {
-            removeNodeFromParent((MutableTreeNode) root.getChildAt(i));
+            remove(i);
         }
     }
 
+    public void remove(int node) {
+        super.removeNodeFromParent((MutableTreeNode) muteRoot.getChildAt(node));
+    }
+
+    public void insert(int node, Moomintroll moomintroll) {
+        insertNodeInto(toTreeNode(moomintroll), muteRoot, node);
+    }
+
+    public int getRootChildCount() {
+        return muteRoot.getChildCount();
+    }
 }
