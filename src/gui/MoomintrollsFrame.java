@@ -88,19 +88,10 @@ public class MoomintrollsFrame extends JPanel {
         add(kindnessSlider);
 
         add(positionLabel);
-        positionSpinner= new JSpinner(new SpinnerNumberModel(
-                 0, Integer.MIN_VALUE, Integer.MAX_VALUE, 1
-        ));
-        positionSpinner.setEditor(new JSpinner.NumberEditor(positionSpinner));
-        ((JSpinner.NumberEditor)positionSpinner.getEditor()).getTextField().addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyTyped(KeyEvent keyEvent) {
-                char c = keyEvent.getKeyChar();
-                if(!Character.isDigit(c) && c != KeyEvent.VK_BACK_SPACE && c != KeyEvent.VK_MINUS) {
-                    keyEvent.consume();
-                }
-            }
-        });
+        positionSpinner= new JSpinner();
+        ((JSpinner.NumberEditor)positionSpinner.getEditor()).getTextField().addKeyListener(
+                new NumbericFieldKeyAdapter()
+        );
         add(positionSpinner);
     }
 

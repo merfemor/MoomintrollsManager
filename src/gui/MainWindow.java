@@ -121,6 +121,8 @@ public class MainWindow extends JFrame {
         filterToolBar.add(positionToFilter);
         positionFromFilter.setTransferHandler(null);
         positionToFilter.setTransferHandler(null);
+        positionFromFilter.setPreferredSize(new Dimension(8, 1));
+        positionToFilter.setPreferredSize(new Dimension(8, 1));
     }
 
     private void initActions() {
@@ -134,33 +136,14 @@ public class MainWindow extends JFrame {
         close.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, KeyEvent.CTRL_DOWN_MASK));
         saveAs.setAccelerator(KeyStroke.getKeyStroke("control shift S"));
 
-        KeyAdapter preventLettersKeyAdapter = new KeyAdapter() {
-            @Override
-            public void keyTyped(KeyEvent keyEvent) {
-                Character c = keyEvent.getKeyChar();
-                JTextField component = (JTextField) keyEvent.getComponent();
-
-                if((component.getText().length() > 8 && c != KeyEvent.VK_BACK_SPACE) || !(Character.isDigit(c) || c == KeyEvent.VK_BACK_SPACE || c == KeyEvent.VK_MINUS)) {
-                    keyEvent.consume();
-                }
-                if(c == KeyEvent.VK_MINUS) {
-                    if(!component.getText().contains("-")) {
-                        component.setText("-" + component.getText());
-                    }
-                    keyEvent.consume();
-                }
-                if(Character.isDigit(c) && component.getSelectionStart() == 0 && component.getText().contains("-")) {
-                    keyEvent.consume();
-                }
-            }
+        NumbericFieldKeyAdapter numbericFieldKeyAdapter = new NumbericFieldKeyAdapter() {
             @Override
             public void keyReleased(KeyEvent keyEvent) {
                 parseFilters();
             }
         };
-
-        positionFromFilter.addKeyListener(preventLettersKeyAdapter);
-        positionToFilter.addKeyListener(preventLettersKeyAdapter);
+        positionFromFilter.addKeyListener(numbericFieldKeyAdapter);
+        positionToFilter.addKeyListener(numbericFieldKeyAdapter);
 
         nameFilter.addKeyListener(new KeyAdapter() {
             @Override
