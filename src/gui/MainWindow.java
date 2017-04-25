@@ -40,8 +40,6 @@ public class MainWindow extends JFrame {
             save = new JMenuItem("Save"),
             saveAs = new JMenuItem("Save As.."),
             close = new JMenuItem("Close");
-    private JMenuItem add_if_max = new JMenuItem("Add if max.."),
-            remove_greater = new JMenuItem("Remove greater..");
     private JCheckBoxMenuItem showTree = new JCheckBoxMenuItem("Show tree", true);
     private JPanel toolBarsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
     private JToolBar crudToolBar = new JToolBar(),
@@ -165,8 +163,8 @@ public class MainWindow extends JFrame {
 
         moomintrollsTable.getSelectionModel().addListSelectionListener(listSelectionEvent -> {
             int selectedRowsNum = moomintrollsTable.getSelectedRows().length;
-            removeButton.setEnabled(selectedRowsNum > 0);
-            editButton.setEnabled(selectedRowsNum == 1);
+            removeButton.setEnabled(selectedRowsNum > 0 && crudToolBar.isEnabled());
+            editButton.setEnabled(selectedRowsNum == 1 && crudToolBar.isEnabled());
         });
 
         removeButton.addMouseListener(new MouseAdapter() {
@@ -180,7 +178,8 @@ public class MainWindow extends JFrame {
         addButton.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent mouseEvent) {
-                add();
+                if(addButton.isEnabled())
+                    add();
             }
         });
 
@@ -314,16 +313,22 @@ public class MainWindow extends JFrame {
     }
 
     public void save(boolean ignoreCurrentFile) {
-        //if(isSaved)
-        // return;
+        /*if(isSaved)
+         return;*/
         File lastFile = collectionSession.getFile();
         if(ignoreCurrentFile || lastFile == null) {
-            File newFile = chooseSaveFile(new File("."));
+            File newFile = chooseSaveFile(
+                    lastFile == null ? new File(".") : lastFile);
             if(newFile == null) {
                 return;
             }
             collectionSession.setFile(newFile);
         }
+        setCrudEnabled(false);
+        collectionSession.setMoomintrollsCollection(
+                (SerializableMoomintrollsCollection)
+                        moomintrollsTable.getMoomintrollsCollection()
+        );
         Thread thread = new Thread(() -> {
             do {
                 try {
@@ -369,6 +374,7 @@ public class MainWindow extends JFrame {
                     collectionSession.setFile(newFile);
                 }
             } while (true);
+            setCrudEnabled(true);
             updateTitle();
         });
         thread.start();
@@ -382,6 +388,14 @@ public class MainWindow extends JFrame {
         isPathSet = true;
         isSaved = true;
         updateTitle();
+    }
+
+    private void setCrudEnabled(boolean enabled) {
+        crudToolBar.setEnabled(enabled);
+        int selectedRows = moomintrollsTable.getSelectedRows().length;
+        removeButton.setEnabled(enabled && selectedRows > 0);
+        editButton.setEnabled(enabled && selectedRows == 1);
+        addButton.setEnabled(enabled);
     }
 
     public void open() {
