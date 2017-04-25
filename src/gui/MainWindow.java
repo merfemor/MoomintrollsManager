@@ -196,7 +196,8 @@ public class MainWindow extends JFrame {
         this.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent windowEvent) {
-                if(closeFile() != JOptionPane.CANCEL_OPTION) {
+                closeFile();
+                if(collectionSession.getFile() == null) { // if closed
                     setVisible(false);
                     System.exit(0);
                 }
@@ -312,6 +313,14 @@ public class MainWindow extends JFrame {
                 fileChooser.getSelectedFile() : null;
     }
 
+    private File chooseOpenFile(File currentDirectory) {
+        JFileChooser fileChooser = new JFileChooser(currentDirectory);
+        fileChooser.setMultiSelectionEnabled(false);
+        fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        return fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION ?
+                fileChooser.getSelectedFile() : null;
+    }
+
     public void save(boolean ignoreCurrentFile) {
         if(isSaved)
             return;
@@ -380,6 +389,26 @@ public class MainWindow extends JFrame {
         thread.start();
     }
 
+    public void closeFile() {
+        if(!isSaved) {
+            int reply = JOptionPane.showConfirmDialog(this,
+                    "Current collection is not saved.\nDo you want to save it before closing?",
+                    "Warning: unsaved collection",
+                    JOptionPane.YES_NO_CANCEL_OPTION,
+                    JOptionPane.QUESTION_MESSAGE
+            );
+            if (reply ==  JOptionPane.YES_OPTION) {
+                save(false);
+            }
+            if(reply == JOptionPane.CANCEL_OPTION) {
+                return;
+            }
+        }
+        collectionSession.setFile(null);
+        isSaved = true;
+        updateTitle();
+    }
+
     private void successfullLoad(File file) throws FileNotFoundException {
         String fileContent = FileManager.readFromFile(file.getPath());
         SerializableMoomintrollsCollection moomintrollsCollection = new SerializableMoomintrollsCollection(fileContent);
@@ -399,6 +428,75 @@ public class MainWindow extends JFrame {
     }
 
     public void open() {
+        if(isSaved)
+            return;
+        File lastFile = collectionSession.getFile();
+        if(ignoreCurrentFile || lastFile == null) {
+            File newFile = chooseSaveFile(
+                    lastFile == null ? new File(".") : lastFile);
+            if(newFile == null) {
+                return;
+            }
+            collectionSession.setFile(newFile);
+        }
+        setCrudEnabled(false);
+        collectionSession.setMoomintrollsCollection(
+                (SerializableMoomintrollsCollection)
+                        moomintrollsTable.getMoomintrollsCollection()
+        );
+        Thread thread = new Thread(() -> {
+            do {
+                try {
+                    collectionSession.save();
+                    Object[] options = {"OK"};
+                    if(ignoreCurrentFile || lastFile == null) {
+                        JOptionPane.showOptionDialog(
+                                getContentPane(),
+                                "Successfully saved into\n" + collectionSession.getFile().getPath(),
+                                "Successfully saved",
+                                JOptionPane.DEFAULT_OPTION,
+                                JOptionPane.INFORMATION_MESSAGE,
+                                null,
+                                options,
+                                options[0]
+                        );
+                    }
+                    isSaved = true;
+                    break;
+                } catch (Exception e) {
+                    JOptionPane.showMessageDialog(getContentPane(),
+                            "Failed to save into \n" + collectionSession.getFile().getPath() + "\nSelect file again.",
+                            "Error: failed to save",
+                            JOptionPane.ERROR_MESSAGE
+                    );
+                    File newFile = chooseSaveFile(collectionSession.getFile());
+                    if(newFile == null) {
+                        collectionSession.setFile(lastFile);
+                        break;
+                    }
+                    if(newFile.exists()) {
+                        int reply = JOptionPane.showConfirmDialog(this,
+                                "File is already exists.\nOverwrite it?",
+                                "Warning: overwriting file",
+                                JOptionPane.YES_NO_OPTION,
+                                JOptionPane.QUESTION_MESSAGE
+                        );
+                        if(reply == JOptionPane.NO_OPTION) {
+                            collectionSession.setFile(lastFile);
+                            break;
+                        }
+                    }
+                    collectionSession.setFile(newFile);
+                }
+            } while (true);
+            setCrudEnabled(true);
+            updateTitle();
+        });
+        thread.start();
+    }
+
+    public void open(String kek) {
+
         JFileChooser chooser = new JFileChooser(isPathSet? path : new File(".").getPath());
         chooser.setMultiSelectionEnabled(false);
         chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
@@ -421,29 +519,6 @@ public class MainWindow extends JFrame {
                 );
             }
         }
-    }
-
-    public int closeFile() {
-        int reply = JOptionPane.YES_OPTION;
-        if(!isSaved) {
-            reply  = JOptionPane.showConfirmDialog(this,
-                    "Current collection is not saved.\nDo you want to save it before closing?",
-                    "Warning: unsaved collection",
-                    JOptionPane.YES_NO_CANCEL_OPTION,
-                    JOptionPane.QUESTION_MESSAGE
-            );
-            if(reply == JOptionPane.YES_OPTION) {
-                save(false);
-            } else if (reply == JOptionPane.CANCEL_OPTION) {
-                return JOptionPane.CANCEL_OPTION;
-            }
-        }
-        path = NO_PATH;
-        isPathSet = false;
-        isSaved = true;
-        moomintrollsTable.setMoomintrollsCollection(new SerializableMoomintrollsCollection());
-        updateTitle();
-        return reply;
     }
 
     public void updateTitle() {

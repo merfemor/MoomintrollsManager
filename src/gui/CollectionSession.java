@@ -2,10 +2,8 @@ package gui;
 
 import trolls.SerializableMoomintrollsCollection;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
+import java.io.*;
+import java.util.Scanner;
 
 public class CollectionSession {
     private SerializableMoomintrollsCollection moomintrollsCollection;
@@ -21,6 +19,15 @@ public class CollectionSession {
         OutputStreamWriter outputStreamWriter = new OutputStreamWriter(new FileOutputStream(file));
         outputStreamWriter.write(jsonCollection);
         outputStreamWriter.close();
+    }
+
+    public synchronized void load() throws FileNotFoundException {
+        Scanner sc = new Scanner(file);
+        StringBuilder fileContent = new StringBuilder();
+        while (sc.hasNextLine()) {
+            fileContent.append(sc.nextLine()).append("\n");
+        }
+        this.moomintrollsCollection.fromJson(fileContent.toString());
     }
 
     public void setFile(File file) {
