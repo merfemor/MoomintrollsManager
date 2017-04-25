@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 
 public class CollectionSession {
-    public SerializableMoomintrollsCollection moomintrollsCollection;
+    private SerializableMoomintrollsCollection moomintrollsCollection;
     private File file;
 
     public CollectionSession(SerializableMoomintrollsCollection moomintrollsCollection) {
