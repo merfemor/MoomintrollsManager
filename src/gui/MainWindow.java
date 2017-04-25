@@ -313,8 +313,8 @@ public class MainWindow extends JFrame {
     }
 
     public void save(boolean ignoreCurrentFile) {
-        /*if(isSaved)
-         return;*/
+        if(isSaved)
+            return;
         File lastFile = collectionSession.getFile();
         if(ignoreCurrentFile || lastFile == null) {
             File newFile = chooseSaveFile(
