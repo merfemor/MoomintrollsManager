@@ -2,7 +2,6 @@ package gui;
 
 import trolls.Moomintroll;
 import trolls.SerializableMoomintrollsCollection;
-import utils.FileManager;
 import utils.Random;
 
 import java.awt.*;
@@ -23,14 +22,6 @@ import javax.swing.*;
 // TODO: program license security
 
 public class MainWindow extends JFrame {
-
-    private String ENV_NAME;
-
-    // for managing current work path
-    private final String NO_PATH = "New Collection";
-    private String path = NO_PATH;
-    private boolean isPathSet = false;
-    private boolean isSaved = true;
 
     // components
     private JMenuBar menuBar = new JMenuBar();
@@ -58,7 +49,18 @@ public class MainWindow extends JFrame {
     private JScrollPane treeScrollPane;
     private MoomintrollsTable moomintrollsTable;
     private MoomintrollsTree moomintrollsTree;
+
+    // I/O:
     private CollectionSession collectionSession;
+    private String ENV_NAME;
+    private boolean isSaved = true;
+    private Thread ioThread;
+
+    // TODO: GET RID OF THIS AS SOON AS POSSIBLE!
+    private boolean operationStarted = false;
+    private boolean closeStarted = false;
+    private final Object ioLock = new Object();
+    private final Object closeLock = new Object();
 
     public MainWindow(String pathVariableName) {
         super("Moomintrolls Manager");
@@ -79,11 +81,7 @@ public class MainWindow extends JFrame {
         moomintrollsTable.registerMoomintrollsTree(moomintrollsTree);
         collectionSession = new CollectionSession(
                 (SerializableMoomintrollsCollection) moomintrollsTable.getMoomintrollsCollection());
-        System.out.println(
-                loadSessionFromEnv(ENV_NAME) ?
-                        "Successful loading " + path + " from env \"" + ENV_NAME + "\"" :
-                        "Failed to load from env"
-        );
+        loadSessionFromEnv(ENV_NAME);
 
         Container contentPane = getContentPane();
         contentPane.setLayout(new BorderLayout());
@@ -135,7 +133,19 @@ public class MainWindow extends JFrame {
     private void initActions() {
         save.addActionListener(actionEvent -> save(false));
         saveAs.addActionListener(actionEvent -> save(true));
-        open.addActionListener(actionEvent -> { closeFile(); open(); });
+        open.addActionListener(actionEvent -> {
+            closeFile();
+            synchronized (closeLock) {
+                while (closeStarted) {
+                    try {
+                        closeLock.wait();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+            open();
+        });
         close.addActionListener(actionEvent -> closeFile());
 
         save.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK));
@@ -219,6 +229,8 @@ public class MainWindow extends JFrame {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 moomintrollsTable.addRow(Random.randomTroll());
+                isSaved = false;
+                updateTitle();
             }
         });
         this.getRootPane().getInputMap().put(
@@ -295,14 +307,23 @@ public class MainWindow extends JFrame {
         updateTitle();
     }
 
-    private boolean loadSessionFromEnv(String envName) {
-        String path = System.getenv(ENV_NAME);
-        if(path != null) {
-            collectionSession.setFile(new File(path));
-            // TODO: load collection from env
-            return true;
-        }
-        return false;
+    private void loadSessionFromEnv(String envName) {
+        new Thread(() -> {
+            try {
+                collectionSession.setFile(new File(System.getenv(ENV_NAME)));
+                setCrudEnabled(false);
+                collectionSession.load();
+                moomintrollsTable.setMoomintrollsCollection(collectionSession.getMoomintrollsCollection());
+                isSaved = true;
+                System.out.println("Successful loading " + collectionSession.getFile().getPath() + " from env \"" + envName + "\"");
+            } catch (Exception e) {
+                System.out.println("Failed to load from env \"" + envName + "\"");
+                collectionSession.setFile(null);
+            } finally {
+                setCrudEnabled(true);
+                updateTitle();
+            }
+        }).start();
     }
 
     private File chooseSaveFile(File currentDirectory) {
@@ -322,7 +343,16 @@ public class MainWindow extends JFrame {
     }
 
     public void save(boolean ignoreCurrentFile) {
-        if(isSaved)
+        synchronized (ioLock) {
+            while(operationStarted) {
+                try {
+                    ioLock.wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        if(isSaved && !ignoreCurrentFile)
             return;
         File lastFile = collectionSession.getFile();
         if(ignoreCurrentFile || lastFile == null) {
@@ -333,12 +363,13 @@ public class MainWindow extends JFrame {
             }
             collectionSession.setFile(newFile);
         }
+        operationStarted = true;
         setCrudEnabled(false);
         collectionSession.setMoomintrollsCollection(
                 (SerializableMoomintrollsCollection)
                         moomintrollsTable.getMoomintrollsCollection()
         );
-        Thread thread = new Thread(() -> {
+        ioThread = new Thread(() -> {
             do {
                 try {
                     collectionSession.save();
@@ -380,43 +411,74 @@ public class MainWindow extends JFrame {
                             break;
                         }
                     }
+                    // TODO: update newFile instead of setFile() every time
                     collectionSession.setFile(newFile);
                 }
             } while (true);
             setCrudEnabled(true);
             updateTitle();
+            synchronized (ioLock) {
+                System.out.println("save notifying");
+                ioLock.notify();
+            }
+            operationStarted = false;
         });
-        thread.start();
+        ioThread.start();
     }
 
     public void closeFile() {
-        if(!isSaved) {
-            int reply = JOptionPane.showConfirmDialog(this,
-                    "Current collection is not saved.\nDo you want to save it before closing?",
-                    "Warning: unsaved collection",
-                    JOptionPane.YES_NO_CANCEL_OPTION,
-                    JOptionPane.QUESTION_MESSAGE
-            );
-            if (reply ==  JOptionPane.YES_OPTION) {
-                save(false);
+        closeStarted = true;
+        synchronized (ioLock) {
+            while (operationStarted) {
+                System.out.println("ioThread isAlive, waiting...");
+                try {
+                    ioLock.wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
-            if(reply == JOptionPane.CANCEL_OPTION) {
-                return;
-            }
+            System.out.println("waited");
         }
-        collectionSession.setFile(null);
-        isSaved = true;
-        updateTitle();
-    }
-
-    private void successfullLoad(File file) throws FileNotFoundException {
-        String fileContent = FileManager.readFromFile(file.getPath());
-        SerializableMoomintrollsCollection moomintrollsCollection = new SerializableMoomintrollsCollection(fileContent);
-        moomintrollsTable.setMoomintrollsCollection(moomintrollsCollection);
-        path = file.getPath();
-        isPathSet = true;
-        isSaved = true;
-        updateTitle();
+        ioThread = new Thread(() -> {
+            if(!isSaved) {
+                int reply = JOptionPane.showConfirmDialog(this,
+                        "Current collection is not saved.\nDo you want to save it before closing?",
+                        "Warning: unsaved collection",
+                        JOptionPane.YES_NO_CANCEL_OPTION,
+                        JOptionPane.QUESTION_MESSAGE
+                );
+                if (reply ==  JOptionPane.YES_OPTION) {
+                    save(false);
+                    synchronized (ioLock) {
+                        while (operationStarted) {
+                            try {
+                                ioLock.wait();
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                    if(!isSaved) {
+                        return;
+                    }
+                }
+                if(reply == JOptionPane.CANCEL_OPTION) {
+                    return;
+                }
+            }
+            // TODO: set it to null
+            collectionSession = new CollectionSession(new SerializableMoomintrollsCollection());
+            moomintrollsTable.setMoomintrollsCollection(collectionSession.getMoomintrollsCollection());
+            System.out.println("Closed");
+            isSaved = true;
+            updateTitle();
+            closeStarted = false;
+            synchronized (closeLock) {
+                System.out.println("close notifying");
+                closeLock.notify();
+            }
+        });
+        ioThread.start();
     }
 
     private void setCrudEnabled(boolean enabled) {
@@ -427,98 +489,51 @@ public class MainWindow extends JFrame {
         addButton.setEnabled(enabled);
     }
 
-    public void open() {
-        if(isSaved)
-            return;
-        File lastFile = collectionSession.getFile();
-        if(ignoreCurrentFile || lastFile == null) {
-            File newFile = chooseSaveFile(
-                    lastFile == null ? new File(".") : lastFile);
-            if(newFile == null) {
-                return;
-            }
-            collectionSession.setFile(newFile);
-        }
-        setCrudEnabled(false);
-        collectionSession.setMoomintrollsCollection(
-                (SerializableMoomintrollsCollection)
-                        moomintrollsTable.getMoomintrollsCollection()
-        );
-        Thread thread = new Thread(() -> {
-            do {
-                try {
-                    collectionSession.save();
-                    Object[] options = {"OK"};
-                    if(ignoreCurrentFile || lastFile == null) {
-                        JOptionPane.showOptionDialog(
-                                getContentPane(),
-                                "Successfully saved into\n" + collectionSession.getFile().getPath(),
-                                "Successfully saved",
-                                JOptionPane.DEFAULT_OPTION,
-                                JOptionPane.INFORMATION_MESSAGE,
-                                null,
-                                options,
-                                options[0]
-                        );
+    public synchronized void open() {
+        ioThread = new Thread(() -> {
+            synchronized (ioLock) {
+                while (operationStarted) {
+                    try {
+                        ioLock.wait();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
                     }
+                }
+            }
+            operationStarted = true;
+            File lastFile = collectionSession.getFile();
+            setCrudEnabled(false);
+            while (true) {
+                File newFile = chooseOpenFile(lastFile == null? new File(".") : lastFile);
+                if(newFile == null) {
+                    collectionSession.setFile(lastFile);
+                    break;
+                }
+                try {
+                    collectionSession.setFile(newFile);
+                    collectionSession.load();
+                    moomintrollsTable.setMoomintrollsCollection(collectionSession.getMoomintrollsCollection());
                     isSaved = true;
                     break;
-                } catch (Exception e) {
-                    JOptionPane.showMessageDialog(getContentPane(),
-                            "Failed to save into \n" + collectionSession.getFile().getPath() + "\nSelect file again.",
-                            "Error: failed to save",
+                } catch (IOException e) {
+                    JOptionPane.showMessageDialog(this,
+                            "Failed to open " + newFile.getPath() + "\nSelect file again.",
+                            "Error: failed to open",
                             JOptionPane.ERROR_MESSAGE
                     );
-                    File newFile = chooseSaveFile(collectionSession.getFile());
-                    if(newFile == null) {
-                        collectionSession.setFile(lastFile);
-                        break;
-                    }
-                    if(newFile.exists()) {
-                        int reply = JOptionPane.showConfirmDialog(this,
-                                "File is already exists.\nOverwrite it?",
-                                "Warning: overwriting file",
-                                JOptionPane.YES_NO_OPTION,
-                                JOptionPane.QUESTION_MESSAGE
-                        );
-                        if(reply == JOptionPane.NO_OPTION) {
-                            collectionSession.setFile(lastFile);
-                            break;
-                        }
-                    }
-                    collectionSession.setFile(newFile);
+                } catch (Exception e) {
+                    JOptionPane.showMessageDialog(this,
+                            "Failed to read " + newFile.getPath() + "\nFile is in the wrong format.\nSelect file again.",
+                            "Error: failed to read",
+                            JOptionPane.ERROR_MESSAGE
+                    );
                 }
-            } while (true);
+            }
             setCrudEnabled(true);
             updateTitle();
+            operationStarted = false;
         });
-        thread.start();
-    }
-
-    public void open(String kek) {
-
-        JFileChooser chooser = new JFileChooser(isPathSet? path : new File(".").getPath());
-        chooser.setMultiSelectionEnabled(false);
-        chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-        while (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION){
-            File file = chooser.getSelectedFile();
-            try {
-                successfullLoad(file);
-                break;
-            } catch (IOException e) {
-                JOptionPane.showMessageDialog(this,
-                        "Failed to open " + file.getPath() + "\nSelect file again.",
-                        "Error: failed to open",
-                        JOptionPane.ERROR_MESSAGE
-                );
-            } catch (Exception e) {
-                JOptionPane.showMessageDialog(this,
-                        "Failed to read " + file.getPath() + "\nFile is in the wrong format.\nSelect file again.",
-                        "Error: failed to read",
-                        JOptionPane.ERROR_MESSAGE
-                );
-            }
-        }
+        ioThread.start();
     }
 
     public void updateTitle() {

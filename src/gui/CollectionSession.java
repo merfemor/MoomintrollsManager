@@ -6,6 +6,7 @@ import java.io.*;
 import java.util.Scanner;
 
 public class CollectionSession {
+    // TODO: isSaved attribute
     private SerializableMoomintrollsCollection moomintrollsCollection;
     private File file;
 
@@ -13,21 +14,29 @@ public class CollectionSession {
         this.moomintrollsCollection = moomintrollsCollection;
     }
 
-    public synchronized void save() throws IOException {
-        String jsonCollection = moomintrollsCollection.toJson();
+    public void save() throws IOException {
+        String jsonCollection;
+        synchronized (this) {
+            jsonCollection = moomintrollsCollection.toJson();
+        }
         sleep(8);
         OutputStreamWriter outputStreamWriter = new OutputStreamWriter(new FileOutputStream(file));
-        outputStreamWriter.write(jsonCollection);
+        synchronized (CollectionSession.class) {
+            outputStreamWriter.write(jsonCollection);
+        }
         outputStreamWriter.close();
     }
 
-    public synchronized void load() throws FileNotFoundException {
+    public void load() throws FileNotFoundException {
         Scanner sc = new Scanner(file);
         StringBuilder fileContent = new StringBuilder();
+        sleep(8);
         while (sc.hasNextLine()) {
             fileContent.append(sc.nextLine()).append("\n");
         }
-        this.moomintrollsCollection.fromJson(fileContent.toString());
+        synchronized (this) {
+            moomintrollsCollection.fromJson(fileContent.toString());
+        }
     }
 
     public void setFile(File file) {
@@ -38,8 +47,11 @@ public class CollectionSession {
         return file;
     }
 
-    public void setMoomintrollsCollection(SerializableMoomintrollsCollection moomintrollsCollection) {
+    public synchronized void setMoomintrollsCollection(SerializableMoomintrollsCollection moomintrollsCollection) {
         this.moomintrollsCollection = moomintrollsCollection;
+    }
+    public SerializableMoomintrollsCollection getMoomintrollsCollection() {
+        return moomintrollsCollection;
     }
 
     // method for testing
