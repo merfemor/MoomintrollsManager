@@ -418,7 +418,6 @@ public class MainWindow extends JFrame {
             setCrudEnabled(true);
             updateTitle();
             synchronized (ioLock) {
-                System.out.println("save notifying");
                 ioLock.notify();
             }
             operationStarted = false;
@@ -430,14 +429,12 @@ public class MainWindow extends JFrame {
         closeStarted = true;
         synchronized (ioLock) {
             while (operationStarted) {
-                System.out.println("ioThread isAlive, waiting...");
                 try {
                     ioLock.wait();
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
-            System.out.println("waited");
         }
         ioThread = new Thread(() -> {
             if(!isSaved) {
@@ -469,12 +466,10 @@ public class MainWindow extends JFrame {
             // TODO: set it to null
             collectionSession = new CollectionSession(new SerializableMoomintrollsCollection());
             moomintrollsTable.setMoomintrollsCollection(collectionSession.getMoomintrollsCollection());
-            System.out.println("Closed");
             isSaved = true;
             updateTitle();
             closeStarted = false;
             synchronized (closeLock) {
-                System.out.println("close notifying");
                 closeLock.notify();
             }
         });
