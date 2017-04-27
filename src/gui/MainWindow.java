@@ -12,6 +12,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.FileAlreadyExistsException;
 import java.security.Key;
 import javax.swing.*;
@@ -35,13 +38,16 @@ public class MainWindow extends JFrame {
     // components
     private JMenuBar menuBar = new JMenuBar();
     private JMenu fileIOMenu = new JMenu("File"),
-            viewMenu = new JMenu("View");
+            viewMenu = new JMenu("View"),
+            helpMenu = new JMenu("Help");
     private JMenuItem open = new JMenuItem("Open.."),
             save = new JMenuItem("Save"),
             saveAs = new JMenuItem("Save As.."),
             close = new JMenuItem("Close");
     private JMenuItem add_if_max = new JMenuItem("Add if max.."),
             remove_greater = new JMenuItem("Remove greater..");
+    private JMenuItem about = new JMenuItem("About"),
+            helpItem = new JMenuItem("Help");
     private JCheckBoxMenuItem showTree = new JCheckBoxMenuItem("Show tree", true);
     private JPanel toolBarsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
     private JToolBar crudToolBar = new JToolBar(),
@@ -91,6 +97,9 @@ public class MainWindow extends JFrame {
         fileIOMenu.add(close);
         menuBar.add(viewMenu);
         viewMenu.add(showTree);
+        helpMenu.add(helpItem);
+        helpMenu.add(about);
+        menuBar.add(helpMenu);
 
         JScrollPane tableScrollPane = new JScrollPane(moomintrollsTable);
         contentPane.add(toolBarsPanel, BorderLayout.NORTH);
@@ -130,6 +139,43 @@ public class MainWindow extends JFrame {
         saveAs.addActionListener(actionEvent -> saveAs());
         open.addActionListener(actionEvent -> { closeFile(); open(); });
         close.addActionListener(actionEvent -> closeFile());
+        helpItem.addActionListener(actionEvent -> {
+            Object[] options = {"Open Team Support Page"};
+            int reply = JOptionPane.showOptionDialog(this,
+                    "This is first version of program.\n" +
+                            "So there is NO HELP.\n" +
+                            "\n" +
+                            "Release Notes:\n" +
+                            "\tv1.0\n" +
+                            "\t\t- all you see is new",
+                    "Help",
+                    JOptionPane.DEFAULT_OPTION,
+                    JOptionPane.PLAIN_MESSAGE,
+                    null,
+                    options,
+                    options[0]
+            );
+
+            if(reply == 0) {
+                Desktop desktop = Desktop.getDesktop();
+                try {
+                    desktop.browse(new URL("https://se.ifmo.ru/~s225111/mooman-help/help.html").toURI());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (URISyntaxException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        about.addActionListener(actionEvent -> {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Moomintrolls Manager v1.0\n" +
+                            "by me",
+                    "About",
+                    JOptionPane.PLAIN_MESSAGE
+            );
+        });
 
         save.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK));
         open.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, KeyEvent.CTRL_DOWN_MASK));
