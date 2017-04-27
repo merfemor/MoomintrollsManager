@@ -269,12 +269,14 @@ public class MainWindow extends JFrame {
 
     private void initHiddenFunctions() {
 
-        // adding random moominrroll
+        // adding random moomintroll
         final String ADD_RANDOM = "Add Random";
         getRootPane().getActionMap().put(ADD_RANDOM, new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 moomintrollsTable.addRow(Random.randomTroll());
+                isSaved = false;
+                updateTitle();
             }
         });
         this.getRootPane().getInputMap().put(
@@ -347,6 +349,8 @@ public class MainWindow extends JFrame {
                 == MoomintrollsFrame.OK) {
             moomintrollsTable.setRow(row, editFrame.getMoomintroll());
         }
+        isSaved = false;
+        updateTitle();
     }
 
     public void save() {
