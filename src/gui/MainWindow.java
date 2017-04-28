@@ -377,9 +377,11 @@ public class MainWindow extends JFrame {
         new Thread(() -> {
             setEditEnabled(false);
             try {
-                collectionSession.loadFromFile(new File(System.getenv(ENV_NAME)));
+                File file = new File(System.getenv(ENV_NAME));
+                collectionSession.loadFromFile(file);
+                collectionSession.setFile(file);
                 moomintrollsTable.setMoomintrollsCollection(collectionSession.getMoomintrollsCollection());
-                System.out.println("Successful loading " + collectionSession.getFile().getPath() + " from env \"" + envName + "\"");
+                System.out.println("Successful loading " + file.getPath() + " from env \"" + envName + "\"");
             } catch (Exception e) {
                 System.out.println("Failed to load from env \"" + envName + "\"");
             } finally {
