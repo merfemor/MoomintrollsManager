@@ -1,9 +1,9 @@
-package utils;
+package cui;
 
 import java.io.*;
 import java.util.Scanner;
 
-public class FileManager {
+public class FileUtils {
     public static String generateFileName(String fileName, String fileExtension) {
         String path = fileName + fileExtension;
         int num = 2;

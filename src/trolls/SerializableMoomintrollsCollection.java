@@ -1,49 +1,35 @@
 package trolls;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
-import com.google.gson.reflect.TypeToken;
-import utils.FileManager;
-import utils.JsonParser;
+import cui.FileUtils;
 
 import java.io.IOException;
 import java.io.Serializable;
 
 public class SerializableMoomintrollsCollection extends MoomintrollsCollection implements Serializable{
 
-    public SerializableMoomintrollsCollection(String json) {
-        super();
-        fromJson(json);
-    }
-
-    public SerializableMoomintrollsCollection() {
-        super();
-    }
-
     public void fromJson(String json) {
-        MoomintrollsCollection moomintrollsCollection = JsonParser.jsonToObject(
-                json,
-                new TypeToken<MoomintrollsCollection>(){}.getType()
-        );
         clear();
-        this.addAll(moomintrollsCollection);
+        this.addAll(new Gson().fromJson(json, MoomintrollsCollection.class));
     }
 
     public String toJson() {
-        return JsonParser.objectToJson(this);
+        return new GsonBuilder().setPrettyPrinting().create().toJson(this);
     }
 
     public void saveToFile(String path) throws IOException {
         System.out.println("Saving collection...");
-        FileManager.writeToFile(path, toJson());
+        FileUtils.writeToFile(path, toJson());
         System.out.println("Successfully saved to \"" + path + "\"");
     }
-
 
     /**
      * Loads moomintrolls collection from path
      */
     public void loadFromFile(String path) {
-        String fileContent = FileManager.readFromFile(path, true);
+        String fileContent = FileUtils.readFromFile(path, true);
         try {
             fromJson(fileContent);
             System.out.println("Objects successfully loaded from \"" + path + "\"");

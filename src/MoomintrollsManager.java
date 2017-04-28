@@ -1,3 +1,5 @@
+import cui.ConsoleMoomintrollsManager;
+
 public class MoomintrollsManager {
     public static void main(String[] args) {
 
