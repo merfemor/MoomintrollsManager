@@ -63,6 +63,9 @@ public class MoomintrollsTable extends JTable{
     }
 
     public void setMoomintrollsCollection(MoomintrollsCollection moomintrollsCollection) {
+        if(moomintrollsCollection == null) {
+            moomintrollsCollection = new MoomintrollsCollection();
+        }
         this.moomintrollsCollection = moomintrollsCollection;
         moomintrollsDataModel.clear();
         for(Moomintroll moomintroll: moomintrollsCollection) {
