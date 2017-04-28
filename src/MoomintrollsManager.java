@@ -1,8 +1,8 @@
 import cui.ConsoleMoomintrollsManager;
+import gui.MainWindow;
 
 public class MoomintrollsManager {
     public static void main(String[] args) {
-
         // cmd-mode
         if(args.length > 0 && args[0].equals("--cmd")) {
             ConsoleMoomintrollsManager consoleMoomintrollsManager = new ConsoleMoomintrollsManager();
@@ -11,9 +11,8 @@ public class MoomintrollsManager {
                 consoleMoomintrollsManager.setPathVariableName(envName);
             }
             consoleMoomintrollsManager.start();
+        } else {
+            new MainWindow("LAB_PATH").setVisible(true);
         }
-
-        GraphicalMoomintrollsManager graphicalMoomintrollsManager = new GraphicalMoomintrollsManager();
-
     }
 }
