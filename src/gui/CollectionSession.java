@@ -149,14 +149,12 @@ public class CollectionSession {
         jsonCollection = moomintrollsCollection.toJson();
         OutputStreamWriter outputStreamWriter = new OutputStreamWriter(new FileOutputStream(file));
         outputStreamWriter.write(jsonCollection);
-        sleep(8);
         outputStreamWriter.close();
         isSaved = true;
     }
 
     public void loadFromFile(File sourceFile) throws FileNotFoundException {
         StringBuilder fileContent = new StringBuilder();
-        sleep(8);
         Scanner sc = new Scanner(sourceFile);
         while (sc.hasNextLine()) {
             fileContent.append(sc.nextLine()).append("\n");
