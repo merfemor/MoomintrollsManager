@@ -2,7 +2,7 @@ package gui;
 
 import trolls.Moomintroll;
 import trolls.SerializableMoomintrollsCollection;
-import utils.Random;
+import trolls.utils.Random;
 
 import java.awt.*;
 import java.awt.event.*;

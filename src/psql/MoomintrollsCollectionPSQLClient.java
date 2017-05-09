@@ -8,7 +8,9 @@ import trolls.MoomintrollsCollection;
 import javax.sql.rowset.CachedRowSet;
 import java.awt.*;
 import java.sql.SQLException;
-import java.sql.Statement;
+import java.util.Arrays;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 public class MoomintrollsCollectionPSQLClient extends PSQLClient {
     private String tableName = "moomintroll";
@@ -21,8 +23,17 @@ public class MoomintrollsCollectionPSQLClient extends PSQLClient {
             "position"
     };
 
+    private CachedRowSet cachedRowSet;
+
     public MoomintrollsCollectionPSQLClient(String hostname, int port, String database, String username, String password) throws SQLException {
         super(hostname, port, database, username, password);
+        connection.setAutoCommit(false);
+        cachedRowSet = new CachedRowSetImpl();
+        cachedRowSet.setCommand("SELECT " +
+                Arrays.stream(fieldsNames).skip(1).collect(Collectors.joining(", "))
+                + " FROM " + tableName);
+        cachedRowSet.execute(connection);
+
     }
 
     public void setFieldsNames(String[] fieldsNames) {
@@ -33,19 +44,28 @@ public class MoomintrollsCollectionPSQLClient extends PSQLClient {
         this.tableName = tableName;
     }
 
+    public void add(Moomintroll moomintroll) throws SQLException {
+        cachedRowSet.moveToInsertRow();
+        //cachedRowSet.updateNull(fieldsNames[0]);
+        cachedRowSet.updateString(fieldsNames[1], moomintroll.getName());
+        cachedRowSet.updateBoolean(fieldsNames[2], moomintroll.isMale());
+        cachedRowSet.updateInt(fieldsNames[3], moomintroll.getRgbBodyColor().getRGB());
+        cachedRowSet.updateInt(fieldsNames[4], moomintroll.getKindness().value());
+        cachedRowSet.updateInt(fieldsNames[5], moomintroll.getPosition());
+        cachedRowSet.insertRow();
+        cachedRowSet.moveToCurrentRow();
+        cachedRowSet.acceptChanges();
+    }
+
     public MoomintrollsCollection getFullTable() throws SQLException {
-        CachedRowSet crs = new CachedRowSetImpl();
-        crs.setReadOnly(true);
-        crs.setCommand("SELECT * FROM " + tableName);
-        crs.execute(connection);
         MoomintrollsCollection moomintrollsCollection = new MoomintrollsCollection();
-        while (crs.next()) {
+        while (cachedRowSet.next()) {
             moomintrollsCollection.add(new Moomintroll(
-                    crs.getString(fieldsNames[1]),
-                    crs.getBoolean(fieldsNames[2]),
-                    crs.getInt(fieldsNames[3]),
-                    new Color(crs.getInt(fieldsNames[4])),
-                    new Kindness(crs.getInt(fieldsNames[5]))
+                    cachedRowSet.getString(fieldsNames[1]),
+                    cachedRowSet.getBoolean(fieldsNames[2]),
+                    cachedRowSet.getInt(fieldsNames[3]),
+                    new Color(cachedRowSet.getInt(fieldsNames[4])),
+                    new Kindness(cachedRowSet.getInt(fieldsNames[5]))
             ));
         }
         return moomintrollsCollection;

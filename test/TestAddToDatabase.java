@@ -1,16 +1,10 @@
 import psql.MoomintrollsCollectionPSQLClient;
-import trolls.MoomintrollsCollection;
+import trolls.Moomintroll;
 import trolls.utils.MoomintrollUtils;
 
 import java.sql.SQLException;
 
-public class PrintDatabase {
-    public static void getAndPrintDatabase(MoomintrollsCollectionPSQLClient psqlClient) throws SQLException {
-        MoomintrollsCollection moomintrolls;
-        moomintrolls = psqlClient.getFullTable();
-        moomintrolls.forEach(MoomintrollUtils::beautifulPrint);
-    }
-
+public class TestAddToDatabase {
     public static void main(String[] args) {
         MoomintrollsCollectionPSQLClient psqlClient;
         try {
@@ -26,9 +20,13 @@ public class PrintDatabase {
         }
 
         try {
-            getAndPrintDatabase(psqlClient);
+            PrintDatabase.getAndPrintDatabase(psqlClient);
+            Moomintroll moomintroll = trolls.utils.Random.randomTroll();
+            MoomintrollUtils.beautifulPrint(moomintroll);
+            psqlClient.add(moomintroll);
+            PrintDatabase.getAndPrintDatabase(psqlClient);
         } catch (SQLException e) {
-            return;
+            e.printStackTrace();
         }
     }
 }
