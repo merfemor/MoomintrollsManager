@@ -11,7 +11,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 public class MoomintrollsCollectionPSQLClient extends PSQLClient {
-    private final String tableName = "moomintroll";
+    private String tableName = "moomintroll";
     private String[] fieldsNames = {
             "moomintroll_id",
             "name",
@@ -29,10 +29,15 @@ public class MoomintrollsCollectionPSQLClient extends PSQLClient {
         this.fieldsNames = fieldsNames;
     }
 
+    public void setTableName(String tableName) {
+        this.tableName = tableName;
+    }
+
     public MoomintrollsCollection getFullTable() throws SQLException {
-        Statement statement = connection.createStatement();
         CachedRowSet crs = new CachedRowSetImpl();
-        crs.populate(statement.executeQuery("SELECT * FROM " + tableName));
+        crs.setReadOnly(true);
+        crs.setCommand("SELECT * FROM " + tableName);
+        crs.execute(connection);
         MoomintrollsCollection moomintrollsCollection = new MoomintrollsCollection();
         while (crs.next()) {
             moomintrollsCollection.add(new Moomintroll(
