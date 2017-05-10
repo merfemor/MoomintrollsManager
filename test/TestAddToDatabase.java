@@ -1,4 +1,4 @@
-import psql.MoomintrollsCollectionPSQLClient;
+import psql.MoomintrollsDatabase;
 import trolls.Moomintroll;
 import trolls.utils.MoomintrollUtils;
 
@@ -6,9 +6,9 @@ import java.sql.SQLException;
 
 public class TestAddToDatabase {
     public static void main(String[] args) {
-        MoomintrollsCollectionPSQLClient psqlClient;
+        MoomintrollsDatabase psqlClient;
         try {
-            psqlClient = new MoomintrollsCollectionPSQLClient(
+            psqlClient = new MoomintrollsDatabase(
                     "localhost",
                     5432,
                     "mooman",

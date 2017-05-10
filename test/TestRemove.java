@@ -1,12 +1,13 @@
-import psql.MoomintrollsCollectionPSQLClient;
+import psql.MoomintrollsDatabase;
 
 import java.sql.SQLException;
+import java.util.stream.IntStream;
 
 public class TestRemove {
     public static void main(String[] args) {
-        MoomintrollsCollectionPSQLClient psqlClient;
+        MoomintrollsDatabase psqlClient;
         try {
-            psqlClient = new MoomintrollsCollectionPSQLClient(
+            psqlClient = new MoomintrollsDatabase(
                     "localhost",
                     5432,
                     "mooman",
@@ -14,12 +15,13 @@ public class TestRemove {
                     "123456"
             );
         } catch (SQLException e) {
+            e.printStackTrace();
             return;
         }
 
         try {
             PrintDatabase.getAndPrintDatabase(psqlClient);
-            psqlClient.remove(4);
+            psqlClient.remove(IntStream.rangeClosed(16, 21).toArray());
 
             PrintDatabase.getAndPrintDatabase(psqlClient);
 
