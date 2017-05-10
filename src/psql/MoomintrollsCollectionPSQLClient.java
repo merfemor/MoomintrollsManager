@@ -9,7 +9,6 @@ import javax.sql.rowset.CachedRowSet;
 import java.awt.*;
 import java.sql.SQLException;
 import java.util.Arrays;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 public class MoomintrollsCollectionPSQLClient extends PSQLClient {
@@ -23,21 +22,20 @@ public class MoomintrollsCollectionPSQLClient extends PSQLClient {
             "position"
     };
 
-    private CachedRowSet cachedRowSet;
+    private String NOT_SERIAL_FIELDS;
 
     public MoomintrollsCollectionPSQLClient(String hostname, int port, String database, String username, String password) throws SQLException {
         super(hostname, port, database, username, password);
         connection.setAutoCommit(false);
-        cachedRowSet = new CachedRowSetImpl();
-        cachedRowSet.setCommand("SELECT " +
-                Arrays.stream(fieldsNames).skip(1).collect(Collectors.joining(", "))
-                + " FROM " + tableName);
-        cachedRowSet.execute(connection);
-
+        generateNotSerialFields();
     }
 
     public void setFieldsNames(String[] fieldsNames) {
         this.fieldsNames = fieldsNames;
+    }
+
+    private void generateNotSerialFields() {
+        NOT_SERIAL_FIELDS = Arrays.stream(fieldsNames).skip(1).collect(Collectors.joining(", "));
     }
 
     public void setTableName(String tableName) {
@@ -45,8 +43,8 @@ public class MoomintrollsCollectionPSQLClient extends PSQLClient {
     }
 
     public void add(Moomintroll moomintroll) throws SQLException {
+        CachedRowSet cachedRowSet = selectAllNotSerial();
         cachedRowSet.moveToInsertRow();
-        //cachedRowSet.updateNull(fieldsNames[0]);
         cachedRowSet.updateString(fieldsNames[1], moomintroll.getName());
         cachedRowSet.updateBoolean(fieldsNames[2], moomintroll.isMale());
         cachedRowSet.updateInt(fieldsNames[3], moomintroll.getRgbBodyColor().getRGB());
@@ -57,17 +55,42 @@ public class MoomintrollsCollectionPSQLClient extends PSQLClient {
         cachedRowSet.acceptChanges();
     }
 
+    public void remove(int moomintrollId) throws SQLException {
+        CachedRowSet cachedRowSet = new CachedRowSetImpl();
+        cachedRowSet.setCommand(
+                "SELECT " + NOT_SERIAL_FIELDS + " FROM " + tableName +
+                " WHERE " + fieldsNames[0] + "=" + moomintrollId
+        );
+        cachedRowSet.execute(connection);
+        cachedRowSet.next();
+        cachedRowSet.deleteRow();
+        cachedRowSet.acceptChanges();
+    }
+
     public MoomintrollsCollection getFullTable() throws SQLException {
+        CachedRowSet cachedRowSet = selectAllNotSerial();
+
         MoomintrollsCollection moomintrollsCollection = new MoomintrollsCollection();
         while (cachedRowSet.next()) {
-            moomintrollsCollection.add(new Moomintroll(
-                    cachedRowSet.getString(fieldsNames[1]),
-                    cachedRowSet.getBoolean(fieldsNames[2]),
-                    cachedRowSet.getInt(fieldsNames[3]),
-                    new Color(cachedRowSet.getInt(fieldsNames[4])),
-                    new Kindness(cachedRowSet.getInt(fieldsNames[5]))
-            ));
+            moomintrollsCollection.add(getMoomintroll(cachedRowSet));
         }
         return moomintrollsCollection;
+    }
+
+    private Moomintroll getMoomintroll(CachedRowSet cachedRowSet) throws SQLException {
+        return new Moomintroll(
+                cachedRowSet.getString(fieldsNames[1]),
+                cachedRowSet.getBoolean(fieldsNames[2]),
+                cachedRowSet.getInt(fieldsNames[3]),
+                new Color(cachedRowSet.getInt(fieldsNames[4])),
+                new Kindness(cachedRowSet.getInt(fieldsNames[5]))
+        );
+    }
+
+    private CachedRowSet selectAllNotSerial() throws SQLException {
+        CachedRowSet cachedRowSet = new CachedRowSetImpl();
+        cachedRowSet.setCommand("SELECT " + NOT_SERIAL_FIELDS + " FROM " + tableName);
+        cachedRowSet.execute(connection);
+        return cachedRowSet;
     }
 }

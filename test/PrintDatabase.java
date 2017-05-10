@@ -9,6 +9,7 @@ public class PrintDatabase {
         MoomintrollsCollection moomintrolls;
         moomintrolls = psqlClient.getFullTable();
         moomintrolls.forEach(MoomintrollUtils::beautifulPrint);
+        System.out.println("--------\n" + moomintrolls.size() + " trolls");
     }
 
     public static void main(String[] args) {

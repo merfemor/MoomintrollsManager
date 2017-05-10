@@ -1,10 +1,8 @@
 import psql.MoomintrollsCollectionPSQLClient;
-import trolls.Moomintroll;
-import trolls.utils.MoomintrollUtils;
 
 import java.sql.SQLException;
 
-public class TestAddToDatabase {
+public class TestRemove {
     public static void main(String[] args) {
         MoomintrollsCollectionPSQLClient psqlClient;
         try {
@@ -21,12 +19,10 @@ public class TestAddToDatabase {
 
         try {
             PrintDatabase.getAndPrintDatabase(psqlClient);
-            System.out.println();
-            Moomintroll moomintroll = trolls.utils.Random.randomTroll();
-            MoomintrollUtils.beautifulPrint(moomintroll);
-            psqlClient.add(moomintroll);
-            System.out.println();
+            psqlClient.remove(4);
+
             PrintDatabase.getAndPrintDatabase(psqlClient);
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
