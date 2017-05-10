@@ -9,7 +9,7 @@ public class TestRemove {
             MoomintrollsDatabase moomintrollsDatabase = Databases.getTestDatabaseConnection();
             Databases.getAndPrintDatabase(moomintrollsDatabase);
 
-            moomintrollsDatabase.remove(IntStream.rangeClosed(79, 79).toArray());
+            moomintrollsDatabase.delete(IntStream.rangeClosed(79, 79).toArray());
 
             Databases.getAndPrintDatabase(moomintrollsDatabase);
         } catch (SQLException e) {

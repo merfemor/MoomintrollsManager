@@ -42,7 +42,7 @@ public class MoomintrollsDatabase extends PSQLClient {
         NOT_SERIAL_FIELDS = Arrays.stream(fieldsNames).skip(1).collect(Collectors.joining(", "));
     }
 
-    public int add(Moomintroll moomintroll) throws SQLException {
+    public int insert(Moomintroll moomintroll) throws SQLException {
         CachedRowSet crs = select(NOT_SERIAL_FIELDS);
         crs.moveToInsertRow();
         update(crs, moomintroll);
@@ -54,12 +54,12 @@ public class MoomintrollsDatabase extends PSQLClient {
         return fullDataRowSet.getInt(fieldsNames[0]);
     }
 
-    public boolean remove(int moomintrollId) throws SQLException {
+    public boolean delete(int moomintrollId) throws SQLException {
         int[] ids = {moomintrollId};
-        return remove(ids);
+        return delete(ids);
     }
 
-    public boolean remove(int[] moomintrollIds) throws SQLException {
+    public boolean delete(int[] moomintrollIds) throws SQLException {
         boolean changed = false;
         fullDataRowSet.beforeFirst();
         while (fullDataRowSet.next()) {
@@ -74,7 +74,7 @@ public class MoomintrollsDatabase extends PSQLClient {
         return changed;
     }
 
-    public Map<Long, Moomintroll> getFullTable() throws SQLException {
+    public Map<Long, Moomintroll> toMoomintrollsMap() throws SQLException {
         Map<Long, Moomintroll> moomintrollMap = new HashMap<>(fullDataRowSet.size());
         fullDataRowSet.beforeFirst();
         while (fullDataRowSet.next()) {

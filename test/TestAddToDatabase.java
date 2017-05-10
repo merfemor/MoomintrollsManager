@@ -14,7 +14,7 @@ public class TestAddToDatabase {
             for(int i = 0; i < 10; i++) {
                 Moomintroll moomintroll = trolls.utils.Random.randomTroll();
                 MoomintrollUtils.beautifulPrint(moomintroll);
-                int id = moomintrollsDatabase.add(moomintroll);
+                int id = moomintrollsDatabase.insert(moomintroll);
                 System.out.println("\nAdded with id = " + id);
             }
 
