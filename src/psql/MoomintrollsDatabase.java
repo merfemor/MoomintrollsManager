@@ -2,12 +2,13 @@ package psql;
 
 import trolls.Kindness;
 import trolls.Moomintroll;
-import trolls.MoomintrollsCollection;
 
 import javax.sql.rowset.CachedRowSet;
 import java.awt.*;
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class MoomintrollsDatabase extends PSQLClient {
@@ -41,18 +42,16 @@ public class MoomintrollsDatabase extends PSQLClient {
         NOT_SERIAL_FIELDS = Arrays.stream(fieldsNames).skip(1).collect(Collectors.joining(", "));
     }
 
-    public void add(Moomintroll moomintroll) throws SQLException {
+    public int add(Moomintroll moomintroll) throws SQLException {
         CachedRowSet crs = select(NOT_SERIAL_FIELDS);
         crs.moveToInsertRow();
-        crs.updateString(fieldsNames[1], moomintroll.getName());
-        crs.updateBoolean(fieldsNames[2], moomintroll.isMale());
-        crs.updateInt(fieldsNames[3], moomintroll.getRgbBodyColor().getRGB());
-        crs.updateInt(fieldsNames[4], moomintroll.getKindness().value());
-        crs.updateInt(fieldsNames[5], moomintroll.getPosition());
+        update(crs, moomintroll);
         crs.insertRow();
         crs.moveToCurrentRow();
         crs.acceptChanges();
-
+        reloadData();
+        fullDataRowSet.last();
+        return fullDataRowSet.getInt(fieldsNames[0]);
     }
 
     public boolean remove(int moomintrollId) throws SQLException {
@@ -62,7 +61,7 @@ public class MoomintrollsDatabase extends PSQLClient {
 
     public boolean remove(int[] moomintrollIds) throws SQLException {
         boolean changed = false;
-        fullDataRowSet.first();
+        fullDataRowSet.beforeFirst();
         while (fullDataRowSet.next()) {
             for(int id: moomintrollIds) {
                 if(fullDataRowSet.getInt(fieldsNames[0]) == id) {
@@ -75,13 +74,14 @@ public class MoomintrollsDatabase extends PSQLClient {
         return changed;
     }
 
-    public MoomintrollsCollection getFullTable() throws SQLException {
-        CachedRowSet crs = select(NOT_SERIAL_FIELDS);
-        MoomintrollsCollection moomintrollsCollection = new MoomintrollsCollection();
-        while (crs.next()) {
-            moomintrollsCollection.add(getMoomintroll(crs));
+    public Map<Long, Moomintroll> getFullTable() throws SQLException {
+        Map<Long, Moomintroll> moomintrollMap = new HashMap<>(fullDataRowSet.size());
+        fullDataRowSet.beforeFirst();
+        while (fullDataRowSet.next()) {
+            moomintrollMap.put(fullDataRowSet.getLong(fieldsNames[0]),
+                    getMoomintroll(fullDataRowSet));
         }
-        return moomintrollsCollection;
+        return moomintrollMap;
     }
 
     private Moomintroll getMoomintroll(CachedRowSet crs) throws SQLException {
@@ -92,5 +92,13 @@ public class MoomintrollsDatabase extends PSQLClient {
                 new Color(crs.getInt(fieldsNames[4])),
                 new Kindness(crs.getInt(fieldsNames[5]))
         );
+    }
+
+    private void update(CachedRowSet crs, Moomintroll moomintroll) throws SQLException {
+        crs.updateString(fieldsNames[1], moomintroll.getName());
+        crs.updateBoolean(fieldsNames[2], moomintroll.isMale());
+        crs.updateInt(fieldsNames[3], moomintroll.getRgbBodyColor().getRGB());
+        crs.updateInt(fieldsNames[4], moomintroll.getKindness().value());
+        crs.updateInt(fieldsNames[5], moomintroll.getPosition());
     }
 }

@@ -6,27 +6,21 @@ import java.sql.SQLException;
 
 public class TestAddToDatabase {
     public static void main(String[] args) {
-        MoomintrollsDatabase psqlClient;
         try {
-            psqlClient = new MoomintrollsDatabase(
-                    "localhost",
-                    5432,
-                    "mooman",
-                    "usr",
-                    "123456"
-            );
-        } catch (SQLException e) {
-            return;
-        }
+            MoomintrollsDatabase moomintrollsDatabase = Databases.getTestDatabaseConnection();
+            Databases.getAndPrintDatabase(moomintrollsDatabase);
+            System.out.println();
 
-        try {
-            PrintDatabase.getAndPrintDatabase(psqlClient);
+            for(int i = 0; i < 10; i++) {
+                Moomintroll moomintroll = trolls.utils.Random.randomTroll();
+                MoomintrollUtils.beautifulPrint(moomintroll);
+                int id = moomintrollsDatabase.add(moomintroll);
+                System.out.println("\nAdded with id = " + id);
+            }
+
             System.out.println();
-            Moomintroll moomintroll = trolls.utils.Random.randomTroll();
-            MoomintrollUtils.beautifulPrint(moomintroll);
-            psqlClient.add(moomintroll);
-            System.out.println();
-            PrintDatabase.getAndPrintDatabase(psqlClient);
+            Databases.getAndPrintDatabase(moomintrollsDatabase);
+
         } catch (SQLException e) {
             e.printStackTrace();
         }

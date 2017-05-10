@@ -5,26 +5,13 @@ import java.util.stream.IntStream;
 
 public class TestRemove {
     public static void main(String[] args) {
-        MoomintrollsDatabase psqlClient;
         try {
-            psqlClient = new MoomintrollsDatabase(
-                    "localhost",
-                    5432,
-                    "mooman",
-                    "usr",
-                    "123456"
-            );
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return;
-        }
+            MoomintrollsDatabase moomintrollsDatabase = Databases.getTestDatabaseConnection();
+            Databases.getAndPrintDatabase(moomintrollsDatabase);
 
-        try {
-            PrintDatabase.getAndPrintDatabase(psqlClient);
-            psqlClient.remove(IntStream.rangeClosed(16, 21).toArray());
+            moomintrollsDatabase.remove(IntStream.rangeClosed(79, 79).toArray());
 
-            PrintDatabase.getAndPrintDatabase(psqlClient);
-
+            Databases.getAndPrintDatabase(moomintrollsDatabase);
         } catch (SQLException e) {
             e.printStackTrace();
         }
