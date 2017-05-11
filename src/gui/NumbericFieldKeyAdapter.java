@@ -23,7 +23,7 @@ public class NumbericFieldKeyAdapter extends KeyAdapter{
         Character c = keyEvent.getKeyChar();
         JTextField component = (JTextField) keyEvent.getComponent();
 
-        if((component.getText().length() > MAX_DIGITS && c != KeyEvent.VK_BACK_SPACE) || !(Character.isDigit(c) || c == KeyEvent.VK_BACK_SPACE || c == KeyEvent.VK_MINUS)) {
+        if((component.getText().length() > MAX_DIGITS - 1 && c != KeyEvent.VK_BACK_SPACE) || !(Character.isDigit(c) || c == KeyEvent.VK_BACK_SPACE || c == KeyEvent.VK_MINUS)) {
             keyEvent.consume();
         }
         if(c == KeyEvent.VK_MINUS) {
