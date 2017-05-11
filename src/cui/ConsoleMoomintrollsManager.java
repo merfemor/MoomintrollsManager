@@ -1,17 +1,35 @@
 package cui;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import trolls.Moomintroll;
-import trolls.SerializableMoomintrollsCollection;
+import trolls.MoomintrollsCollection;
 
 import java.io.IOException;
 
 
 public class ConsoleMoomintrollsManager {
-    private SerializableMoomintrollsCollection moomintrollsCollection = new SerializableMoomintrollsCollection();
+    private MoomintrollsCollection moomintrollsCollection = new MoomintrollsCollection();
     private String path;
     private String pathVariableName;
+
+    /**
+     * Loads moomintrolls collection from path
+     */
+    @Deprecated
+    public static void loadFromFile(MoomintrollsCollection moomintrolls, String path) {
+        String fileContent = FileUtils.readFromFile(path, true);
+        try {
+            moomintrolls.clear();
+            moomintrolls.addAll(new Gson().fromJson(fileContent, MoomintrollsCollection.class));
+            System.out.println("Objects successfully loaded from \"" + path + "\"");
+        } catch (JsonSyntaxException e) {
+        System.out.println("Can't convert: error when parsing JSON: bad format");
+        } catch (Exception e) {
+        System.out.println("Can't convert: undefined exception when parsing JSON");
+        }
+    }
 
     public void start() {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
@@ -21,7 +39,9 @@ public class ConsoleMoomintrollsManager {
                 System.out.println("File path was automatically set to \"" + path + "\"");
             }
             try {
-                moomintrollsCollection.saveToFile(path);
+                System.out.println("Saving collection...");
+                FileUtils.writeToFile(path, new GsonBuilder().setPrettyPrinting().create().toJson(moomintrollsCollection));
+                System.out.println("Successfully saved to \"" + path + "\"");
             } catch (IOException e) {
                 System.out.println("Failed to save: error when writing to \"" + path + "\"");
             }
@@ -31,7 +51,7 @@ public class ConsoleMoomintrollsManager {
                 " ----------------------------------------------\n");
         if(pathVariableName != null) {
             path = loadPathVariable(pathVariableName);
-            moomintrollsCollection.loadFromFile(path);
+            loadFromFile(moomintrollsCollection, path);
         }
 
         System.out.println("\nType commands below to manage moomintrolls collection.\n" +
@@ -97,7 +117,7 @@ public class ConsoleMoomintrollsManager {
             }
         }
         else if (command.equals("open")) {
-            moomintrollsCollection.loadFromFile(path);
+            loadFromFile(moomintrollsCollection, path);
         }
         else if (command.equals("print")) {
             System.out.println(moomintrollsCollection);

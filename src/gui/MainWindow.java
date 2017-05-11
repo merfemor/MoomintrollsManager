@@ -1,7 +1,7 @@
 package gui;
 
 import trolls.Moomintroll;
-import trolls.SerializableMoomintrollsCollection;
+import trolls.MoomintrollsCollection;
 import utils.Random;
 
 import java.awt.*;
@@ -63,11 +63,10 @@ public class MainWindow extends JFrame {
     }
 
     private void initComponents() {
-        moomintrollsTable = new MoomintrollsTable(new SerializableMoomintrollsCollection());
+        moomintrollsTable = new MoomintrollsTable(new MoomintrollsCollection());
         moomintrollsTree = new MoomintrollsTree(moomintrollsTable);
         moomintrollsTable.registerMoomintrollsTree(moomintrollsTree);
-        collectionSession = new CollectionSession(
-                (SerializableMoomintrollsCollection) moomintrollsTable.getMoomintrollsCollection());
+        collectionSession = new CollectionSession(moomintrollsTable.getMoomintrollsCollection());
         collectionSession.setOwner(this);
         loadSessionFromEnv(ENV_NAME);
 
@@ -126,7 +125,7 @@ public class MainWindow extends JFrame {
             if (save.isEnabled()) {
                 new Thread(() -> {
                     setEditEnabled(false);
-                    collectionSession.setMoomintrollsCollection((SerializableMoomintrollsCollection) moomintrollsTable.getMoomintrollsCollection());
+                    collectionSession.setMoomintrollsCollection(moomintrollsTable.getMoomintrollsCollection());
                     collectionSession.save();
                     setEditEnabled(true);
                     updateTitle();
@@ -137,7 +136,7 @@ public class MainWindow extends JFrame {
             if (saveAs.isEnabled()) {
                 new Thread(() -> {
                     setEditEnabled(false);
-                    collectionSession.setMoomintrollsCollection((SerializableMoomintrollsCollection) moomintrollsTable.getMoomintrollsCollection());
+                    collectionSession.setMoomintrollsCollection(moomintrollsTable.getMoomintrollsCollection());
                     collectionSession.saveAs();
                     setEditEnabled(true);
                     updateTitle();

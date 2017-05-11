@@ -1,6 +1,8 @@
 package gui;
 
-import trolls.SerializableMoomintrollsCollection;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import trolls.MoomintrollsCollection;
 
 import javax.swing.*;
 import java.awt.*;
@@ -9,11 +11,11 @@ import java.util.Scanner;
 
 public class CollectionSession {
     private boolean isSaved = true;
-    private SerializableMoomintrollsCollection moomintrollsCollection;
+    private MoomintrollsCollection moomintrollsCollection;
     private File file;
     private Component owner;
 
-    public CollectionSession(SerializableMoomintrollsCollection moomintrollsCollection) {
+    public CollectionSession(MoomintrollsCollection moomintrollsCollection) {
         this.moomintrollsCollection = moomintrollsCollection;
     }
 
@@ -54,7 +56,7 @@ public class CollectionSession {
             }
         }
         file = null;
-        moomintrollsCollection = new SerializableMoomintrollsCollection();
+        moomintrollsCollection = new MoomintrollsCollection();
         return true;
     }
 
@@ -146,7 +148,7 @@ public class CollectionSession {
 
     public void saveToFile(File file) throws IOException {
         String jsonCollection;
-        jsonCollection = moomintrollsCollection.toJson();
+        jsonCollection = new GsonBuilder().setPrettyPrinting().create().toJson(moomintrollsCollection);
         OutputStreamWriter outputStreamWriter = new OutputStreamWriter(new FileOutputStream(file));
         outputStreamWriter.write(jsonCollection);
         outputStreamWriter.close();
@@ -160,7 +162,8 @@ public class CollectionSession {
             fileContent.append(sc.nextLine()).append("\n");
         }
         sc.close();
-        moomintrollsCollection.fromJson(fileContent.toString());
+        moomintrollsCollection.clear();
+        moomintrollsCollection.addAll(new Gson().fromJson(fileContent.toString(), MoomintrollsCollection.class));
         isSaved = true;
     }
 
@@ -176,10 +179,10 @@ public class CollectionSession {
         isSaved = false;
     }
 
-    public synchronized void setMoomintrollsCollection(SerializableMoomintrollsCollection moomintrollsCollection) {
+    public synchronized void setMoomintrollsCollection(MoomintrollsCollection moomintrollsCollection) {
         this.moomintrollsCollection = moomintrollsCollection;
     }
-    public SerializableMoomintrollsCollection getMoomintrollsCollection() {
+    public MoomintrollsCollection getMoomintrollsCollection() {
         return moomintrollsCollection;
     }
 

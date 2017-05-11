@@ -1,7 +1,8 @@
 package trolls;
 
-import java.util.PriorityQueue;
+import java.util.*;
 
+@Deprecated
 public class MoomintrollsCollection extends PriorityQueue<Moomintroll> {
 
     /**
