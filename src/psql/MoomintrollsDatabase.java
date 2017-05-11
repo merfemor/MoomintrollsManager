@@ -9,6 +9,7 @@ import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class MoomintrollsDatabase extends PSQLClient {
@@ -28,6 +29,7 @@ public class MoomintrollsDatabase extends PSQLClient {
         setTableName(tableName);
         reloadData();
         generateNotSerialFields();
+        connection.setAutoCommit(false);
     }
 
     public MoomintrollsDatabase(String hostname, int port, String database, String username, String password) throws SQLException {
@@ -48,29 +50,27 @@ public class MoomintrollsDatabase extends PSQLClient {
         update(crs, moomintroll);
         crs.insertRow();
         crs.moveToCurrentRow();
-        crs.acceptChanges();
+        crs.acceptChanges(connection);
         reloadData();
         fullDataRowSet.last();
         return fullDataRowSet.getInt(fieldsNames[0]);
     }
 
-    public boolean delete(int moomintrollId) throws SQLException {
-        int[] ids = {moomintrollId};
-        return delete(ids);
+    public boolean delete(long moomintrollId) throws SQLException {
+        return delete(new long[]{moomintrollId});
     }
 
-    public boolean delete(int[] moomintrollIds) throws SQLException {
+    public boolean delete(long[] ids) throws SQLException {
         boolean changed = false;
+        Set<Long> idsSet = Arrays.stream(ids).boxed().collect(Collectors.toSet());
         fullDataRowSet.beforeFirst();
         while (fullDataRowSet.next()) {
-            for(int id: moomintrollIds) {
-                if(fullDataRowSet.getInt(fieldsNames[0]) == id) {
-                    fullDataRowSet.deleteRow();
-                    changed = true;
-                }
+            if (idsSet.remove(fullDataRowSet.getLong(fieldsNames[0]))) {
+                fullDataRowSet.deleteRow();
+                changed = true;
             }
         }
-        fullDataRowSet.acceptChanges();
+        fullDataRowSet.acceptChanges(connection);
         return changed;
     }
 

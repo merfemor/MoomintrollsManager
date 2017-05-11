@@ -19,7 +19,6 @@ public class PSQLClient {
         String url = "jdbc:postgresql://" + hostname + ":" + port + "/" + database +
                 "?user=" + username + "&password=" + password;
         this.connection = DriverManager.getConnection(url);
-        connection.setAutoCommit(false);
         this.url = url;
         this.hostname = hostname;
         this.port = port;
@@ -40,6 +39,7 @@ public class PSQLClient {
     }
 
     protected void reloadData() throws SQLException {
-        this.fullDataRowSet = select("*");
+        fullDataRowSet = select("*");
+        fullDataRowSet.execute(connection);
     }
 }

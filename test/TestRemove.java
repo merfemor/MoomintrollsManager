@@ -1,7 +1,7 @@
 import psql.MoomintrollsDatabase;
 
 import java.sql.SQLException;
-import java.util.stream.IntStream;
+import java.util.stream.LongStream;
 
 public class TestRemove {
     public static void main(String[] args) {
@@ -9,7 +9,7 @@ public class TestRemove {
             MoomintrollsDatabase moomintrollsDatabase = Databases.getTestDatabaseConnection();
             Databases.getAndPrintDatabase(moomintrollsDatabase);
 
-            moomintrollsDatabase.delete(IntStream.rangeClosed(79, 79).toArray());
+            moomintrollsDatabase.delete(LongStream.rangeClosed(134, 141).toArray());
 
             Databases.getAndPrintDatabase(moomintrollsDatabase);
         } catch (SQLException e) {
