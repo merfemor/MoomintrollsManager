@@ -1,12 +1,10 @@
-package utils;
+package trolls.utils;
 
 import trolls.Kindness;
 import trolls.Moomintroll;
 import trolls.Wight;
 
 import java.awt.*;
-import java.math.BigInteger;
-import java.security.SecureRandom;
 import java.util.UUID;
 
 public class Random {
