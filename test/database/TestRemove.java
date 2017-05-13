@@ -1,3 +1,5 @@
+package database;
+
 import psql.MoomintrollsDatabase;
 
 import java.sql.SQLException;
@@ -9,7 +11,8 @@ public class TestRemove {
             MoomintrollsDatabase moomintrollsDatabase = Databases.getTestDatabaseConnection();
             Databases.getAndPrintDatabase(moomintrollsDatabase);
 
-            moomintrollsDatabase.delete(LongStream.rangeClosed(134, 141).toArray());
+            moomintrollsDatabase.delete(LongStream.rangeClosed(140, 500).toArray());
+            moomintrollsDatabase.delete(210);
 
             Databases.getAndPrintDatabase(moomintrollsDatabase);
         } catch (SQLException e) {
