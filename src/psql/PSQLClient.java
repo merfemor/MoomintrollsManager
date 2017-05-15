@@ -20,10 +20,18 @@ public class PSQLClient {
         this.database = database;
         this.username = username;
         this.password = password;
+
     }
 
     public void setTableName(String tableName) {
         this.tableName = tableName;
     }
 
+    public String getUrl() {
+        return url;
+    }
+
+    public void close() throws SQLException {
+        connection.close();
+    }
 }
