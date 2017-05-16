@@ -23,6 +23,7 @@ public class ClientManager implements Runnable {
     private BlockingQueue<MPacket> packetsQueue;
     private boolean stop = false;
     private MoomintrollsDatabase database;
+    private Runnable disconnectionHandler;
 
     public ClientManager(SocketAddress socketAddress, MoomintrollsDatabase database) {
         this.socketAddress = socketAddress;
@@ -36,6 +37,10 @@ public class ClientManager implements Runnable {
 
     public void stop() {
         this.stop = true;
+    }
+
+    public void setDisconnectionHandler(Runnable disconnectionHandler) {
+        this.disconnectionHandler = disconnectionHandler;
     }
 
     @Override
@@ -64,7 +69,12 @@ public class ClientManager implements Runnable {
             if (waitingForPackets == 0) {
                 MCommand command = MCommand.fromPackets(packetList);
                 if (command.type() == MCommand.Type.DISCONNECT) {
-                    // disconnect
+                    if (log.isLoggable(Level.FINE)) {
+                        log.fine("Command from " + socketAddress + ": DISCONNECT");
+                    }
+                    if (this.disconnectionHandler != null)
+                        disconnectionHandler.run();
+                    continue;
                 }
                 try {
                     executeCommand(command);
@@ -117,6 +127,9 @@ public class ClientManager implements Runnable {
                 }
                 break;
             case MCommand.Type.SELECT_ALL:
+                if (log.isLoggable(Level.FINE)) {
+                    log.fine("Command from " + socketAddress + ": SELECT_ALL");
+                }
                 break;
             default:
                 throw new IllegalArgumentException("Illegal type of command = " + command.type());

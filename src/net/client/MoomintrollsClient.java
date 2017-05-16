@@ -59,9 +59,23 @@ public class MoomintrollsClient {
         sendPackets(MCommand.createUpdateCommand(new IdentifiedMoomintroll(id, moomintroll)).toPackets());
     }
 
+    public void collectionRequest() throws IOException {
+        if (log.isLoggable(Level.FINE)) {
+            log.fine("Command: COLLECTION REQUEST");
+        }
+        sendPackets(MCommand.createSelectAllCommand().toPackets());
+    }
+
     public void close() {
-        this.datagramSocket.disconnect();
-        this.datagramSocket.close();
+        try {
+            sendPackets(MCommand.createDisconnectCommand().toPackets());
+        } catch (IOException e) {
+            log.log(Level.SEVERE, "Failed to send disconnect request to server", e);
+            return;
+        } finally {
+            this.datagramSocket.disconnect();
+            this.datagramSocket.close();
+        }
         log.info("Connection with " + socketAddress.toString() + " closed");
     }
 }

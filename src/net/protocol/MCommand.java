@@ -67,10 +67,12 @@ public class MCommand {
     private static MCommand createCommand(byte type, Object object) throws IllegalArgumentException, IOException {
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         os.write(type);
-        ObjectOutputStream objectOutputStream = new ObjectOutputStream(os);
-        objectOutputStream.writeObject(object);
-        objectOutputStream.flush();
-        objectOutputStream.close();
+        if (object != null) {
+            ObjectOutputStream objectOutputStream = new ObjectOutputStream(os);
+            objectOutputStream.writeObject(object);
+            objectOutputStream.flush();
+            objectOutputStream.close();
+        }
         MCommand command = new MCommand(os.toByteArray());
         os.close();
         return command;
@@ -86,6 +88,14 @@ public class MCommand {
 
     public static MCommand createUpdateCommand(IdentifiedMoomintroll moomintroll) throws IOException {
         return createCommand(Type.UPDATE, moomintroll);
+    }
+
+    public static MCommand createSelectAllCommand() throws IOException {
+        return createCommand(Type.SELECT_ALL, null);
+    }
+
+    public static MCommand createDisconnectCommand() throws IOException {
+        return createCommand(Type.DISCONNECT, null);
     }
 
     private static Object parseCommand(MCommand command) throws IOException, ClassNotFoundException {

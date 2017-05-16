@@ -73,4 +73,16 @@ public class TestSendCommand {
             client.close();
         }
     }
+
+    @Test
+    public void testSendCollectionRequest() {
+        MoomintrollsClient client = getClient();
+        try {
+            client.collectionRequest();
+        } catch (IOException e) {
+            fail();
+        } finally {
+            client.close();
+        }
+    }
 }

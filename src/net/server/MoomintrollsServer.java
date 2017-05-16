@@ -65,9 +65,12 @@ public class MoomintrollsServer {
         if (!clientManagers.containsKey(sReceiverAddress)) {
             ClientManager ce = new ClientManager(receiverAddress, database);
             clientManagers.put(sReceiverAddress, ce);
-            if (log.isLoggable(Level.FINE)) {
-                log.fine("Created manager for new client " + sReceiverAddress);
-            }
+            ce.setDisconnectionHandler(() -> {
+                clientManagers.get(sReceiverAddress).stop();
+                clientManagers.remove(sReceiverAddress);
+                log.info("Disconnected client " + sReceiverAddress);
+            });
+            log.info("Connected client " + sReceiverAddress);
             new Thread(ce).start();
         }
         clientManagers.get(sReceiverAddress).addPacket(new MPacket(inputData.clone()));
