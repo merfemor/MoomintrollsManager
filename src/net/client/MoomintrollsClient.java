@@ -1,7 +1,7 @@
 package net.client;
 
+import net.protocol.MCommand;
 import net.protocol.MPacket;
-import net.protocol.MProtocol;
 
 import java.io.IOException;
 import java.net.*;
@@ -21,10 +21,16 @@ public class MoomintrollsClient {
         datagramSocket.connect(socketAddress);
     }
 
-    public void sendMessage(String message) throws IOException {
-        MPacket mPacket = MProtocol.generatePacket(message);
-        DatagramPacket packet = new DatagramPacket(mPacket.getContent(), mPacket.getContent().length);
-        datagramSocket.send(packet);
+    private void sendPacket(MPacket packet) throws IOException {
+        DatagramPacket datagramPacket =
+                new DatagramPacket(packet.getContent(), packet.getContent().length);
+        datagramSocket.send(datagramPacket);
+    }
+
+    public void remove(long[] ids) throws IOException {
+        for (MPacket packet : MCommand.createRemoveCommand(ids).toPackets()) {
+            sendPacket(packet);
+        }
     }
 
     public static void main(String[] args) {
@@ -37,12 +43,9 @@ public class MoomintrollsClient {
             log.log(Level.SEVERE, "Failed to create client on " + inetSocketAddress.getHostString(), e);
             return;
         }
+        long[] ids = {234, 235, 230};
         try {
-            log.info("Sending 1 package...");
-            moomintrollsClient.sendMessage("WAT_test");
-            log.info("Sending 2 package...");
-            moomintrollsClient.sendMessage("ischo test");
-
+            moomintrollsClient.remove(ids);
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -1,6 +1,6 @@
 package net.server;
 
-import net.protocol.MProtocol;
+import net.protocol.MPacket;
 import psql.MoomintrollsDatabase;
 
 import java.io.IOException;
@@ -27,14 +27,14 @@ public class MoomintrollsServer {
 
     private boolean isAlive;
 
-    Map<String, CommandGetter> clientManagers;
+    Map<String, ClientManager> clientManagers;
 
     public MoomintrollsServer(int port, MoomintrollsDatabase database) throws IOException {
         this.PORT = port;
         datagramChannel = DatagramChannel.open();
         datagramChannel.socket().bind(new InetSocketAddress(PORT));
         this.database = database;
-        inputData = new byte[MProtocol.PACKETS_LENGTH];
+        inputData = new byte[MPacket.PACKETS_LENGTH];
         inputDataBuffer = ByteBuffer.wrap(inputData);
         isAlive = true;
         clientManagers = new HashMap<>();
@@ -56,21 +56,21 @@ public class MoomintrollsServer {
         if (log.isLoggable(Level.FINER)) {
             if (log.isLoggable(Level.FINEST)) {
                 log.finest("Received packet from " + sReceiverAddress +
-                        "\nData: \"" + new String(inputData) + "\"");
+                        "\nData: \"" + Arrays.toString(inputData) + "\"");
             } else {
                 log.finer("Received packet from " + sReceiverAddress);
             }
         }
 
         if (!clientManagers.containsKey(sReceiverAddress)) {
-            CommandGetter ce = new CommandGetter(receiverAddress);
+            ClientManager ce = new ClientManager(receiverAddress, database);
             clientManagers.put(sReceiverAddress, ce);
             if (log.isLoggable(Level.FINE)) {
                 log.fine("Created manager for new client " + sReceiverAddress);
             }
             new Thread(ce).start();
         }
-        clientManagers.get(sReceiverAddress).addPacket(MProtocol.parsePacket(inputData));
+        clientManagers.get(sReceiverAddress).addPacket(new MPacket(inputData.clone()));
     }
 
     public boolean isAlive() {
@@ -79,7 +79,7 @@ public class MoomintrollsServer {
 
     public void close() {
         isAlive = false;
-        clientManagers.values().forEach(CommandGetter::stop);
+        clientManagers.values().forEach(ClientManager::stop);
         log.info("Client managers stopped");
 
         try {

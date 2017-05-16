@@ -1,12 +1,13 @@
 package trolls;
 
 import java.awt.*;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
-public class Moomintroll extends Wight implements BowTo, Emotionable, Comparable <Moomintroll> {
+public class Moomintroll extends Wight implements BowTo, Emotionable, Comparable<Moomintroll>, Serializable {
 
     private enum TongueCondition {
         normal, paralyzed
