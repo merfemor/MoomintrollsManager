@@ -1,8 +1,6 @@
 package net.server;
 
-import net.protocol.IdentifiedMoomintroll;
-import net.protocol.MCommand;
-import net.protocol.MPacket;
+import net.protocol.*;
 import psql.MoomintrollsDatabase;
 import trolls.Moomintroll;
 
@@ -24,6 +22,7 @@ public class ClientManager implements Runnable {
     private boolean stop = false;
     private MoomintrollsDatabase database;
     private Runnable disconnectionHandler;
+    private AnswerHandler answerHandler;
 
     public ClientManager(SocketAddress socketAddress, MoomintrollsDatabase database) {
         this.socketAddress = socketAddress;
@@ -31,7 +30,11 @@ public class ClientManager implements Runnable {
         packetsQueue = new LinkedBlockingDeque<>();
     }
 
-    public synchronized void addPacket(MPacket packet) {
+    public SocketAddress getSocketAddress() {
+        return socketAddress;
+    }
+
+    public void addPacket(MPacket packet) {
         packetsQueue.add(packet);
     }
 
@@ -41,6 +44,10 @@ public class ClientManager implements Runnable {
 
     public void setDisconnectionHandler(Runnable disconnectionHandler) {
         this.disconnectionHandler = disconnectionHandler;
+    }
+
+    public void setAnswerHandler(AnswerHandler answerHandler) {
+        this.answerHandler = answerHandler;
     }
 
     @Override
@@ -72,8 +79,9 @@ public class ClientManager implements Runnable {
                     if (log.isLoggable(Level.FINE)) {
                         log.fine("Command from " + socketAddress + ": DISCONNECT");
                     }
-                    if (this.disconnectionHandler != null)
+                    if (this.disconnectionHandler != null) {
                         disconnectionHandler.run();
+                    }
                     continue;
                 }
                 try {
@@ -91,7 +99,7 @@ public class ClientManager implements Runnable {
     private void executeCommand(MCommand command) throws IllegalArgumentException, IOException, ClassNotFoundException, SQLException {
         switch (command.type()) {
             case MCommand.Type.ADD:
-                Moomintroll[] moomintrolls = MCommand.parseAddCommand(command);
+                Moomintroll[] moomintrolls = MRequest.parseAddRequest(command);
 
                 if (moomintrolls.length == 1) {
                     long id = database.insert(moomintrolls[0]);
@@ -109,7 +117,7 @@ public class ClientManager implements Runnable {
 
                 break;
             case MCommand.Type.REMOVE:
-                long[] ids = MCommand.parseRemoveCommand(command);
+                long[] ids = MRequest.parseRemoveRequest(command);
                 if (ids.length == 1) {
                     database.delete(ids[0]);
                 } else {
@@ -120,13 +128,15 @@ public class ClientManager implements Runnable {
                 }
                 break;
             case MCommand.Type.UPDATE:
-                IdentifiedMoomintroll im = MCommand.parseUpdateCommand(command);
+                IdentifiedMoomintroll im = MRequest.parseUpdateRequest(command);
                 database.update(im.id(), im.moomintroll());
                 if (log.isLoggable(Level.FINE)) {
                     log.fine("Command from " + socketAddress + ": UPDATE " + im.id() + " " + im.moomintroll());
                 }
                 break;
             case MCommand.Type.SELECT_ALL:
+                IdentifiedMoomintroll[] identifiedMoomintrolls = database.toArray();
+                answerHandler.handleAnswer(MAnswer.createSelectAllAnswer(identifiedMoomintrolls));
                 if (log.isLoggable(Level.FINE)) {
                     log.fine("Command from " + socketAddress + ": SELECT_ALL");
                 }

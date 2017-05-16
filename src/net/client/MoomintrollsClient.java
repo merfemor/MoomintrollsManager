@@ -1,8 +1,8 @@
 package net.client;
 
 import net.protocol.IdentifiedMoomintroll;
-import net.protocol.MCommand;
 import net.protocol.MPacket;
+import net.protocol.MRequest;
 import trolls.Moomintroll;
 
 import java.io.IOException;
@@ -39,7 +39,7 @@ public class MoomintrollsClient {
         if (log.isLoggable(Level.FINE)) {
             log.fine("Command: REMOVE" + Arrays.toString(ids));
         }
-        sendPackets(MCommand.createRemoveCommand(ids).toPackets());
+        sendPackets(MRequest.createRemoveRequest(ids).toPackets());
     }
 
     public void add(Moomintroll[] moomintrolls) throws IOException {
@@ -49,26 +49,26 @@ public class MoomintrollsClient {
                 Arrays.stream(moomintrolls).forEach((m) -> log.finest(m.toString()));
             }
         }
-        sendPackets(MCommand.createAddCommand(moomintrolls).toPackets());
+        sendPackets(MRequest.createAddRequest(moomintrolls).toPackets());
     }
 
     public void update(long id, Moomintroll moomintroll) throws IOException {
         if (log.isLoggable(Level.FINE)) {
             log.fine("Command: UPDATE " + id + ": " + moomintroll);
         }
-        sendPackets(MCommand.createUpdateCommand(new IdentifiedMoomintroll(id, moomintroll)).toPackets());
+        sendPackets(MRequest.createUpdateRequest(new IdentifiedMoomintroll(id, moomintroll)).toPackets());
     }
 
     public void collectionRequest() throws IOException {
         if (log.isLoggable(Level.FINE)) {
             log.fine("Command: COLLECTION REQUEST");
         }
-        sendPackets(MCommand.createSelectAllCommand().toPackets());
+        sendPackets(MRequest.createSelectAllRequest().toPackets());
     }
 
     public void close() {
         try {
-            sendPackets(MCommand.createDisconnectCommand().toPackets());
+            sendPackets(MRequest.createDisconnectRequest().toPackets());
         } catch (IOException e) {
             log.log(Level.SEVERE, "Failed to send disconnect request to server", e);
             return;

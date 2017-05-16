@@ -2,6 +2,7 @@ package net;
 
 import net.protocol.IdentifiedMoomintroll;
 import net.protocol.MCommand;
+import net.protocol.MRequest;
 import org.junit.Test;
 import trolls.Moomintroll;
 
@@ -17,7 +18,7 @@ public class TestMCommand {
         long[] ids = {1, 80, -3};
         MCommand command;
         try {
-            command = MCommand.createRemoveCommand(ids);
+            command = MRequest.createRemoveRequest(ids);
         } catch (IOException e) {
             fail();
             return;
@@ -26,7 +27,7 @@ public class TestMCommand {
 
         long[] ids2 = {};
         try {
-            ids2 = MCommand.parseRemoveCommand(command);
+            ids2 = MRequest.parseRemoveRequest(command);
         } catch (IOException | ClassNotFoundException e) {
             fail();
         }
@@ -38,8 +39,8 @@ public class TestMCommand {
     public void testPackingUnpacking() {
         long[] l = {1, -34, 16};
         try {
-            MCommand command = MCommand.createRemoveCommand(l);
-            long[] result = MCommand.parseRemoveCommand(MCommand.fromPackets(command.toPackets()));
+            MCommand command = MRequest.createRemoveRequest(l);
+            long[] result = MRequest.parseRemoveRequest(MCommand.fromPackets(command.toPackets()));
             assertTrue(Arrays.equals(l, result));
         } catch (Exception e) {
             fail();
@@ -55,8 +56,8 @@ public class TestMCommand {
 
         MCommand command;
         try {
-            command = MCommand.createAddCommand(moomintrolls);
-            Moomintroll[] moomintrolls1 = MCommand.parseAddCommand(command);
+            command = MRequest.createAddRequest(moomintrolls);
+            Moomintroll[] moomintrolls1 = MRequest.parseAddRequest(command);
             assertEquals(moomintrolls.length, moomintrolls1.length);
             for (int i = 0; i < moomintrolls.length; i++) {
                 if (!moomintrolls[i].equals(moomintrolls1[i]))
@@ -72,8 +73,8 @@ public class TestMCommand {
         IdentifiedMoomintroll im = new IdentifiedMoomintroll(248, trolls.utils.Random.randomTroll());
 
         try {
-            MCommand command = MCommand.createUpdateCommand(im);
-            IdentifiedMoomintroll im1 = MCommand.parseUpdateCommand(command);
+            MCommand command = MRequest.createUpdateRequest(im);
+            IdentifiedMoomintroll im1 = MRequest.parseUpdateRequest(command);
             assertEquals(im.id(), im1.id());
             assertTrue(im.moomintroll().equals(im1.moomintroll()));
         } catch (IOException | ClassNotFoundException e) {

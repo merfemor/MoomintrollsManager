@@ -10,8 +10,8 @@ import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.sql.SQLException;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
@@ -27,7 +27,8 @@ public class MoomintrollsServer {
 
     private boolean isAlive;
 
-    Map<String, ClientManager> clientManagers;
+    private Map<String, ClientManager> clientManagers;
+    private ChangesNotifier changesNotifier;
 
     public MoomintrollsServer(int port, MoomintrollsDatabase database) throws IOException {
         this.PORT = port;
@@ -37,7 +38,9 @@ public class MoomintrollsServer {
         inputData = new byte[MPacket.PACKETS_LENGTH];
         inputDataBuffer = ByteBuffer.wrap(inputData);
         isAlive = true;
-        clientManagers = new HashMap<>();
+        clientManagers = new ConcurrentHashMap<>();
+        changesNotifier = new ChangesNotifier(datagramChannel);
+        new Thread(changesNotifier).start();
     }
 
     public void receivePacket() {
@@ -65,9 +68,11 @@ public class MoomintrollsServer {
         if (!clientManagers.containsKey(sReceiverAddress)) {
             ClientManager ce = new ClientManager(receiverAddress, database);
             clientManagers.put(sReceiverAddress, ce);
+            changesNotifier.addRecipient(ce);
             ce.setDisconnectionHandler(() -> {
-                clientManagers.get(sReceiverAddress).stop();
+                ce.stop();
                 clientManagers.remove(sReceiverAddress);
+                changesNotifier.removeRecipient(ce);
                 log.info("Disconnected client " + sReceiverAddress);
             });
             log.info("Connected client " + sReceiverAddress);
@@ -83,6 +88,7 @@ public class MoomintrollsServer {
     public void close() {
         isAlive = false;
         clientManagers.values().forEach(ClientManager::stop);
+        changesNotifier.stop();
         log.info("Client managers stopped");
 
         try {

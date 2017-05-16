@@ -1,19 +1,18 @@
 package database;
 
+import net.protocol.IdentifiedMoomintroll;
 import psql.MoomintrollsDatabase;
-import trolls.Moomintroll;
 
 import java.sql.SQLException;
-import java.util.Map;
 
 public class Databases {
     public static void getAndPrintDatabase(MoomintrollsDatabase psqlClient) throws SQLException {
-        Map<Long, Moomintroll> moomintrolls;
-        moomintrolls = psqlClient.toMap();
-        moomintrolls.forEach((key, value) -> {
-            System.out.print(key + ": " + value);
-        });
-        System.out.println("--------\n" + moomintrolls.size() + " trolls");
+        IdentifiedMoomintroll[] moomintrolls;
+        moomintrolls = psqlClient.toArray();
+        for (IdentifiedMoomintroll m : moomintrolls) {
+            System.out.println(m.id() + " : " + m.moomintroll());
+        }
+        System.out.println("--------\n" + moomintrolls.length + " trolls");
     }
 
     public static MoomintrollsDatabase getTestDatabaseConnection() throws SQLException {

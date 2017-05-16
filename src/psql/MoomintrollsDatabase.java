@@ -1,6 +1,7 @@
 package psql;
 
 import com.sun.rowset.CachedRowSetImpl;
+import net.protocol.IdentifiedMoomintroll;
 import trolls.Kindness;
 import trolls.Moomintroll;
 
@@ -8,8 +9,6 @@ import javax.sql.rowset.CachedRowSet;
 import java.awt.*;
 import java.sql.*;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 public class MoomintrollsDatabase extends PSQLClient {
@@ -96,15 +95,15 @@ public class MoomintrollsDatabase extends PSQLClient {
         ).execute();
     }
 
-    public Map<Long, Moomintroll> toMap() throws SQLException {
+    public IdentifiedMoomintroll[] toArray() throws SQLException {
         CachedRowSet fullDataRowSet = new CachedRowSetImpl();
         fullDataRowSet.setCommand("SELECT * FROM " + tableName);
         fullDataRowSet.setReadOnly(true);
         fullDataRowSet.execute(connection);
 
-        Map<Long, Moomintroll> moomintrollMap = new HashMap<>(fullDataRowSet.size());
-        while (fullDataRowSet.next()) {
-            moomintrollMap.put(fullDataRowSet.getLong(fieldsNames[0]),
+        IdentifiedMoomintroll[] moomintrolls = new IdentifiedMoomintroll[fullDataRowSet.size()];
+        for (int i = 0; fullDataRowSet.next(); i++) {
+            moomintrolls[i] = new IdentifiedMoomintroll(fullDataRowSet.getLong(fieldsNames[0]),
                     new Moomintroll(
                             fullDataRowSet.getString(fieldsNames[1]),
                             fullDataRowSet.getBoolean(fieldsNames[2]),
@@ -113,7 +112,7 @@ public class MoomintrollsDatabase extends PSQLClient {
                             new Kindness(fullDataRowSet.getInt(fieldsNames[4]))
                     ));
         }
-        return moomintrollMap;
+        return moomintrolls;
     }
 
     public void update(long id, Moomintroll moomintroll) throws SQLException {
