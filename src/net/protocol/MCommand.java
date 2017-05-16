@@ -1,6 +1,7 @@
 package net.protocol;
 
 import com.google.common.primitives.Bytes;
+import trolls.Moomintroll;
 
 import java.io.*;
 import java.nio.ByteBuffer;
@@ -13,11 +14,9 @@ import static net.protocol.MPacket.PACKETS_LENGTH;
 public class MCommand {
     public class Type {
         public static final byte ADD = 0,
-                MULTIPLE_ADD = 1,
-                REMOVE = 2,
-                MULTIPLE_REMOVE = 3,
-                UPDATE = 4,
-                SELECT_ALL = 5,
+                REMOVE = 1,
+                UPDATE = 2,
+                SELECT_ALL = 3,
                 DISCONNECT = -1;
 
         private Type() {
@@ -34,38 +33,6 @@ public class MCommand {
 
     public byte type() {
         return type;
-    }
-
-    public byte[] getData() {
-        return data;
-    }
-
-    public static long[] parseRemoveCommand(MCommand command) throws IllegalArgumentException, IOException, ClassNotFoundException {
-        if (command.type() != Type.REMOVE && command.type() != Type.MULTIPLE_REMOVE) {
-            throw new IllegalArgumentException(
-                    "Can't parse remove command from not remove type (= " + command.type() + ") command");
-        }
-
-        ByteArrayInputStream bis = new ByteArrayInputStream(
-                command.data, 1, command.data.length - 1);
-        ObjectInputStream ois = new ObjectInputStream(bis);
-        long[] ids = (long[]) ois.readObject();
-        ois.close();
-        bis.close();
-        return ids;
-    }
-
-    public static MCommand createRemoveCommand(long[] ids) throws IOException {
-        ByteArrayOutputStream os = new ByteArrayOutputStream();
-        os.write((ids.length > 1) ? Type.MULTIPLE_REMOVE : Type.REMOVE);
-
-        ObjectOutputStream objectOutputStream = new ObjectOutputStream(os);
-        objectOutputStream.writeObject(ids);
-        objectOutputStream.flush();
-        objectOutputStream.close();
-        MCommand command = new MCommand(os.toByteArray());
-        os.close();
-        return command;
     }
 
     public static MCommand fromPackets(List<MPacket> packets) {
@@ -96,4 +63,52 @@ public class MCommand {
         }
         return packets;
     }
+
+    private static MCommand createCommand(byte type, Object object) throws IllegalArgumentException, IOException {
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        os.write(type);
+        ObjectOutputStream objectOutputStream = new ObjectOutputStream(os);
+        objectOutputStream.writeObject(object);
+        objectOutputStream.flush();
+        objectOutputStream.close();
+        MCommand command = new MCommand(os.toByteArray());
+        os.close();
+        return command;
+    }
+
+    public static MCommand createRemoveCommand(long[] ids) throws IOException {
+        return createCommand(Type.REMOVE, ids);
+    }
+
+    public static MCommand createAddCommand(Moomintroll[] moomintrolls) throws IOException {
+        return createCommand(Type.ADD, moomintrolls);
+    }
+
+    private static Object parseCommand(MCommand command) throws IOException, ClassNotFoundException {
+        ByteArrayInputStream bis = new ByteArrayInputStream(
+                command.data, 1, command.data.length - 1);
+        ObjectInputStream ois = new ObjectInputStream(bis);
+        Object o = ois.readObject();
+        ois.close();
+        bis.close();
+        return o;
+    }
+
+    public static long[] parseRemoveCommand(MCommand command) throws IllegalArgumentException, IOException, ClassNotFoundException {
+        if (command.type() != Type.REMOVE) {
+            throw new IllegalArgumentException(
+                    "Can't parse remove command from not remove type (= " + command.type() + ") command");
+        }
+        return (long[]) parseCommand(command);
+    }
+
+    public static Moomintroll[] parseAddCommand(MCommand command) throws IllegalArgumentException, IOException, ClassNotFoundException {
+        if (command.type() != Type.ADD) {
+            throw new IllegalArgumentException(
+                    "Can't parse add command from not add type (= " + command.type() + ") command");
+        }
+        return (Moomintroll[]) parseCommand(command);
+    }
+
+
 }

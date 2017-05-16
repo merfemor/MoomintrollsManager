@@ -3,6 +3,7 @@ package net.server;
 import net.protocol.MCommand;
 import net.protocol.MPacket;
 import psql.MoomintrollsDatabase;
+import trolls.Moomintroll;
 
 import java.io.IOException;
 import java.net.SocketAddress;
@@ -77,30 +78,46 @@ public class ClientManager implements Runnable {
     }
 
     private void executeCommand(MCommand command) throws IllegalArgumentException, IOException, ClassNotFoundException, SQLException {
-
-        if (command.type() == MCommand.Type.ADD || command.type() == MCommand.Type.MULTIPLE_ADD) {
-
-        } else if (command.type() == MCommand.Type.REMOVE || command.type() == MCommand.Type.MULTIPLE_REMOVE) {
-            long[] ids = MCommand.parseRemoveCommand(command);
-            if (log.isLoggable(Level.FINE)) {
-                if (log.isLoggable(Level.FINER)) {
-                    log.finer("Command from " + socketAddress + ": REMOVE" + Arrays.toString(ids));
-                } else {
-                    log.fine("Command from " + socketAddress + ": REMOVE");
+        switch (command.type()) {
+            case MCommand.Type.ADD:
+                Moomintroll[] moomintrolls = MCommand.parseAddCommand(command);
+                if (log.isLoggable(Level.FINE)) {
+                    log.fine("Command from " + socketAddress + ": ADD" + Arrays.toString(moomintrolls));
                 }
-            }
-            if (ids.length == 1) {
-                database.delete(ids[0]);
-            } else {
-                database.delete(ids);
-            }
 
-        } else if (command.type() == MCommand.Type.SELECT_ALL) {
+                if (moomintrolls.length == 1) {
+                    long id = database.insert(moomintrolls[0]);
+                    if (log.isLoggable(Level.FINE)) {
+                        log.fine("Get id = " + id);
+                    }
+                } else {
+                    long[] ids = database.insert(moomintrolls);
+                    if (log.isLoggable(Level.FINE)) {
+                        log.fine("Get ids = " + Arrays.toString(ids));
+                    }
+                }
 
-        } else if (command.type() == MCommand.Type.UPDATE) {
-
-        } else {
-            throw new IllegalArgumentException("Illegal type of command = " + command.type());
+                break;
+            case MCommand.Type.REMOVE:
+                long[] ids = MCommand.parseRemoveCommand(command);
+                if (log.isLoggable(Level.FINE)) {
+                    log.fine("Command from " + socketAddress + ": REMOVE" + Arrays.toString(ids));
+                }
+                if (ids.length == 1) {
+                    database.delete(ids[0]);
+                } else {
+                    database.delete(ids);
+                }
+                if (log.isLoggable(Level.FINE)) {
+                    log.fine("Deleted ids " + Arrays.toString(ids));
+                }
+                break;
+            case MCommand.Type.SELECT_ALL:
+                break;
+            case MCommand.Type.UPDATE:
+                break;
+            default:
+                throw new IllegalArgumentException("Illegal type of command = " + command.type());
         }
     }
 }

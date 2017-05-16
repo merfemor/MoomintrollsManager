@@ -2,9 +2,12 @@ package net.client;
 
 import net.protocol.MCommand;
 import net.protocol.MPacket;
+import trolls.Moomintroll;
 
 import java.io.IOException;
 import java.net.*;
+import java.util.Arrays;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -18,37 +21,39 @@ public class MoomintrollsClient {
     public MoomintrollsClient(InetSocketAddress socketAddress) throws SocketException {
         this.socketAddress = socketAddress;
         datagramSocket = new DatagramSocket();
+        log.info("Started client on port " + datagramSocket.getLocalPort());
         datagramSocket.connect(socketAddress);
+        log.info("Connected to " + socketAddress);
     }
 
-    private void sendPacket(MPacket packet) throws IOException {
-        DatagramPacket datagramPacket =
-                new DatagramPacket(packet.getContent(), packet.getContent().length);
-        datagramSocket.send(datagramPacket);
+    private void sendPackets(List<MPacket> packets) throws IOException {
+        DatagramPacket datagramPacket;
+        for (MPacket packet : packets) {
+            datagramPacket = new DatagramPacket(packet.getContent(), packet.getContent().length);
+            datagramSocket.send(datagramPacket);
+        }
     }
 
     public void remove(long[] ids) throws IOException {
-        for (MPacket packet : MCommand.createRemoveCommand(ids).toPackets()) {
-            sendPacket(packet);
+        if (log.isLoggable(Level.FINE)) {
+            log.fine("Command: REMOVE" + Arrays.toString(ids));
         }
+        sendPackets(MCommand.createRemoveCommand(ids).toPackets());
     }
 
-    public static void main(String[] args) {
-        InetSocketAddress inetSocketAddress = new InetSocketAddress("127.0.0.1", 1238);
-        MoomintrollsClient moomintrollsClient = null;
-        try {
-            moomintrollsClient = new MoomintrollsClient(inetSocketAddress);
-            log.fine("Started client on " + inetSocketAddress.getHostString());
-        } catch (SocketException e) {
-            log.log(Level.SEVERE, "Failed to create client on " + inetSocketAddress.getHostString(), e);
-            return;
+    public void add(Moomintroll[] moomintrolls) throws IOException {
+        if (log.isLoggable(Level.FINE)) {
+            log.fine("Command: ADD");
+            if (log.isLoggable(Level.FINEST)) {
+                Arrays.stream(moomintrolls).forEach((m) -> log.finest(m.toString()));
+            }
         }
-        long[] ids = {234, 235, 230};
-        try {
-            moomintrollsClient.remove(ids);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        sendPackets(MCommand.createAddCommand(moomintrolls).toPackets());
+    }
 
+    public void close() {
+        this.datagramSocket.disconnect();
+        this.datagramSocket.close();
+        log.info("Connection with " + socketAddress.toString() + " closed");
     }
 }

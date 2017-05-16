@@ -43,7 +43,7 @@ public class MoomintrollsServer {
     public void receivePacket() {
         Arrays.fill(inputData, (byte) 0);
         inputDataBuffer.clear();
-        SocketAddress receiverAddress = null;
+        SocketAddress receiverAddress;
         try {
             receiverAddress = datagramChannel.receive(inputDataBuffer);
         } catch (IOException e) {
