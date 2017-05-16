@@ -154,6 +154,17 @@ public class Moomintroll extends Wight implements BowTo, Emotionable, Comparable
     }
 
     @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof Moomintroll))
+            return false;
+        Moomintroll m = (Moomintroll) obj;
+        return ((this.position == m.position) &&
+                this.kindness.equals(m.kindness) &&
+                this.name.equals(m.name) &&
+                (this.isMale == m.isMale));
+    }
+
+    @Override
     public void moveTo(int position, int maxDistance) {
         while (Math.abs(this.position - position) > maxDistance) {
             if(this.position > position) {
@@ -175,6 +186,11 @@ public class Moomintroll extends Wight implements BowTo, Emotionable, Comparable
 
     @Override
     public String toString() {
-        return "Moomintroll{" + position + '}';
+        return "Moomintroll [" +
+                name + ", " +
+                isMale + ", " +
+                rgbBodyColor.getRGB() + ", " +
+                kindness.value() + ", " +
+                position + "]";
     }
 }

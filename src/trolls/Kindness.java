@@ -1,17 +1,19 @@
 package trolls;
 
-public class Kindness implements Comparable<Kindness> {
+import java.io.Serializable;
+
+public class Kindness implements Comparable<Kindness>, Serializable {
     protected int kindness;
-    public static final Kindness DEVIL = new Kindness(-666);
-    public static final Kindness VERY_BAD = new Kindness(-500);
-    public static final Kindness BULLY = new Kindness(-320);
-    public static final Kindness BAD = new Kindness(-150);
-    public static final Kindness NORMAL = new Kindness(0);
-    public static final Kindness GOOD = new Kindness(140);
-    public static final Kindness GREAT = new Kindness(280);
-    public static final Kindness BEAUTIFUL = new Kindness(420);
-    public static final Kindness BRILLIANT = new Kindness(560);
-    public static final Kindness ANGEL = new Kindness(700);
+    public transient static final Kindness DEVIL = new Kindness(-666);
+    public transient static final Kindness VERY_BAD = new Kindness(-500);
+    public transient static final Kindness BULLY = new Kindness(-320);
+    public transient static final Kindness BAD = new Kindness(-150);
+    public transient static final Kindness NORMAL = new Kindness(0);
+    public transient static final Kindness GOOD = new Kindness(140);
+    public transient static final Kindness GREAT = new Kindness(280);
+    public transient static final Kindness BEAUTIFUL = new Kindness(420);
+    public transient static final Kindness BRILLIANT = new Kindness(560);
+    public transient static final Kindness ANGEL = new Kindness(700);
 
     public Kindness(final int kindness) {
         this.kindness = kindness;

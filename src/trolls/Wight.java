@@ -1,9 +1,9 @@
 package trolls;
 
-import javax.swing.*;
 import java.awt.*;
+import java.io.Serializable;
 
-public abstract class Wight {
+public abstract class Wight implements Serializable {
     public enum BodyColor {
         redAsLobster, white, lightGreen
     }
