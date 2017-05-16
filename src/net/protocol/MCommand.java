@@ -84,6 +84,10 @@ public class MCommand {
         return createCommand(Type.ADD, moomintrolls);
     }
 
+    public static MCommand createUpdateCommand(IdentifiedMoomintroll moomintroll) throws IOException {
+        return createCommand(Type.UPDATE, moomintroll);
+    }
+
     private static Object parseCommand(MCommand command) throws IOException, ClassNotFoundException {
         ByteArrayInputStream bis = new ByteArrayInputStream(
                 command.data, 1, command.data.length - 1);
@@ -97,7 +101,7 @@ public class MCommand {
     public static long[] parseRemoveCommand(MCommand command) throws IllegalArgumentException, IOException, ClassNotFoundException {
         if (command.type() != Type.REMOVE) {
             throw new IllegalArgumentException(
-                    "Can't parse remove command from not remove type (= " + command.type() + ") command");
+                    "Bad type of command: expected \"REMOVE\", received " + command.type());
         }
         return (long[]) parseCommand(command);
     }
@@ -105,10 +109,17 @@ public class MCommand {
     public static Moomintroll[] parseAddCommand(MCommand command) throws IllegalArgumentException, IOException, ClassNotFoundException {
         if (command.type() != Type.ADD) {
             throw new IllegalArgumentException(
-                    "Can't parse add command from not add type (= " + command.type() + ") command");
+                    "Bad type of command: expected \"ADD\", received " + command.type());
         }
         return (Moomintroll[]) parseCommand(command);
     }
 
+    public static IdentifiedMoomintroll parseUpdateCommand(MCommand command) throws IllegalArgumentException, IOException, ClassNotFoundException {
+        if (command.type() != Type.UPDATE) {
+            throw new IllegalArgumentException(
+                    "Bad type of command: expected \"UPDATE\", received " + command.type());
+        }
+        return (IdentifiedMoomintroll) parseCommand(command);
+    }
 
 }

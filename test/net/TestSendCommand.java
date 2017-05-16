@@ -28,7 +28,7 @@ public class TestSendCommand {
     public void testSendRemove() {
         MoomintrollsClient client = getClient();
 
-        long[] ids = {243, 245};
+        long[] ids = {249, 250};
         try {
             client.remove(ids);
         } catch (IOException e) {
@@ -37,6 +37,24 @@ public class TestSendCommand {
             client.close();
         }
     }
+
+    @Test
+    public void testSendUpdate() {
+        MoomintrollsClient client = getClient();
+
+        long id = 250;
+        Moomintroll newTroll = trolls.utils.Random.randomTroll();
+        System.out.println(id + ": " + newTroll);
+
+        try {
+            client.update(id, newTroll);
+        } catch (IOException e) {
+            fail();
+        } finally {
+            client.close();
+        }
+    }
+
 
     @Test
     public void testSendAdd() {

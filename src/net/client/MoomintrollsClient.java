@@ -1,5 +1,6 @@
 package net.client;
 
+import net.protocol.IdentifiedMoomintroll;
 import net.protocol.MCommand;
 import net.protocol.MPacket;
 import trolls.Moomintroll;
@@ -49,6 +50,13 @@ public class MoomintrollsClient {
             }
         }
         sendPackets(MCommand.createAddCommand(moomintrolls).toPackets());
+    }
+
+    public void update(long id, Moomintroll moomintroll) throws IOException {
+        if (log.isLoggable(Level.FINE)) {
+            log.fine("Command: UPDATE " + id + ": " + moomintroll);
+        }
+        sendPackets(MCommand.createUpdateCommand(new IdentifiedMoomintroll(id, moomintroll)).toPackets());
     }
 
     public void close() {

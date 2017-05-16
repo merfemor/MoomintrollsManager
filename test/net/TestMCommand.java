@@ -1,5 +1,6 @@
 package net;
 
+import net.protocol.IdentifiedMoomintroll;
 import net.protocol.MCommand;
 import org.junit.Test;
 import trolls.Moomintroll;
@@ -61,6 +62,20 @@ public class TestMCommand {
                 if (!moomintrolls[i].equals(moomintrolls1[i]))
                     fail();
             }
+        } catch (IOException | ClassNotFoundException e) {
+            fail();
+        }
+    }
+
+    @Test
+    public void testSerializingUpdate() {
+        IdentifiedMoomintroll im = new IdentifiedMoomintroll(248, trolls.utils.Random.randomTroll());
+
+        try {
+            MCommand command = MCommand.createUpdateCommand(im);
+            IdentifiedMoomintroll im1 = MCommand.parseUpdateCommand(command);
+            assertEquals(im.id(), im1.id());
+            assertTrue(im.moomintroll().equals(im1.moomintroll()));
         } catch (IOException | ClassNotFoundException e) {
             fail();
         }

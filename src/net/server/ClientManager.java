@@ -1,5 +1,6 @@
 package net.server;
 
+import net.protocol.IdentifiedMoomintroll;
 import net.protocol.MCommand;
 import net.protocol.MPacket;
 import psql.MoomintrollsDatabase;
@@ -81,18 +82,17 @@ public class ClientManager implements Runnable {
         switch (command.type()) {
             case MCommand.Type.ADD:
                 Moomintroll[] moomintrolls = MCommand.parseAddCommand(command);
-                if (log.isLoggable(Level.FINE)) {
-                    log.fine("Command from " + socketAddress + ": ADD" + Arrays.toString(moomintrolls));
-                }
 
                 if (moomintrolls.length == 1) {
                     long id = database.insert(moomintrolls[0]);
                     if (log.isLoggable(Level.FINE)) {
+                        log.fine("Command from " + socketAddress + ": ADD" + Arrays.toString(moomintrolls));
                         log.fine("Get id = " + id);
                     }
                 } else {
                     long[] ids = database.insert(moomintrolls);
                     if (log.isLoggable(Level.FINE)) {
+                        log.fine("Command from " + socketAddress + ": ADD" + Arrays.toString(moomintrolls));
                         log.fine("Get ids = " + Arrays.toString(ids));
                     }
                 }
@@ -100,21 +100,23 @@ public class ClientManager implements Runnable {
                 break;
             case MCommand.Type.REMOVE:
                 long[] ids = MCommand.parseRemoveCommand(command);
-                if (log.isLoggable(Level.FINE)) {
-                    log.fine("Command from " + socketAddress + ": REMOVE" + Arrays.toString(ids));
-                }
                 if (ids.length == 1) {
                     database.delete(ids[0]);
                 } else {
                     database.delete(ids);
                 }
                 if (log.isLoggable(Level.FINE)) {
-                    log.fine("Deleted ids " + Arrays.toString(ids));
+                    log.fine("Command from " + socketAddress + ": REMOVE" + Arrays.toString(ids));
+                }
+                break;
+            case MCommand.Type.UPDATE:
+                IdentifiedMoomintroll im = MCommand.parseUpdateCommand(command);
+                database.update(im.id(), im.moomintroll());
+                if (log.isLoggable(Level.FINE)) {
+                    log.fine("Command from " + socketAddress + ": UPDATE " + im.id() + " " + im.moomintroll());
                 }
                 break;
             case MCommand.Type.SELECT_ALL:
-                break;
-            case MCommand.Type.UPDATE:
                 break;
             default:
                 throw new IllegalArgumentException("Illegal type of command = " + command.type());
