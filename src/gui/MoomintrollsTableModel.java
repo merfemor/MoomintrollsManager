@@ -6,7 +6,6 @@ import trolls.Moomintroll;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
-import javax.swing.table.TableColumn;
 import java.awt.*;
 
 public class MoomintrollsTableModel extends DefaultTableModel {
@@ -16,6 +15,7 @@ public class MoomintrollsTableModel extends DefaultTableModel {
         super();
         // TODO: get rid of many cols number dependencies
         columnIdentifiers.clear();
+        addColumn("ID");
         addColumn("Name");
         addColumn("Gender");
         addColumn("Body color");
@@ -27,8 +27,9 @@ public class MoomintrollsTableModel extends DefaultTableModel {
         this.table= table;
     }
 
-    public Object[] moomintrollToData(Moomintroll moomintroll) {
+    public Object[] moomintrollToData(long id, Moomintroll moomintroll) {
         return new Object[]{
+                id,
                 moomintroll.getName(),
                 moomintroll.isMale() ? "male" : "female",
                 moomintroll.getRgbBodyColor(),
@@ -53,12 +54,12 @@ public class MoomintrollsTableModel extends DefaultTableModel {
         );
     }
 
-    public void addRow(Moomintroll moomintroll) {
-        addRow(moomintrollToData(moomintroll));
+    public void addRow(long id, Moomintroll moomintroll) {
+        addRow(moomintrollToData(id, moomintroll));
     }
 
-    public void insertRow(int row, Moomintroll moomintroll) {
-        insertRow(row, moomintrollToData(moomintroll));
+    public void insertRow(int row, long id, Moomintroll moomintroll) {
+        insertRow(row, moomintrollToData(id, moomintroll));
     }
 
     public void clear() {
@@ -77,14 +78,16 @@ public class MoomintrollsTableModel extends DefaultTableModel {
         // TODO: beautiful sorting for Colour column
         switch (column) {
             case 0:
-                return String.class;
+                return Long.class;
             case 1:
                 return String.class;
             case 2:
-                return Color.class;
-            case 3:
                 return String.class;
+            case 3:
+                return Color.class;
             case 4:
+                return String.class;
+            case 5:
                 return Integer.class;
         }
         return super.getColumnClass(column);

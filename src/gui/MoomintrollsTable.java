@@ -36,7 +36,7 @@ public class MoomintrollsTable extends JTable{
     private MoomintrollsTableModel moomintrollsDataModel;
     private MoomintrollsTree moomintrollsTree;
 
-    MoomintrollsTable(MoomintrollsCollection moomintrollsCollection) {
+    MoomintrollsTable() {
         super(new MoomintrollsTableModel());
         moomintrollsDataModel = (MoomintrollsTableModel) dataModel;
         setDefaultRenderer(Color.class, new ColorRenderer());
@@ -46,10 +46,6 @@ public class MoomintrollsTable extends JTable{
         setAutoCreateRowSorter(true);
         getTableHeader().setReorderingAllowed(false);
         setUpdateSelectionOnSort(true);
-        this.moomintrollsCollection = moomintrollsCollection;
-        for(Moomintroll moomintroll: moomintrollsCollection) {
-            ((MoomintrollsTableModel) dataModel).addRow(moomintroll);
-        }
     }
 
     public void setRowSorter(MoomintrollsRowFilter moomintrollsRowFilter) {
@@ -69,7 +65,7 @@ public class MoomintrollsTable extends JTable{
         this.moomintrollsCollection = moomintrollsCollection;
         moomintrollsDataModel.clear();
         for(Moomintroll moomintroll: moomintrollsCollection) {
-            moomintrollsDataModel.addRow(moomintroll);
+            moomintrollsDataModel.addRow(0, moomintroll);
         }
         if(moomintrollsTree != null) {
             moomintrollsTree.reloadFromTable();
@@ -77,9 +73,13 @@ public class MoomintrollsTable extends JTable{
     }
 
     public void addRow(Moomintroll moomintroll) {
+        addRow(0, moomintroll);
+    }
+
+    public void addRow(long id, Moomintroll moomintroll) {
         moomintrollsCollection.add(moomintroll);
-        moomintrollsDataModel.addRow(moomintroll);
-        if(moomintrollsTree != null)
+        moomintrollsDataModel.addRow(id, moomintroll);
+        if (moomintrollsTree != null)
             moomintrollsTree.insert(moomintroll);
     }
 
@@ -87,7 +87,7 @@ public class MoomintrollsTable extends JTable{
     public void setRow(int row, Moomintroll moomintroll) {
         row = getRowSorter().convertRowIndexToModel(row);
         moomintrollsDataModel.removeRow(row);
-        moomintrollsDataModel.insertRow(row, moomintroll);
+        moomintrollsDataModel.insertRow(row, 0, moomintroll);
         if(moomintrollsTree != null) {
             moomintrollsTree.setNode(row, moomintroll);
         }

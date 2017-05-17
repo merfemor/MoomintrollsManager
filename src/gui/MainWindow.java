@@ -76,7 +76,8 @@ public class MainWindow extends JFrame {
     }
 
     private void initComponents() {
-        moomintrollsTable = new MoomintrollsTable(new MoomintrollsCollection());
+        moomintrollsTable = new MoomintrollsTable();
+        moomintrollsTable.setMoomintrollsCollection(new MoomintrollsCollection());
         moomintrollsTree = new MoomintrollsTree(moomintrollsTable);
         moomintrollsTable.registerMoomintrollsTree(moomintrollsTree);
         collectionSession = new CollectionSession(moomintrollsTable.getMoomintrollsCollection());
@@ -250,7 +251,7 @@ public class MainWindow extends JFrame {
                     @Override
                     public void add(IdentifiedMoomintroll[] moomintrolls) {
                         for (IdentifiedMoomintroll moomintroll : moomintrolls) {
-                            moomintrollsTable.addRow(moomintroll.moomintroll());
+                            moomintrollsTable.addRow(moomintroll.id(), moomintroll.moomintroll());
                         }
                     }
 
@@ -268,7 +269,7 @@ public class MainWindow extends JFrame {
                     public void reload(IdentifiedMoomintroll[] moomintrolls) {
                         moomintrollsTable.setMoomintrollsCollection(new MoomintrollsCollection());
                         for (IdentifiedMoomintroll moomintroll : moomintrolls)
-                            moomintrollsTable.addRow(moomintroll.moomintroll());
+                            moomintrollsTable.addRow(moomintroll.id(), moomintroll.moomintroll());
                     }
                 });
                 try {
