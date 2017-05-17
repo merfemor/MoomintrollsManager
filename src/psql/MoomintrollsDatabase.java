@@ -1,7 +1,7 @@
 package psql;
 
 import com.sun.rowset.CachedRowSetImpl;
-import net.protocol.IdentifiedMoomintroll;
+import net.IdentifiedMoomintroll;
 import trolls.Kindness;
 import trolls.Moomintroll;
 

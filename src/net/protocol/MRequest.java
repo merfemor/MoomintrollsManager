@@ -1,5 +1,6 @@
 package net.protocol;
 
+import net.IdentifiedMoomintroll;
 import trolls.Moomintroll;
 
 import java.io.IOException;

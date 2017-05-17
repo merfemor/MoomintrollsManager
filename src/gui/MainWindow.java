@@ -1,16 +1,22 @@
 package gui;
 
+import net.IdentifiedMoomintroll;
+import net.client.CommandHandler;
+import net.client.MoomintrollsClient;
 import trolls.Moomintroll;
 import trolls.MoomintrollsCollection;
 import trolls.utils.Random;
 
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.SocketException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import javax.swing.*;
+import java.util.logging.Level;
 
 // TODO: program license security
 
@@ -20,11 +26,15 @@ public class MainWindow extends JFrame {
     private JMenuBar menuBar = new JMenuBar();
     private JMenu fileIOMenu = new JMenu("File"),
             viewMenu = new JMenu("View"),
-            helpMenu = new JMenu("Help");
+            helpMenu = new JMenu("Help"),
+            remoteMenu = new JMenu("Remote");
     private JMenuItem open = new JMenuItem("Open.."),
             save = new JMenuItem("Save"),
             saveAs = new JMenuItem("Save As.."),
             close = new JMenuItem("Close");
+    private JMenuItem connect = new JMenuItem("Connect.."),
+            disconnect = new JMenuItem("Disconnect"),
+            reload = new JMenuItem("Reload");
     private JMenuItem about = new JMenuItem("About"),
             helpItem = new JMenuItem("Help");
     private JCheckBoxMenuItem showTree = new JCheckBoxMenuItem("Show tree", true);
@@ -47,6 +57,9 @@ public class MainWindow extends JFrame {
     private MoomintrollsTree moomintrollsTree;
     private CollectionSession collectionSession;
     private String ENV_NAME;
+
+    // net
+    final InetSocketAddress inetSocketAddress = new InetSocketAddress("127.0.0.1", 1238);
 
 
     public MainWindow(String pathVariableName) {
@@ -83,6 +96,12 @@ public class MainWindow extends JFrame {
         fileIOMenu.add(close);
         menuBar.add(viewMenu);
         viewMenu.add(showTree);
+        remoteMenu.add(connect);
+        reload.setEnabled(false);
+        remoteMenu.add(reload);
+        disconnect.setEnabled(false);
+        remoteMenu.add(disconnect);
+        menuBar.add(remoteMenu);
         helpMenu.add(helpItem);
         helpMenu.add(about);
         menuBar.add(helpMenu);
@@ -207,11 +226,84 @@ public class MainWindow extends JFrame {
             );
         });
 
+
+        // TODO: dialog for choosing adress
+        connect.addActionListener(actionEvent -> {
+            if (connect.isEnabled()) {
+                connect.setEnabled(false);
+                disconnect.setEnabled(true);
+                reload.setEnabled(true);
+                moomintrollsTable.setMoomintrollsCollection(new MoomintrollsCollection());
+                collectionSession.close();
+                NetworkCollectionSession ncs;
+                try {
+                    ncs = new NetworkCollectionSession(
+                            moomintrollsTable.getMoomintrollsCollection(),
+                            inetSocketAddress);
+                } catch (SocketException e) {
+                    e.printStackTrace();
+                    return;
+                }
+                ncs.getClient().setCommandHandler(new CommandHandler() {
+                    @Override
+                    public void add(IdentifiedMoomintroll[] moomintrolls) {
+                        for (IdentifiedMoomintroll moomintroll : moomintrolls) {
+                            moomintrollsTable.addRow(moomintroll.moomintroll());
+                        }
+                    }
+
+                    @Override
+                    public void remove(long[] ids) {
+
+                    }
+
+                    @Override
+                    public void update(IdentifiedMoomintroll moomintroll) {
+
+                    }
+
+                    @Override
+                    public void reload(IdentifiedMoomintroll[] moomintrolls) {
+                        moomintrollsTable.setMoomintrollsCollection(new MoomintrollsCollection());
+                        for (IdentifiedMoomintroll moomintroll : moomintrolls)
+                            moomintrollsTable.addRow(moomintroll.moomintroll());
+                    }
+                });
+                try {
+                    ncs.reload();
+                } catch (IOException e) {
+                    MoomintrollsClient.log.log(Level.SEVERE, "Failed to reload", e);
+                    collectionSession.close();
+                }
+                collectionSession = ncs;
+                connect.setEnabled(true);
+            }
+        });
+
+        reload.addActionListener(actionEvent -> {
+            if (reload.isEnabled()) {
+                try {
+                    ((NetworkCollectionSession) collectionSession).reload();
+                } catch (IOException e) {
+                    MoomintrollsClient.log.log(Level.SEVERE, "Failed to reload", e);
+                }
+            }
+        });
+
+        disconnect.addActionListener(actionEvent -> {
+            if (disconnect.isEnabled()) {
+                collectionSession.close();
+                reload.setEnabled(false);
+                disconnect.setEnabled(false);
+            }
+        });
+
         // shortcuts
         save.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK));
         open.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, KeyEvent.CTRL_DOWN_MASK));
         close.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, KeyEvent.CTRL_DOWN_MASK));
         saveAs.setAccelerator(KeyStroke.getKeyStroke("control shift S"));
+        connect.setAccelerator(KeyStroke.getKeyStroke("control shift C"));
         helpItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0));
         about.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F1, KeyEvent.CTRL_DOWN_MASK));
         showTree.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_T, KeyEvent.ALT_DOWN_MASK));

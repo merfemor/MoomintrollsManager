@@ -1,6 +1,10 @@
 package net.server;
 
-import net.protocol.*;
+import net.IdentifiedMoomintroll;
+import net.protocol.MAnswer;
+import net.protocol.MCommand;
+import net.protocol.MPacket;
+import net.protocol.MRequest;
 import psql.MoomintrollsDatabase;
 import trolls.Moomintroll;
 

@@ -1,6 +1,6 @@
 package net.client;
 
-import net.protocol.IdentifiedMoomintroll;
+import net.IdentifiedMoomintroll;
 import net.protocol.MPacket;
 import net.protocol.MRequest;
 import trolls.Moomintroll;
@@ -18,13 +18,16 @@ public class MoomintrollsClient {
 
     private final SocketAddress socketAddress;
     private DatagramSocket datagramSocket;
+    private ChangesLoader changesLoader;
 
     public MoomintrollsClient(InetSocketAddress socketAddress) throws SocketException {
         this.socketAddress = socketAddress;
         datagramSocket = new DatagramSocket();
+        changesLoader = new ChangesLoader(datagramSocket);
         log.info("Started client on port " + datagramSocket.getLocalPort());
         datagramSocket.connect(socketAddress);
         log.info("Connected to " + socketAddress);
+        new Thread(changesLoader).start();
     }
 
     private void sendPackets(List<MPacket> packets) throws IOException {
@@ -35,16 +38,20 @@ public class MoomintrollsClient {
         }
     }
 
+    public void setCommandHandler(CommandHandler commandHandler) {
+        changesLoader.setCommandHandler(commandHandler);
+    }
+
     public void remove(long[] ids) throws IOException {
-        if (log.isLoggable(Level.FINE)) {
-            log.fine("Command: REMOVE" + Arrays.toString(ids));
+        if (log.isLoggable(Level.INFO)) {
+            log.info("Command: REMOVE" + Arrays.toString(ids));
         }
         sendPackets(MRequest.createRemoveRequest(ids).toPackets());
     }
 
     public void add(Moomintroll[] moomintrolls) throws IOException {
-        if (log.isLoggable(Level.FINE)) {
-            log.fine("Command: ADD");
+        if (log.isLoggable(Level.INFO)) {
+            log.info("Command: ADD");
             if (log.isLoggable(Level.FINEST)) {
                 Arrays.stream(moomintrolls).forEach((m) -> log.finest(m.toString()));
             }
@@ -53,15 +60,15 @@ public class MoomintrollsClient {
     }
 
     public void update(long id, Moomintroll moomintroll) throws IOException {
-        if (log.isLoggable(Level.FINE)) {
-            log.fine("Command: UPDATE " + id + ": " + moomintroll);
+        if (log.isLoggable(Level.INFO)) {
+            log.info("Command: UPDATE " + id + ": " + moomintroll);
         }
         sendPackets(MRequest.createUpdateRequest(new IdentifiedMoomintroll(id, moomintroll)).toPackets());
     }
 
     public void collectionRequest() throws IOException {
-        if (log.isLoggable(Level.FINE)) {
-            log.fine("Command: COLLECTION REQUEST");
+        if (log.isLoggable(Level.INFO)) {
+            log.info("Command: COLLECTION REQUEST");
         }
         sendPackets(MRequest.createSelectAllRequest().toPackets());
     }
@@ -73,6 +80,7 @@ public class MoomintrollsClient {
             log.log(Level.SEVERE, "Failed to send disconnect request to server", e);
             return;
         } finally {
+            this.changesLoader.stop();
             this.datagramSocket.disconnect();
             this.datagramSocket.close();
         }

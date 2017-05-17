@@ -1,4 +1,4 @@
-package net.protocol;
+package net;
 
 import trolls.Moomintroll;
 
@@ -19,5 +19,10 @@ public class IdentifiedMoomintroll implements Serializable {
 
     public Moomintroll moomintroll() {
         return moomintroll;
+    }
+
+    @Override
+    public String toString() {
+        return Long.toString(id) + ": " + moomintroll.toString();
     }
 }

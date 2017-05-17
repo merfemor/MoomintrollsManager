@@ -4,6 +4,7 @@ import net.protocol.MPacket;
 import psql.MoomintrollsDatabase;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
@@ -27,7 +28,7 @@ public class MoomintrollsServer {
 
     private boolean isAlive;
 
-    private Map<String, ClientManager> clientManagers;
+    private Map<InetAddress, ClientManager> clientManagers;
     private ChangesNotifier changesNotifier;
 
     public MoomintrollsServer(int port, MoomintrollsDatabase database) throws IOException {
@@ -54,7 +55,7 @@ public class MoomintrollsServer {
             return;
         }
 
-        String sReceiverAddress = receiverAddress.toString();
+        InetAddress sReceiverAddress = ((InetSocketAddress) receiverAddress).getAddress();
 
         if (log.isLoggable(Level.FINER)) {
             if (log.isLoggable(Level.FINEST)) {
@@ -65,20 +66,26 @@ public class MoomintrollsServer {
             }
         }
 
-        if (!clientManagers.containsKey(sReceiverAddress)) {
-            ClientManager ce = new ClientManager(receiverAddress, database);
-            clientManagers.put(sReceiverAddress, ce);
-            changesNotifier.addRecipient(ce);
-            ce.setDisconnectionHandler(() -> {
-                ce.stop();
-                clientManagers.remove(sReceiverAddress);
-                changesNotifier.removeRecipient(ce);
-                log.info("Disconnected client " + sReceiverAddress);
-            });
-            log.info("Connected client " + sReceiverAddress);
-            new Thread(ce).start();
+        for (Map.Entry<InetAddress, ClientManager> entry : clientManagers.entrySet()) {
+            if (entry.getKey().equals(sReceiverAddress)) {
+                entry.getValue().addPacket(new MPacket(inputData.clone()));
+                return;
+            }
         }
-        clientManagers.get(sReceiverAddress).addPacket(new MPacket(inputData.clone()));
+
+        ClientManager ce = new ClientManager(receiverAddress, database);
+        clientManagers.put(sReceiverAddress, ce);
+        changesNotifier.addRecipient(ce);
+
+        ce.setDisconnectionHandler(() -> {
+            ce.stop();
+            clientManagers.remove(sReceiverAddress);
+            changesNotifier.removeRecipient(ce);
+            log.info("Disconnected client " + sReceiverAddress);
+        });
+        log.info("Connected client " + sReceiverAddress);
+        new Thread(ce).start();
+        ce.addPacket(new MPacket(inputData.clone()));
     }
 
     public boolean isAlive() {

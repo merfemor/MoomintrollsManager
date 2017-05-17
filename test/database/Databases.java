@@ -1,6 +1,6 @@
 package database;
 
-import net.protocol.IdentifiedMoomintroll;
+import net.IdentifiedMoomintroll;
 import psql.MoomintrollsDatabase;
 
 import java.sql.SQLException;

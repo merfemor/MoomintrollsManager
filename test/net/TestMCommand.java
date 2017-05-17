@@ -1,6 +1,5 @@
 package net;
 
-import net.protocol.IdentifiedMoomintroll;
 import net.protocol.MCommand;
 import net.protocol.MRequest;
 import org.junit.Test;
