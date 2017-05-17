@@ -1,6 +1,7 @@
 package net.server;
 
 import net.protocol.MAnswer;
+import net.protocol.MCommand;
 import net.protocol.MPacket;
 
 import java.io.IOException;
@@ -51,7 +52,7 @@ public class ChangesNotifier implements Runnable {
         }
         if (MoomintrollsServer.log.isLoggable(Level.FINE))
             MoomintrollsServer.log.fine(
-                    "Sent change of type " + answer.type() + " to " + address);
+                    "Sent change of type " + MCommand.Type.name(answer.type()) + " to " + address);
     }
 
     @Override

@@ -14,6 +14,10 @@ public class MAnswer extends MCommand {
         return new MAnswer(createCommand(Type.SELECT_ALL, moomintrolls).data());
     }
 
+    public static MAnswer createAddAnswer(IdentifiedMoomintroll[] moomintrolls) throws IOException {
+        return new MAnswer(createCommand(Type.ADD, moomintrolls).data());
+    }
+
     public IdentifiedMoomintroll[] parseAdd() throws IllegalArgumentException, IOException, ClassNotFoundException {
         if (type != Type.ADD) {
             throw new IllegalArgumentException(

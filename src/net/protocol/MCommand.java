@@ -11,7 +11,7 @@ import java.util.List;
 import static net.protocol.MPacket.PACKETS_LENGTH;
 
 public class MCommand {
-    public class Type {
+    public static class Type {
         public static final byte ADD = 0,
                 REMOVE = 1,
                 UPDATE = 2,
@@ -19,6 +19,23 @@ public class MCommand {
                 DISCONNECT = -1;
 
         private Type() {
+
+        }
+
+        public static String name(final byte value) {
+            switch (value) {
+                case 0:
+                    return "ADD";
+                case 1:
+                    return "REMOVE";
+                case 2:
+                    return "UPDATE";
+                case 3:
+                    return "SELECT_ALL";
+                case -1:
+                    return "DISCONNECT";
+            }
+            return null;
         }
     }
 

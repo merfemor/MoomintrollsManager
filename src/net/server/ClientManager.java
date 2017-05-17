@@ -106,32 +106,41 @@ public class ClientManager implements Runnable {
         switch (command.type()) {
             case MCommand.Type.ADD:
                 Moomintroll[] moomintrolls = MRequest.parseAddRequest(command);
+                IdentifiedMoomintroll[] identifiedMoomintrolls =
+                        new IdentifiedMoomintroll[moomintrolls.length];
+
+                long addedIds[] = new long[moomintrolls.length];
 
                 if (moomintrolls.length == 1) {
-                    long id = database.insert(moomintrolls[0]);
+                    addedIds[0] = database.insert(moomintrolls[0]);
                     if (log.isLoggable(Level.FINE)) {
                         log.fine("Command from " + socketAddress + ": ADD" + Arrays.toString(moomintrolls));
-                        log.fine("Get id = " + id);
+                        log.fine("Get id = " + addedIds[0]);
                     }
                 } else {
-                    long[] ids = database.insert(moomintrolls);
+                    addedIds = database.insert(moomintrolls);
                     if (log.isLoggable(Level.FINE)) {
                         log.fine("Command from " + socketAddress + ": ADD" + Arrays.toString(moomintrolls));
-                        log.fine("Get ids = " + Arrays.toString(ids));
+                        log.fine("Get ids = " + Arrays.toString(addedIds));
                     }
                 }
-
+                for (int i = 0; i < moomintrolls.length; i++) {
+                    identifiedMoomintrolls[i] = new IdentifiedMoomintroll(addedIds[i], moomintrolls[i]);
+                }
+                answerHandler.handleAnswer(MAnswer.createAddAnswer(identifiedMoomintrolls));
                 break;
             case MCommand.Type.REMOVE:
-                long[] ids = MRequest.parseRemoveRequest(command);
-                if (ids.length == 1) {
-                    database.delete(ids[0]);
+                long[] removedIds = MRequest.parseRemoveRequest(command);
+                if (removedIds.length == 1) {
+                    database.delete(removedIds[0]);
                 } else {
-                    database.delete(ids);
+                    database.delete(removedIds);
                 }
                 if (log.isLoggable(Level.FINE)) {
-                    log.fine("Command from " + socketAddress + ": REMOVE" + Arrays.toString(ids));
+                    log.fine("Command from " + socketAddress + ": REMOVE" + Arrays.toString(removedIds));
                 }
+
+                answerHandler.handleAnswer(new MAnswer(command.data()));
                 break;
             case MCommand.Type.UPDATE:
                 IdentifiedMoomintroll im = MRequest.parseUpdateRequest(command);
@@ -139,14 +148,16 @@ public class ClientManager implements Runnable {
                 if (log.isLoggable(Level.FINE)) {
                     log.fine("Command from " + socketAddress + ": UPDATE " + im.id() + " " + im.moomintroll());
                 }
+
+                answerHandler.handleAnswer(new MAnswer(command.data()));
                 break;
             case MCommand.Type.SELECT_ALL:
-                IdentifiedMoomintroll[] identifiedMoomintrolls = database.toArray();
+                IdentifiedMoomintroll[] selectedMoomintrolls = database.toArray();
                 if (log.isLoggable(Level.FINE)) {
                     log.fine("Command from " + socketAddress + ": SELECT_ALL");
                 }
                 changesNotifier.sendAnswer(
-                        MAnswer.createSelectAllAnswer(identifiedMoomintrolls),
+                        MAnswer.createSelectAllAnswer(selectedMoomintrolls),
                         socketAddress);
                 break;
             default:
