@@ -23,17 +23,18 @@ public class MoomintrollsClient {
     public MoomintrollsClient(InetSocketAddress socketAddress) throws SocketException {
         this.socketAddress = socketAddress;
         datagramSocket = new DatagramSocket();
+        //datagramSocket.setReuseAddress(true);
         changesLoader = new ChangesLoader(datagramSocket);
         log.info("Started client on port " + datagramSocket.getLocalPort());
-        datagramSocket.connect(socketAddress);
-        log.info("Connected to " + socketAddress);
+        //datagramSocket.connect(socketAddress);
+        //log.info("Connected to " + socketAddress);
         new Thread(changesLoader).start();
     }
 
     private void sendPackets(List<MPacket> packets) throws IOException {
         DatagramPacket datagramPacket;
         for (MPacket packet : packets) {
-            datagramPacket = new DatagramPacket(packet.getContent(), packet.getContent().length);
+            datagramPacket = new DatagramPacket(packet.getContent(), packet.getContent().length, socketAddress);
             datagramSocket.send(datagramPacket);
         }
     }

@@ -4,7 +4,6 @@ import net.protocol.MPacket;
 import psql.MoomintrollsDatabase;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
@@ -28,7 +27,7 @@ public class MoomintrollsServer {
 
     private boolean isAlive;
 
-    private Map<InetAddress, ClientManager> clientManagers;
+    private Map<InetSocketAddress, ClientManager> clientManagers;
     private ChangesNotifier changesNotifier;
 
     public MoomintrollsServer(int port, MoomintrollsDatabase database) throws IOException {
@@ -55,7 +54,7 @@ public class MoomintrollsServer {
             return;
         }
 
-        InetAddress sReceiverAddress = ((InetSocketAddress) receiverAddress).getAddress();
+        InetSocketAddress sReceiverAddress = (InetSocketAddress) receiverAddress;
 
         if (log.isLoggable(Level.FINER)) {
             if (log.isLoggable(Level.FINEST)) {
@@ -66,7 +65,7 @@ public class MoomintrollsServer {
             }
         }
 
-        for (Map.Entry<InetAddress, ClientManager> entry : clientManagers.entrySet()) {
+        for (Map.Entry<InetSocketAddress, ClientManager> entry : clientManagers.entrySet()) {
             if (entry.getKey().equals(sReceiverAddress)) {
                 entry.getValue().addPacket(new MPacket(inputData.clone()));
                 return;
