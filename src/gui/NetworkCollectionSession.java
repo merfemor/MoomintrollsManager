@@ -24,10 +24,7 @@ public class NetworkCollectionSession extends CollectionSession {
     }
 
     public boolean close() {
-        boolean closed = super.close();
-        if (closed) {
-            client.close();
-        }
-        return closed;
+        client.close();
+        return true;
     }
 }

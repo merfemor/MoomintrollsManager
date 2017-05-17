@@ -81,7 +81,7 @@ public class MoomintrollsClient {
             return;
         } finally {
             this.changesLoader.stop();
-            this.datagramSocket.disconnect();
+            //this.datagramSocket.disconnect();
             this.datagramSocket.close();
         }
         log.info("Connection with " + socketAddress.toString() + " closed");

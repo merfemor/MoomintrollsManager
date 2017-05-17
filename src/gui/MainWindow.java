@@ -234,7 +234,9 @@ public class MainWindow extends JFrame {
                 disconnect.setEnabled(true);
                 reload.setEnabled(true);
                 moomintrollsTable.setMoomintrollsCollection(new MoomintrollsCollection());
-                collectionSession.close();
+                if (collectionSession != null && !collectionSession.close()) {
+                    return;
+                }
                 NetworkCollectionSession ncs;
                 try {
                     ncs = new NetworkCollectionSession(
@@ -292,9 +294,11 @@ public class MainWindow extends JFrame {
 
         disconnect.addActionListener(actionEvent -> {
             if (disconnect.isEnabled()) {
-                collectionSession.close();
                 reload.setEnabled(false);
                 disconnect.setEnabled(false);
+                collectionSession.close();
+                moomintrollsTable.setMoomintrollsCollection(null);
+                collectionSession = new CollectionSession(moomintrollsTable.getMoomintrollsCollection());
             }
         });
 

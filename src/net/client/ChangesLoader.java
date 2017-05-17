@@ -9,6 +9,7 @@ import net.server.MoomintrollsServer;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -27,6 +28,7 @@ public class ChangesLoader implements Runnable {
 
     public void stop() {
         stop = true;
+        datagramSocket = null;
     }
 
     public void setCommandHandler(CommandHandler commandHandler) {
@@ -52,6 +54,8 @@ public class ChangesLoader implements Runnable {
             MPacket packet;
             try {
                 packet = receivePacket();
+            } catch (SocketException e) {
+                break;
             } catch (IOException e) {
                 MoomintrollsClient.log.log(Level.SEVERE, "Failed to receive packet", e);
                 stop();

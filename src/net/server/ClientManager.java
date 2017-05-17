@@ -27,10 +27,12 @@ public class ClientManager implements Runnable {
     private MoomintrollsDatabase database;
     private Runnable disconnectionHandler;
     private AnswerHandler answerHandler;
+    private ChangesNotifier changesNotifier;
 
-    public ClientManager(SocketAddress socketAddress, MoomintrollsDatabase database) {
+    public ClientManager(SocketAddress socketAddress, MoomintrollsDatabase database, ChangesNotifier changesNotifier) {
         this.socketAddress = socketAddress;
         this.database = database;
+        this.changesNotifier = changesNotifier;
         packetsQueue = new LinkedBlockingDeque<>();
     }
 
@@ -140,10 +142,12 @@ public class ClientManager implements Runnable {
                 break;
             case MCommand.Type.SELECT_ALL:
                 IdentifiedMoomintroll[] identifiedMoomintrolls = database.toArray();
-                answerHandler.handleAnswer(MAnswer.createSelectAllAnswer(identifiedMoomintrolls));
                 if (log.isLoggable(Level.FINE)) {
                     log.fine("Command from " + socketAddress + ": SELECT_ALL");
                 }
+                changesNotifier.sendAnswer(
+                        MAnswer.createSelectAllAnswer(identifiedMoomintrolls),
+                        socketAddress);
                 break;
             default:
                 throw new IllegalArgumentException("Illegal type of command = " + command.type());

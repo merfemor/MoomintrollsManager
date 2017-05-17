@@ -73,7 +73,7 @@ public class MoomintrollsServer {
             }
         }
 
-        ClientManager ce = new ClientManager(receiverAddress, database);
+        ClientManager ce = new ClientManager(receiverAddress, database, changesNotifier);
         clientManagers.put(sReceiverAddress, ce);
         changesNotifier.addRecipient(ce);
 
@@ -81,9 +81,9 @@ public class MoomintrollsServer {
             ce.stop();
             clientManagers.remove(sReceiverAddress);
             changesNotifier.removeRecipient(ce);
-            log.info("Disconnected client " + sReceiverAddress);
+            log.info("Disconnected client " + receiverAddress);
         });
-        log.info("Connected client " + sReceiverAddress);
+        log.info("Connected client " + receiverAddress);
         new Thread(ce).start();
         ce.addPacket(new MPacket(inputData.clone()));
     }

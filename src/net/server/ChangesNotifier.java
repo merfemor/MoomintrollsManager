@@ -40,7 +40,7 @@ public class ChangesNotifier implements Runnable {
         stop = true;
     }
 
-    private void sendAnswer(MAnswer answer, SocketAddress address) throws IOException {
+    public void sendAnswer(MAnswer answer, SocketAddress address) throws IOException {
         byte[] b = new byte[MPacket.PACKETS_LENGTH];
         ByteBuffer buffer = ByteBuffer.wrap(b);
         for (MPacket packet : answer.toPackets()) {
@@ -49,6 +49,9 @@ public class ChangesNotifier implements Runnable {
             buffer.flip();
             channel.send(buffer, address);
         }
+        if (MoomintrollsServer.log.isLoggable(Level.FINE))
+            MoomintrollsServer.log.fine(
+                    "Sent change of type " + answer.type() + " to " + address);
     }
 
     @Override
@@ -71,9 +74,6 @@ public class ChangesNotifier implements Runnable {
                         MoomintrollsServer.log.log(Level.SEVERE,
                                 "Failed to send answer to " + recipient, e);
                     }
-                    if (MoomintrollsServer.log.isLoggable(Level.FINE))
-                        MoomintrollsServer.log.fine(
-                                "Sent change of type " + answer.type() + " to " + recipient);
                 }).start();
             }
         }
