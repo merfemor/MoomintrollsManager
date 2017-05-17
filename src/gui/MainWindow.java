@@ -404,8 +404,17 @@ public class MainWindow extends JFrame {
     public void add() {
         MoomintrollsFrame moomintrollsFrame = new MoomintrollsFrame();
         if(moomintrollsFrame.showAddDialog(this) == MoomintrollsFrame.OK) {
-            moomintrollsTable.addRow(moomintrollsFrame.getMoomintroll());
-            collectionSession.reportChange();
+            Moomintroll[] moomintroll = {moomintrollsFrame.getMoomintroll()};
+            if (collectionSession instanceof NetworkCollectionSession) {
+                try {
+                    ((NetworkCollectionSession) collectionSession).getClient().add(moomintroll);
+                } catch (IOException e) {
+                    MoomintrollsClient.log.log(Level.SEVERE, "Failed to send add request", e);
+                }
+            } else {
+                moomintrollsTable.addRow(moomintroll[0]);
+                collectionSession.reportChange();
+            }
             updateTitle();
         }
     }
