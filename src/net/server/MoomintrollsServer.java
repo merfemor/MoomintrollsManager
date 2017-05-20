@@ -113,15 +113,16 @@ public class MoomintrollsServer {
         try {
             // TODO: replace logging.properties
             LogManager.getLogManager().readConfiguration(MoomintrollsServer.class.getResourceAsStream(
-                    "../../logging.properties"));
-        } catch (IOException e) {
-            System.err.println("Could not setup logger configuration: " + e.toString());
+                    "logging.properties"));
+        } catch (Exception e) {
+            log.warning("Could not setup logger configuration");
         }
 
         final int port = 1238;
         MoomintrollsServer moomintrollsServer;
         MoomintrollsDatabase database = null;
         try {
+            log.info("Connecting to database...");
             database = new MoomintrollsDatabase(
                     "localhost",
                     5432,
@@ -129,6 +130,7 @@ public class MoomintrollsServer {
                     "usr",
                     "123456"
             );
+            log.info("Connected to database " + database.getUrl());
 
             moomintrollsServer = new MoomintrollsServer(port, database);
             log.info("Started UDP server on port " + port);

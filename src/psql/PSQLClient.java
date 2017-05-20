@@ -28,7 +28,7 @@ public class PSQLClient {
     }
 
     public String getUrl() {
-        return url;
+        return url.split("\\?user")[0];
     }
 
     public void close() throws SQLException {

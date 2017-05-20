@@ -7,6 +7,12 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableRowSorter;
 import java.awt.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.LongStream;
 
 public class MoomintrollsTable extends JTable{
     class ColorRenderer extends DefaultTableCellRenderer {
@@ -32,6 +38,8 @@ public class MoomintrollsTable extends JTable{
         }
     }
 
+    private Map<Long, Integer> rowById;
+
     private MoomintrollsCollection moomintrollsCollection;
     private MoomintrollsTableModel moomintrollsDataModel;
     private MoomintrollsTree moomintrollsTree;
@@ -39,6 +47,7 @@ public class MoomintrollsTable extends JTable{
     MoomintrollsTable() {
         super(new MoomintrollsTableModel());
         moomintrollsDataModel = (MoomintrollsTableModel) dataModel;
+        rowById = new HashMap<>();
         setDefaultRenderer(Color.class, new ColorRenderer());
         setDefaultRenderer(String.class, new ColorRenderer());
         setDefaultRenderer(Integer.class, new ColorRenderer());
@@ -46,6 +55,7 @@ public class MoomintrollsTable extends JTable{
         setAutoCreateRowSorter(true);
         getTableHeader().setReorderingAllowed(false);
         setUpdateSelectionOnSort(true);
+        setMoomintrollsCollection(null);
     }
 
     public void setRowSorter(MoomintrollsRowFilter moomintrollsRowFilter) {
@@ -65,7 +75,7 @@ public class MoomintrollsTable extends JTable{
         this.moomintrollsCollection = moomintrollsCollection;
         moomintrollsDataModel.clear();
         for(Moomintroll moomintroll: moomintrollsCollection) {
-            moomintrollsDataModel.addRow(0, moomintroll);
+            moomintrollsDataModel.addRow(moomintroll);
         }
         if(moomintrollsTree != null) {
             moomintrollsTree.reloadFromTable();
@@ -73,21 +83,36 @@ public class MoomintrollsTable extends JTable{
     }
 
     public void addRow(Moomintroll moomintroll) {
-        addRow(0, moomintroll);
+        moomintrollsCollection.add(moomintroll);
+        moomintrollsDataModel.addRow(moomintroll);
+        if (moomintrollsTree != null)
+            moomintrollsTree.insert(moomintroll);
     }
 
     public void addRow(long id, Moomintroll moomintroll) {
-        moomintrollsCollection.add(moomintroll);
-        moomintrollsDataModel.addRow(id, moomintroll);
-        if (moomintrollsTree != null)
+        moomintrollsDataModel.addRow(moomintroll);
+        rowById.put(id, getRowCount() - 1);
+        if (moomintrollsTree != null) {
             moomintrollsTree.insert(moomintroll);
+        }
     }
 
 
     public void setRow(int row, Moomintroll moomintroll) {
         row = getRowSorter().convertRowIndexToModel(row);
         moomintrollsDataModel.removeRow(row);
-        moomintrollsDataModel.insertRow(row, 0, moomintroll);
+        moomintrollsDataModel.insertRow(row, moomintroll);
+        if (moomintrollsTree != null) {
+            moomintrollsTree.setNode(row, moomintroll);
+        }
+    }
+
+    public void update(long id, Moomintroll moomintroll) {
+        if (!rowById.containsKey(id))
+            return;
+        int row = rowById.get(id);
+        moomintrollsDataModel.removeRow(row);
+        moomintrollsDataModel.insertRow(row, moomintroll);
         if(moomintrollsTree != null) {
             moomintrollsTree.setNode(row, moomintroll);
         }
@@ -103,6 +128,15 @@ public class MoomintrollsTable extends JTable{
         return moomintroll;
     }
 
+    public long getRowId(int row) {
+        return (long) rowById.entrySet()
+                .stream()
+                .filter(entry -> Objects.equals(entry.getValue(), row))
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList())
+                .toArray()[0];
+    }
+
     public MoomintrollsCollection getMoomintrollsCollection() {
         moomintrollsCollection.clear();
         int rows = moomintrollsDataModel.getRowCount();
@@ -113,8 +147,7 @@ public class MoomintrollsTable extends JTable{
         return moomintrollsCollection;
     }
 
-    public void removeSelectedRows() {
-        int[] rows = getSelectedRows();
+    public void removeRows(int[] rows) {
         for (int i = rows.length - 1; i >= 0; i--) {
             int currentRow = convertRowIndexToModel(rows[i]);
             moomintrollsDataModel.removeRow(currentRow);
@@ -122,6 +155,20 @@ public class MoomintrollsTable extends JTable{
                 moomintrollsTree.remove(currentRow);
             }
         }
+        moomintrollsDataModel.fireTableDataChanged();
+    }
+
+    public void removeIds(long[] ids) {
+        LongStream.of(ids)
+                .boxed()
+                .sorted(Collections.reverseOrder())
+                .forEach(id -> {
+                    int row = rowById.remove(id);
+                    moomintrollsDataModel.removeRow(row);
+                    if (moomintrollsTree != null) {
+                        moomintrollsTree.remove(row);
+                    }
+                });
         moomintrollsDataModel.fireTableDataChanged();
     }
 }

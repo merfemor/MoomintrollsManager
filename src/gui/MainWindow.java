@@ -4,7 +4,6 @@ import net.IdentifiedMoomintroll;
 import net.client.CommandHandler;
 import net.client.MoomintrollsClient;
 import trolls.Moomintroll;
-import trolls.MoomintrollsCollection;
 import trolls.utils.Random;
 
 import javax.swing.*;
@@ -77,7 +76,6 @@ public class MainWindow extends JFrame {
 
     private void initComponents() {
         moomintrollsTable = new MoomintrollsTable();
-        moomintrollsTable.setMoomintrollsCollection(new MoomintrollsCollection());
         moomintrollsTree = new MoomintrollsTree(moomintrollsTable);
         moomintrollsTable.registerMoomintrollsTree(moomintrollsTree);
         collectionSession = new CollectionSession(moomintrollsTable.getMoomintrollsCollection());
@@ -234,7 +232,7 @@ public class MainWindow extends JFrame {
                 connect.setEnabled(false);
                 disconnect.setEnabled(true);
                 reload.setEnabled(true);
-                moomintrollsTable.setMoomintrollsCollection(new MoomintrollsCollection());
+                moomintrollsTable.setMoomintrollsCollection(null);
                 if (collectionSession != null && !collectionSession.close()) {
                     return;
                 }
@@ -257,17 +255,17 @@ public class MainWindow extends JFrame {
 
                     @Override
                     public void remove(long[] ids) {
-
+                        moomintrollsTable.removeIds(ids);
                     }
 
                     @Override
                     public void update(IdentifiedMoomintroll moomintroll) {
-
+                        moomintrollsTable.update(moomintroll.id(), moomintroll.moomintroll());
                     }
 
                     @Override
                     public void reload(IdentifiedMoomintroll[] moomintrolls) {
-                        moomintrollsTable.setMoomintrollsCollection(new MoomintrollsCollection());
+                        moomintrollsTable.setMoomintrollsCollection(null);
                         for (IdentifiedMoomintroll moomintroll : moomintrolls)
                             moomintrollsTable.addRow(moomintroll.id(), moomintroll.moomintroll());
                     }
@@ -279,6 +277,7 @@ public class MainWindow extends JFrame {
                     collectionSession.close();
                 }
                 collectionSession = ncs;
+                updateTitle();
                 connect.setEnabled(true);
             }
         });
@@ -300,6 +299,7 @@ public class MainWindow extends JFrame {
                 collectionSession.close();
                 moomintrollsTable.setMoomintrollsCollection(null);
                 collectionSession = new CollectionSession(moomintrollsTable.getMoomintrollsCollection());
+                updateTitle();
             }
         });
 
@@ -357,8 +357,7 @@ public class MainWindow extends JFrame {
             @Override
             public void mouseClicked(MouseEvent mouseEvent) {
                 if(editButton.isEnabled()) {
-                    int row = moomintrollsTable.getSelectedRow();
-                    editRow(row);
+                    editRow(moomintrollsTable.getSelectedRow());
                 }
             }
         });
@@ -453,28 +452,53 @@ public class MainWindow extends JFrame {
         }
         String trollsCountMessage = "moomintroll";
         if(seletedRowsCount > 1) {
-            trollsCountMessage += "s(" + seletedRowsCount + ")";
+            trollsCountMessage += "s [" + seletedRowsCount + "]";
         }
-        int reply = JOptionPane.showConfirmDialog(null,
+        int reply = JOptionPane.showConfirmDialog(this,
                 "Are you sure want to remove " + trollsCountMessage + " from the collection?",
                 "Confirm removing",
                 JOptionPane.YES_NO_OPTION
         );
         if (reply == JOptionPane.YES_OPTION) {
-            moomintrollsTable.removeSelectedRows();
+            int[] selRows = moomintrollsTable.getSelectedRows();
+            if (collectionSession instanceof NetworkCollectionSession) {
+                long[] ids = new long[selRows.length];
+                for (int i = 0; i < selRows.length; i++) {
+                    ids[i] = moomintrollsTable.getRowId(
+                            moomintrollsTable.convertRowIndexToModel(selRows[i]));
+                }
+                try {
+                    ((NetworkCollectionSession) collectionSession).getClient().remove(ids);
+                } catch (IOException e) {
+                    MoomintrollsClient.log.log(Level.SEVERE, "Faled to send remove request", e);
+                }
+            } else {
+                moomintrollsTable.removeRows(selRows);
+                collectionSession.reportChange();
+                updateTitle();
+            }
         }
-        collectionSession.reportChange();
-        updateTitle();
     }
 
     public void editRow(int row) {
-        Moomintroll moomintroll = moomintrollsTable.getRow(row);
+        Moomintroll oldTroll = moomintrollsTable.getRow(row);
         MoomintrollsFrame editFrame = new MoomintrollsFrame();
-        if (editFrame.showEditDialog(this, moomintroll)
-                == MoomintrollsFrame.OK) {
-            moomintrollsTable.setRow(row, editFrame.getMoomintroll());
+        if (editFrame.showEditDialog(this, oldTroll) == MoomintrollsFrame.OK) {
+            Moomintroll newTroll = editFrame.getMoomintroll();
+            if (collectionSession instanceof NetworkCollectionSession) {
+                try {
+                    ((NetworkCollectionSession) collectionSession)
+                            .getClient()
+                            .update(moomintrollsTable.getRowId(
+                                    moomintrollsTable.convertRowIndexToModel(row)), newTroll);
+                } catch (IOException e) {
+                    MoomintrollsClient.log.log(Level.SEVERE, "Failed to send update request", e);
+                }
+            } else {
+                moomintrollsTable.setRow(row, newTroll);
+            }
+            collectionSession.reportChange();
         }
-        collectionSession.reportChange();
         updateTitle();
     }
 
@@ -511,14 +535,16 @@ public class MainWindow extends JFrame {
     public void updateTitle() {
         String collectionName = "";
         // if path not set
-        if(collectionSession.getFile() == null) {
-            if(collectionSession.isSaved()) {
+        if (collectionSession instanceof NetworkCollectionSession) {
+            collectionName = ((NetworkCollectionSession) collectionSession).getClient().getAddress();
+        } else if (collectionSession.getFile() == null) {
+            if (collectionSession.isSaved()) {
                 collectionName = "New Collection";
             } else {
                 collectionName = "Unsaved Collection";
             }
         } else {
-            if(!collectionSession.isSaved()) {
+            if (!collectionSession.isSaved()) {
                 collectionName = "~";
             }
             collectionName += collectionSession.getFile().getName();

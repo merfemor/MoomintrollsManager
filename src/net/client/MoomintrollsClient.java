@@ -31,6 +31,10 @@ public class MoomintrollsClient {
         new Thread(changesLoader).start();
     }
 
+    public String getAddress() {
+        return socketAddress.toString();
+    }
+
     private void sendPackets(List<MPacket> packets) throws IOException {
         DatagramPacket datagramPacket;
         for (MPacket packet : packets) {
