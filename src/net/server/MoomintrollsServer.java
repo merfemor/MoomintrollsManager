@@ -1,9 +1,13 @@
 package net.server;
 
+import mbean.CommandsCount;
+import mbean.UsersInfo;
 import net.protocol.MPacket;
 import psql.MoomintrollsDatabase;
 
+import javax.management.*;
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
@@ -20,6 +24,7 @@ public class MoomintrollsServer {
     private final int PORT;
     private DatagramChannel datagramChannel;
     private MoomintrollsDatabase database;
+
     public static Logger log = Logger.getLogger(MoomintrollsServer.class.getName());
 
     private byte[] inputData;
@@ -27,8 +32,11 @@ public class MoomintrollsServer {
 
     private boolean isAlive;
 
-    private Map<InetSocketAddress, ClientManager> clientManagers;
+    public Map<InetSocketAddress, ClientManager> clientManagers;
     private ChangesNotifier changesNotifier;
+
+    private UsersInfo usersInfo;
+    private CommandsCount commandsCount;
 
     public MoomintrollsServer(int port, MoomintrollsDatabase database) throws IOException {
         this.PORT = port;
@@ -41,6 +49,17 @@ public class MoomintrollsServer {
         clientManagers = new ConcurrentHashMap<>();
         changesNotifier = new ChangesNotifier(datagramChannel);
         new Thread(changesNotifier).start();
+    }
+
+    public void registerMBean() throws MalformedObjectNameException, NotCompliantMBeanException, InstanceAlreadyExistsException, MBeanRegistrationException {
+        usersInfo = new UsersInfo(this);
+        commandsCount = new CommandsCount();
+        MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
+        ObjectName userInfoMbean = new ObjectName("mbean:name=UserInfo");
+        ObjectName commandMbean = new ObjectName("mbean:name=CommandsCount");
+
+        mbs.registerMBean(usersInfo, userInfoMbean);
+        mbs.registerMBean(commandsCount, commandMbean);
     }
 
     public void receivePacket() {
@@ -73,11 +92,15 @@ public class MoomintrollsServer {
         }
 
         ClientManager ce = new ClientManager(receiverAddress, database, changesNotifier);
+        ce.registerCommandsCounter(commandsCount);
         clientManagers.put(sReceiverAddress, ce);
         changesNotifier.addRecipient(ce);
 
         ce.setDisconnectionHandler(() -> {
             ce.stop();
+            if (usersInfo != null) {
+                usersInfo.reportDisconnect(ce.getSocketAddress());
+            }
             clientManagers.remove(sReceiverAddress);
             changesNotifier.removeRecipient(ce);
             log.info("Disconnected client " + receiverAddress);
@@ -145,9 +168,15 @@ public class MoomintrollsServer {
         }
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            log.info("The server was stopped by user");
+            log.info("The server was stopped");
             moomintrollsServer.close();
         }));
+
+        try {
+            moomintrollsServer.registerMBean();
+        } catch (MalformedObjectNameException | NotCompliantMBeanException | InstanceAlreadyExistsException | MBeanRegistrationException e) {
+            log.log(Level.SEVERE, "Failed to init MBean utils", e);
+        }
 
         while (moomintrollsServer.isAlive()) {
             moomintrollsServer.receivePacket();

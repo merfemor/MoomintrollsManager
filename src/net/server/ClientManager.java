@@ -1,5 +1,6 @@
 package net.server;
 
+import mbean.CommandsCount;
 import net.IdentifiedMoomintroll;
 import net.protocol.MAnswer;
 import net.protocol.MCommand;
@@ -28,6 +29,7 @@ public class ClientManager implements Runnable {
     private Runnable disconnectionHandler;
     private AnswerHandler answerHandler;
     private ChangesNotifier changesNotifier;
+    private CommandsCount commandsCounter;
 
     public ClientManager(SocketAddress socketAddress, MoomintrollsDatabase database, ChangesNotifier changesNotifier) {
         this.socketAddress = socketAddress;
@@ -46,6 +48,10 @@ public class ClientManager implements Runnable {
 
     public void stop() {
         this.stop = true;
+    }
+
+    public void registerCommandsCounter(CommandsCount commandsCounter) {
+        this.commandsCounter = commandsCounter;
     }
 
     public void setDisconnectionHandler(Runnable disconnectionHandler) {
@@ -103,6 +109,8 @@ public class ClientManager implements Runnable {
     }
 
     private void executeCommand(MCommand command) throws IllegalArgumentException, IOException, ClassNotFoundException, SQLException {
+        long startTime = System.nanoTime();
+        int numberOfCommands = 1;
         switch (command.type()) {
             case MCommand.Type.ADD:
                 Moomintroll[] moomintrolls = MRequest.parseAddRequest(command);
@@ -110,7 +118,7 @@ public class ClientManager implements Runnable {
                         new IdentifiedMoomintroll[moomintrolls.length];
 
                 long addedIds[] = new long[moomintrolls.length];
-
+                numberOfCommands = addedIds.length;
                 if (moomintrolls.length == 1) {
                     addedIds[0] = database.insert(moomintrolls[0]);
                     if (log.isLoggable(Level.FINE)) {
@@ -131,6 +139,7 @@ public class ClientManager implements Runnable {
                 break;
             case MCommand.Type.REMOVE:
                 long[] removedIds = MRequest.parseRemoveRequest(command);
+                numberOfCommands = removedIds.length;
                 if (removedIds.length == 1) {
                     database.delete(removedIds[0]);
                 } else {
@@ -163,5 +172,12 @@ public class ClientManager implements Runnable {
             default:
                 throw new IllegalArgumentException("Illegal type of command = " + command.type());
         }
+        long executingTime = System.nanoTime() - startTime;
+        if (commandsCounter != null) {
+            commandsCounter.reportCommand(command.type(),
+                    numberOfCommands,
+                    (double) (executingTime) / 1000000.0);
+        }
+
     }
 }
