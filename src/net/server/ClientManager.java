@@ -17,6 +17,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 import static net.server.MoomintrollsServer.log;
@@ -28,13 +29,13 @@ public class ClientManager implements Runnable {
     private MoomintrollsDatabase database;
     private Runnable disconnectionHandler;
     private AnswerHandler answerHandler;
-    private ChangesNotifier changesNotifier;
+    private ChangesManager changesManager;
     private CommandsCount commandsCounter;
 
-    public ClientManager(SocketAddress socketAddress, MoomintrollsDatabase database, ChangesNotifier changesNotifier) {
+    public ClientManager(SocketAddress socketAddress, MoomintrollsDatabase database, ChangesManager changesManager) {
         this.socketAddress = socketAddress;
         this.database = database;
-        this.changesNotifier = changesNotifier;
+        this.changesManager = changesManager;
         packetsQueue = new LinkedBlockingDeque<>();
     }
 
@@ -71,11 +72,14 @@ public class ClientManager implements Runnable {
         while (!stop) {
             MPacket packet;
             try {
-                packet = packetsQueue.take();
+                packet = packetsQueue.poll(5, TimeUnit.SECONDS);
             } catch (InterruptedException e) {
                 MoomintrollsServer.log.log(Level.SEVERE,
                         "Interrupted when waiting for the packet", e);
                 break;
+            }
+            if (packet == null) {
+                continue;
             }
             if (waitingForPackets == 0) {
                 waitingForPackets = packet.packetsNumber();
@@ -165,7 +169,7 @@ public class ClientManager implements Runnable {
                 if (log.isLoggable(Level.FINE)) {
                     log.fine("Command from " + socketAddress + ": SELECT_ALL");
                 }
-                changesNotifier.sendAnswer(
+                changesManager.sendOneAnswer(
                         MAnswer.createSelectAllAnswer(selectedMoomintrolls),
                         socketAddress);
                 break;

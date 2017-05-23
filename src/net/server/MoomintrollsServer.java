@@ -33,7 +33,7 @@ public class MoomintrollsServer {
     private boolean isAlive;
 
     public Map<InetSocketAddress, ClientManager> clientManagers;
-    private ChangesNotifier changesNotifier;
+    private ChangesManager changesManager;
 
     private UsersInfo usersInfo;
     private CommandsCount commandsCount;
@@ -47,8 +47,8 @@ public class MoomintrollsServer {
         inputDataBuffer = ByteBuffer.wrap(inputData);
         isAlive = true;
         clientManagers = new ConcurrentHashMap<>();
-        changesNotifier = new ChangesNotifier(datagramChannel);
-        new Thread(changesNotifier).start();
+        changesManager = new ChangesManager(datagramChannel);
+        new Thread(changesManager).start();
     }
 
     public void registerMBean() throws MalformedObjectNameException, NotCompliantMBeanException, InstanceAlreadyExistsException, MBeanRegistrationException {
@@ -91,10 +91,10 @@ public class MoomintrollsServer {
             }
         }
 
-        ClientManager ce = new ClientManager(receiverAddress, database, changesNotifier);
+        ClientManager ce = new ClientManager(receiverAddress, database, changesManager);
         ce.registerCommandsCounter(commandsCount);
         clientManagers.put(sReceiverAddress, ce);
-        changesNotifier.addRecipient(ce);
+        changesManager.addRecipient(ce);
 
         ce.setDisconnectionHandler(() -> {
             ce.stop();
@@ -102,7 +102,7 @@ public class MoomintrollsServer {
                 usersInfo.reportDisconnect(ce.getSocketAddress());
             }
             clientManagers.remove(sReceiverAddress);
-            changesNotifier.removeRecipient(ce);
+            changesManager.removeRecipient(ce);
             log.info("Disconnected client " + receiverAddress);
         });
         log.info("Connected client " + receiverAddress);
@@ -117,7 +117,7 @@ public class MoomintrollsServer {
     public void close() {
         isAlive = false;
         clientManagers.values().forEach(ClientManager::stop);
-        changesNotifier.stop();
+        changesManager.stop();
         log.info("Client managers stopped");
 
         try {
