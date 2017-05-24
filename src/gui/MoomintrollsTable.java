@@ -2,6 +2,7 @@ package gui;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
+import net.client.MoomintrollsClient;
 import trolls.Moomintroll;
 import trolls.MoomintrollsCollection;
 
@@ -72,6 +73,7 @@ public class MoomintrollsTable extends JTable{
         }
         this.moomintrollsCollection = moomintrollsCollection;
         moomintrollsDataModel.clear();
+        rowById.clear();
         for(Moomintroll moomintroll: moomintrollsCollection) {
             moomintrollsDataModel.addRow(moomintroll);
         }
@@ -88,6 +90,10 @@ public class MoomintrollsTable extends JTable{
     }
 
     public void addRow(long id, Moomintroll moomintroll) {
+        if (moomintrollsDataModel.getRowCount() != rowById.size()) {
+            MoomintrollsClient.log.severe("Size of rowById isn't equals to dataModel rows number: add canceled");
+            return;
+        }
         moomintrollsDataModel.addRow(moomintroll);
         rowById.put(id, moomintrollsDataModel.getRowCount() - 1);
         if (moomintrollsTree != null) {
@@ -162,6 +168,13 @@ public class MoomintrollsTable extends JTable{
                 .sorted(Collections.reverseOrder())
                 .forEach(id -> {
                     int row = rowById.remove(id);
+                    rowById.entrySet().stream()
+                            .filter(e -> e.getValue() > row)
+                            .forEach(e -> e.setValue(e.getValue() - 1));
+                    if (row >= moomintrollsDataModel.getRowCount() || row < 0) {
+                        MoomintrollsClient.log.warning("Can't remove id = " + id + ": row = " + row + " isn't correct");
+                        return;
+                    }
                     moomintrollsDataModel.removeRow(row);
                     if (moomintrollsTree != null) {
                         moomintrollsTree.remove(row);

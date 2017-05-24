@@ -36,7 +36,7 @@ public class MainWindow extends JFrame {
             reload = new JMenuItem("Reload");
     private JMenuItem about = new JMenuItem("About"),
             helpItem = new JMenuItem("Help");
-    private JCheckBoxMenuItem showTree = new JCheckBoxMenuItem("Show tree", true);
+    private JCheckBoxMenuItem showTree = new JCheckBoxMenuItem("Show tree", false);
     private JPanel toolBarsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
     private JToolBar crudToolBar = new JToolBar(),
             filterToolBar = new JToolBar("filtering");
@@ -111,6 +111,7 @@ public class MainWindow extends JFrame {
         toolBarsPanel.add(filterToolBar);
         contentPane.add(tableScrollPane, BorderLayout.CENTER);
         treeScrollPane = new JScrollPane(moomintrollsTree);
+        treeScrollPane.setVisible(showTree.getState());
         contentPane.add(treeScrollPane, BorderLayout.WEST);
         MoomintrollsFrame.setDefaultNewMoomintrollName("Unknown");
 
@@ -461,6 +462,13 @@ public class MainWindow extends JFrame {
         );
         if (reply == JOptionPane.YES_OPTION) {
             int[] selRows = moomintrollsTable.getSelectedRows();
+            if (selRows.length == 0) {
+                JOptionPane.showMessageDialog(this,
+                        "Failed to remove: nothing selected",
+                        "Failed to remove",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+            }
             if (collectionSession instanceof NetworkCollectionSession) {
                 long[] ids = new long[selRows.length];
                 for (int i = 0; i < selRows.length; i++) {
