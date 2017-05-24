@@ -118,6 +118,10 @@ public class ClientManager implements Runnable {
         switch (command.type()) {
             case MCommand.Type.ADD:
                 Moomintroll[] moomintrolls = MRequest.parseAddRequest(command);
+                if (moomintrolls.length == 0) {
+                    log.warning("ADD canceled: nothing to add");
+                    break;
+                }
                 IdentifiedMoomintroll[] identifiedMoomintrolls =
                         new IdentifiedMoomintroll[moomintrolls.length];
 
@@ -144,6 +148,10 @@ public class ClientManager implements Runnable {
             case MCommand.Type.REMOVE:
                 long[] removedIds = MRequest.parseRemoveRequest(command);
                 numberOfCommands = removedIds.length;
+                if (removedIds.length == 0) {
+                    log.warning("REMOVE canceled: nothing to remove");
+                    break;
+                }
                 if (removedIds.length == 1) {
                     database.delete(removedIds[0]);
                 } else {
