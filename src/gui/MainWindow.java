@@ -481,6 +481,11 @@ public class MainWindow extends JFrame {
     }
 
     public void editRow(int row) {
+
+        long id = -1;
+        if (collectionSession instanceof NetworkCollectionSession) {
+            id = moomintrollsTable.getRowId(moomintrollsTable.convertRowIndexToModel(row));
+        }
         Moomintroll oldTroll = moomintrollsTable.getRow(row);
         MoomintrollsFrame editFrame = new MoomintrollsFrame();
         if (editFrame.showEditDialog(this, oldTroll) == MoomintrollsFrame.OK) {
@@ -489,8 +494,7 @@ public class MainWindow extends JFrame {
                 try {
                     ((NetworkCollectionSession) collectionSession)
                             .getClient()
-                            .update(moomintrollsTable.getRowId(
-                                    moomintrollsTable.convertRowIndexToModel(row)), newTroll);
+                            .update(id, newTroll);
                 } catch (IOException e) {
                     MoomintrollsClient.log.log(Level.SEVERE, "Failed to send update request", e);
                 }
