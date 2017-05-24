@@ -1,5 +1,7 @@
 package gui;
 
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import trolls.Moomintroll;
 import trolls.MoomintrollsCollection;
 
@@ -8,10 +10,6 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
 import java.util.stream.LongStream;
 
 public class MoomintrollsTable extends JTable{
@@ -38,7 +36,7 @@ public class MoomintrollsTable extends JTable{
         }
     }
 
-    private Map<Long, Integer> rowById;
+    private BiMap<Long, Integer> rowById;
 
     private MoomintrollsCollection moomintrollsCollection;
     private MoomintrollsTableModel moomintrollsDataModel;
@@ -47,7 +45,7 @@ public class MoomintrollsTable extends JTable{
     MoomintrollsTable() {
         super(new MoomintrollsTableModel());
         moomintrollsDataModel = (MoomintrollsTableModel) dataModel;
-        rowById = new HashMap<>();
+        rowById = HashBiMap.create();
         setDefaultRenderer(Color.class, new ColorRenderer());
         setDefaultRenderer(String.class, new ColorRenderer());
         setDefaultRenderer(Integer.class, new ColorRenderer());
@@ -91,7 +89,7 @@ public class MoomintrollsTable extends JTable{
 
     public void addRow(long id, Moomintroll moomintroll) {
         moomintrollsDataModel.addRow(moomintroll);
-        rowById.put(id, getRowCount() - 1);
+        rowById.put(id, moomintrollsDataModel.getRowCount() - 1);
         if (moomintrollsTree != null) {
             moomintrollsTree.insert(moomintroll);
         }
@@ -129,12 +127,12 @@ public class MoomintrollsTable extends JTable{
     }
 
     public long getRowId(int row) {
-        return (long) rowById.entrySet()
+        return rowById.entrySet()
                 .stream()
-                .filter(entry -> Objects.equals(entry.getValue(), row))
-                .map(Map.Entry::getKey)
-                .collect(Collectors.toList())
-                .toArray()[0];
+                .filter(e -> e.getValue().equals(row))
+                .findFirst()
+                .orElse(null)
+                .getKey();
     }
 
     public MoomintrollsCollection getMoomintrollsCollection() {
