@@ -23,11 +23,9 @@ public class MoomintrollsClient {
     public MoomintrollsClient(InetSocketAddress socketAddress) throws SocketException {
         this.socketAddress = socketAddress;
         datagramSocket = new DatagramSocket();
-        //datagramSocket.setReuseAddress(true);
         changesLoader = new ChangesLoader(datagramSocket);
-        log.info("Started client on port " + datagramSocket.getLocalPort());
-        //datagramSocket.connect(socketAddress);
-        //log.info("Connected to " + socketAddress);
+        log.info("Started client on port " + datagramSocket.getLocalPort() + "\n" +
+                "Server address is " + socketAddress);
         new Thread(changesLoader).start();
     }
 

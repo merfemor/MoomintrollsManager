@@ -58,7 +58,7 @@ public class MainWindow extends JFrame {
     private String ENV_NAME;
 
     // net
-    final InetSocketAddress inetSocketAddress = new InetSocketAddress("127.0.0.1", 1238);
+    private InetSocketAddress inetSocketAddress = new InetSocketAddress("127.0.0.1", 1238);
 
 
     public MainWindow(String pathVariableName) {
@@ -562,5 +562,9 @@ public class MainWindow extends JFrame {
             collectionName += collectionSession.getFile().getName();
         }
         setTitle(collectionName + " - " + getName());
+    }
+
+    public void setDefaultSocketAdress(InetSocketAddress socketAdress) {
+        this.inetSocketAddress = socketAdress;
     }
 }
