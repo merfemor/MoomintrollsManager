@@ -202,7 +202,7 @@ public class MainWindow extends JFrame {
                     "- performance improvements\n\n" +
                     "v1.0.1:\n" +
                     "- bugs added\n" +
-                    "- perfomance impaired\n\n" +
+                    "- performance impaired\n\n" +
                     "v1.0\n" +
                     "- first working version\n"
             );
