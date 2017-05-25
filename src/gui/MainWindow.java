@@ -207,25 +207,17 @@ public class MainWindow extends JFrame {
                     "- first working version\n"
             );
             jTextArea.setEditable(false);
-            int reply = JOptionPane.showOptionDialog(this,
+            JOptionPane.showMessageDialog(this,
                     jTextArea,
                     "Help",
                     JOptionPane.PLAIN_MESSAGE
-                    JOptionPane.DEFAULT_OPTION,
             );
 
-            if(reply == 0) {
-                Desktop desktop = Desktop.getDesktop();
-                try {
-                    desktop.browse(new URL("https://se.ifmo.ru/~s225111/mooman-help/help.html").toURI());
-                } catch (IOException | URISyntaxException e) {
-                    e.printStackTrace();
-                }
-            }
+
         });
         about.addActionListener(actionEvent -> {
             Object[] options = {"Open Team Support Page"};
-            JOptionPane.showOptionDialog(
+            int reply = JOptionPane.showOptionDialog(
                     this,
                     "Moomintrolls Manager v1.2\n" +
                             "by Moomintrolls Studio®\n" +
@@ -237,6 +229,14 @@ public class MainWindow extends JFrame {
                     options,
                     options[0]
             );
+            if (reply == 0) {
+                Desktop desktop = Desktop.getDesktop();
+                try {
+                    desktop.browse(new URL("https://se.ifmo.ru/~s225111/mooman-help/help.html").toURI());
+                } catch (IOException | URISyntaxException e) {
+                    e.printStackTrace();
+                }
+            }
         });
 
 
