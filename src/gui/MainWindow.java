@@ -58,7 +58,7 @@ public class MainWindow extends JFrame {
     private String ENV_NAME;
 
     // net
-    private InetSocketAddress inetSocketAddress = new InetSocketAddress("127.0.0.1", 1238);
+    private InetSocketAddress inetSocketAddress = new InetSocketAddress("192.168.43.64", 1111);
 
 
     public MainWindow(String pathVariableName) {

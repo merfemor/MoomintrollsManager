@@ -167,17 +167,19 @@ public class MoomintrollsTable extends JTable{
                 .boxed()
                 .sorted(Collections.reverseOrder())
                 .forEach(id -> {
-                    int row = rowById.remove(id);
-                    rowById.entrySet().stream()
-                            .filter(e -> e.getValue() > row)
-                            .forEach(e -> e.setValue(e.getValue() - 1));
-                    if (row >= moomintrollsDataModel.getRowCount() || row < 0) {
-                        MoomintrollsClient.log.warning("Can't remove id = " + id + ": row = " + row + " isn't correct");
-                        return;
-                    }
-                    moomintrollsDataModel.removeRow(row);
-                    if (moomintrollsTree != null) {
-                        moomintrollsTree.remove(row);
+                    if (rowById.containsKey(id)) {
+                        int row = rowById.remove(id);
+                        rowById.entrySet().stream()
+                                .filter(e -> e.getValue() > row)
+                                .forEach(e -> e.setValue(e.getValue() - 1));
+                        if (row >= moomintrollsDataModel.getRowCount() || row < 0) {
+                            MoomintrollsClient.log.warning("Can't remove id = " + id + ": row = " + row + " isn't correct");
+                            return;
+                        }
+                        moomintrollsDataModel.removeRow(row);
+                        if (moomintrollsTree != null) {
+                            moomintrollsTree.remove(row);
+                        }
                     }
                 });
         moomintrollsDataModel.fireTableDataChanged();

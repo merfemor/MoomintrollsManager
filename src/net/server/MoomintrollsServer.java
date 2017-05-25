@@ -8,6 +8,7 @@ import psql.MoomintrollsDatabase;
 import javax.management.*;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
@@ -21,7 +22,6 @@ import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 public class MoomintrollsServer {
-    private final int PORT;
     private DatagramChannel datagramChannel;
     private MoomintrollsDatabase database;
 
@@ -38,10 +38,9 @@ public class MoomintrollsServer {
     private UsersInfo usersInfo;
     private CommandsCount commandsCount;
 
-    public MoomintrollsServer(int port, MoomintrollsDatabase database) throws IOException {
-        this.PORT = port;
+    public MoomintrollsServer(InetSocketAddress inetSocketAddress, MoomintrollsDatabase database) throws IOException {
         datagramChannel = DatagramChannel.open();
-        datagramChannel.socket().bind(new InetSocketAddress(PORT));
+        datagramChannel.socket().bind(inetSocketAddress);
         this.database = database;
         inputData = new byte[MPacket.PACKETS_LENGTH];
         inputDataBuffer = ByteBuffer.wrap(inputData);
@@ -124,11 +123,11 @@ public class MoomintrollsServer {
             database.close();
             log.info("Database on " + database.getUrl() + " stopped");
             datagramChannel.close();
-            log.info("Channel on port " + PORT + " closed");
+            log.info("Channel on " + datagramChannel.getLocalAddress() + " closed");
         } catch (SQLException e) {
             log.log(Level.SEVERE, "Failed to close database on url " + database.getUrl(), e);
         } catch (IOException e) {
-            log.log(Level.SEVERE, "Failed to close channel on port " + PORT, e);
+            log.log(Level.SEVERE, "Failed to close channel", e);
         }
     }
 
@@ -140,8 +139,7 @@ public class MoomintrollsServer {
         } catch (Exception e) {
             log.warning("Could not setup logger configuration");
         }
-
-        final int port = 1238;
+        InetSocketAddress isa = new InetSocketAddress(1111);
         MoomintrollsServer moomintrollsServer;
         MoomintrollsDatabase database = null;
         try {
@@ -155,14 +153,21 @@ public class MoomintrollsServer {
             );
             log.info("Connected to database " + database.getUrl());
 
-            moomintrollsServer = new MoomintrollsServer(port, database);
-            log.info("Started UDP server on port " + port);
+
+            if (args.length >= 2) {
+                try {
+                    isa = new InetSocketAddress(InetAddress.getByName(args[0]), Integer.parseInt(args[1]));
+                } catch (Exception ignored) {
+                }
+            }
+            moomintrollsServer = new MoomintrollsServer(isa, database);
+            log.info("Started UDP server " + isa);
 
         } catch (IOException e) {
-            log.log(Level.SEVERE, "Failed to start server on port " + port + ": failed to create channel", e);
+            log.log(Level.SEVERE, "Failed to start server " + isa + ": failed to create channel", e);
             return;
         } catch (SQLException e) {
-            log.log(Level.SEVERE, "Failed to start server on port " + port +
+            log.log(Level.SEVERE, "Failed to start server " + isa +
                     ": failed to connect to database\n" + "URL: " + database.getUrl(), e);
             return;
         }
