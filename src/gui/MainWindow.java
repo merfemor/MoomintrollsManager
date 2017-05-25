@@ -35,7 +35,7 @@ public class MainWindow extends JFrame {
             disconnect = new JMenuItem("Disconnect"),
             reload = new JMenuItem("Reload");
     private JMenuItem about = new JMenuItem("About"),
-            helpItem = new JMenuItem("Help");
+            releaseNotes = new JMenuItem("Release Notes");
     private JCheckBoxMenuItem showTree = new JCheckBoxMenuItem("Show tree", false);
     private JPanel toolBarsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
     private JToolBar crudToolBar = new JToolBar(),
@@ -101,7 +101,7 @@ public class MainWindow extends JFrame {
         disconnect.setEnabled(false);
         remoteMenu.add(disconnect);
         menuBar.add(remoteMenu);
-        helpMenu.add(helpItem);
+        helpMenu.add(releaseNotes);
         helpMenu.add(about);
         menuBar.add(helpMenu);
 
@@ -190,21 +190,28 @@ public class MainWindow extends JFrame {
                 }).start();
             }
         });
-        helpItem.addActionListener(actionEvent -> {
-            Object[] options = {"Open Team Support Page"};
+        releaseNotes.addActionListener(actionEvent -> {
+            JTextArea jTextArea = new JTextArea("Release notes:\n" +
+                    "v1.2:\n" +
+                    "- remote connection\n" +
+                    "- multi-user access\n" +
+                    "- tree now hidden by default\n\n" +
+                    "v1.1:\n" +
+                    "- \"clever\" files saving\n" +
+                    "- bugs fixed\n" +
+                    "- performance improvements\n\n" +
+                    "v1.0.1:\n" +
+                    "- bugs added\n" +
+                    "- perfomance impaired\n\n" +
+                    "v1.0\n" +
+                    "- first working version\n"
+            );
+            jTextArea.setEditable(false);
             int reply = JOptionPane.showOptionDialog(this,
-                    "This is first version of program.\n" +
-                            "So there is NO HELP.\n" +
-                            "\n" +
-                            "Release Notes:\n" +
-                            "\tv1.0\n" +
-                            "\t\t- all you see is new",
+                    jTextArea,
                     "Help",
+                    JOptionPane.PLAIN_MESSAGE
                     JOptionPane.DEFAULT_OPTION,
-                    JOptionPane.PLAIN_MESSAGE,
-                    null,
-                    options,
-                    options[0]
             );
 
             if(reply == 0) {
@@ -217,12 +224,18 @@ public class MainWindow extends JFrame {
             }
         });
         about.addActionListener(actionEvent -> {
-            JOptionPane.showMessageDialog(
+            Object[] options = {"Open Team Support Page"};
+            JOptionPane.showOptionDialog(
                     this,
-                    "Moomintrolls Manager v1.0\n" +
-                            "by me",
+                    "Moomintrolls Manager v1.2\n" +
+                            "by Moomintrolls Studio®\n" +
+                            "SpB ITMO, 2017",
                     "About",
-                    JOptionPane.PLAIN_MESSAGE
+                    JOptionPane.DEFAULT_OPTION,
+                    JOptionPane.PLAIN_MESSAGE,
+                    null,
+                    options,
+                    options[0]
             );
         });
 
@@ -310,7 +323,9 @@ public class MainWindow extends JFrame {
         close.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, KeyEvent.CTRL_DOWN_MASK));
         saveAs.setAccelerator(KeyStroke.getKeyStroke("control shift S"));
         connect.setAccelerator(KeyStroke.getKeyStroke("control shift C"));
-        helpItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0));
+        reload.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F5, 0));
+        disconnect.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, KeyEvent.CTRL_DOWN_MASK));
+        releaseNotes.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0));
         about.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F1, KeyEvent.CTRL_DOWN_MASK));
         showTree.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_T, KeyEvent.ALT_DOWN_MASK));
 
