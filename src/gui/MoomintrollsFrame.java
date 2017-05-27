@@ -5,8 +5,6 @@ import trolls.Moomintroll;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Hashtable;
@@ -39,6 +37,7 @@ public class MoomintrollsFrame extends JPanel {
     private ButtonGroup genderButtons = new ButtonGroup();
     private JRadioButton genderMaleButton = new JRadioButton("male"),
             genderFemaleButton = new JRadioButton("female");
+    private Component owner;
 
     public MoomintrollsFrame() {
         super(new GridLayout(5, 0, 0, 8));
@@ -100,6 +99,7 @@ public class MoomintrollsFrame extends JPanel {
     }
 
     public int showEditDialog(Component owner, Moomintroll moomintroll) {
+        this.owner = owner;
         String title;
         if(moomintroll == null) {
             title = "Add";
@@ -120,27 +120,38 @@ public class MoomintrollsFrame extends JPanel {
             colorLabel.setBackground(moomintroll.getRgbBodyColor());
             kindnessSlider.setValue(moomintroll.getKindness().value());
         }
-
-        int result = JOptionPane.showConfirmDialog(
-                owner,
-                this,
-                title,
-                JOptionPane.OK_CANCEL_OPTION,
-                JOptionPane.PLAIN_MESSAGE
-        );
-        if(result == JOptionPane.OK_OPTION) {
-            parseMoomintroll();
+        int result;
+        while (true) {
+            result = JOptionPane.showConfirmDialog(
+                    owner,
+                    this,
+                    title,
+                    JOptionPane.OK_CANCEL_OPTION,
+                    JOptionPane.PLAIN_MESSAGE
+            );
+            if (result != JOptionPane.OK_OPTION || parseMoomintroll()) {
+                break;
+            }
         }
         return result;
     }
 
-    private void parseMoomintroll() {
-        moomintroll = new Moomintroll(nameField.getText(),
+    private boolean parseMoomintroll() {
+        if (nameField.getText().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(
+                    owner,
+                    "Error: the name of the moomintroll can't be empty!",
+                    "Error: empty name",
+                    JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+        moomintroll = new Moomintroll(nameField.getText().trim(),
                 genderMaleButton.isSelected(),
                 (int) positionSpinner.getValue(),
                 colorLabel.getBackground(),
                 new Kindness(kindnessSlider.getValue())
         );
+        return true;
     }
 
     public Moomintroll getMoomintroll() {
