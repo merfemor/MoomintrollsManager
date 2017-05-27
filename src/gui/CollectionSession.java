@@ -79,7 +79,7 @@ public class CollectionSession {
             }
         }
         while (newFile != null) {
-            if (newFile.exists()) {
+            if (newFile.exists() && file == null) {
                 int reply = JOptionPane.showConfirmDialog(
                         owner,
                         "File is already exists.\nOverwrite it?",

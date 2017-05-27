@@ -247,13 +247,15 @@ public class MainWindow extends JFrame {
         // TODO: dialog for choosing adress
         connect.addActionListener(actionEvent -> {
             if (connect.isEnabled()) {
-                connect.setEnabled(false);
-                disconnect.setEnabled(true);
-                reload.setEnabled(true);
-                moomintrollsTable.setMoomintrollsCollection(null);
                 if (collectionSession != null && !collectionSession.close()) {
                     return;
                 }
+                moomintrollsTable.setMoomintrollsCollection(null);
+                connect.setEnabled(false);
+                disconnect.setEnabled(true);
+                reload.setEnabled(true);
+                close.setEnabled(false);
+
                 NetworkCollectionSession ncs;
                 try {
                     ncs = new NetworkCollectionSession(
@@ -295,8 +297,8 @@ public class MainWindow extends JFrame {
                     collectionSession.close();
                 }
                 collectionSession = ncs;
+                setEditEnabled(true);
                 updateTitle();
-                connect.setEnabled(true);
             }
         });
 
@@ -317,6 +319,8 @@ public class MainWindow extends JFrame {
                 collectionSession.close();
                 moomintrollsTable.setMoomintrollsCollection(null);
                 collectionSession = new CollectionSession(moomintrollsTable.getMoomintrollsCollection());
+                setEditEnabled(true);
+                connect.setEnabled(true);
                 updateTitle();
             }
         });
@@ -328,7 +332,7 @@ public class MainWindow extends JFrame {
         saveAs.setAccelerator(KeyStroke.getKeyStroke("control shift S"));
         connect.setAccelerator(KeyStroke.getKeyStroke("control shift C"));
         reload.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F5, 0));
-        disconnect.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, KeyEvent.CTRL_DOWN_MASK));
+        disconnect.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D, KeyEvent.CTRL_DOWN_MASK));
         releaseNotes.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0));
         about.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F1, KeyEvent.CTRL_DOWN_MASK));
         showTree.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_T, KeyEvent.ALT_DOWN_MASK));
@@ -567,6 +571,10 @@ public class MainWindow extends JFrame {
         saveAs.setEnabled(enabled);
         open.setEnabled(enabled);
         close.setEnabled(enabled);
+        if (collectionSession instanceof NetworkCollectionSession) {
+            close.setEnabled(false);
+            open.setEnabled(false);
+        }
     }
 
     public void updateTitle() {

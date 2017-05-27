@@ -144,6 +144,7 @@ public class MoomintrollsTable extends JTable{
     public MoomintrollsCollection getMoomintrollsCollection() {
         moomintrollsCollection.clear();
         int rows = moomintrollsDataModel.getRowCount();
+        clearSelection();
 
         for(int i = 0; i < rows; i++) {
             moomintrollsCollection.add(moomintrollsDataModel.getRow(i));
