@@ -2,6 +2,7 @@ import cui.ConsoleMoomintrollsManager;
 import gui.MainWindow;
 import net.client.MoomintrollsClient;
 
+import javax.swing.*;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
@@ -16,16 +17,18 @@ public class MoomintrollsManager {
             }
             consoleMoomintrollsManager.start();
         } else {
-            MainWindow mainWindow = new MainWindow("LAB_PATH");
-            if (args.length > 0) {
-                try {
-                    InetSocketAddress socketAddress = new InetSocketAddress(InetAddress.getByName(args[0]), Integer.parseInt(args[1]));
-                    mainWindow.setDefaultSocketAdress(socketAddress);
-                } catch (Exception e) {
-                    MoomintrollsClient.log.warning("Failed to get SocketAddress from " + args[0]);
+            SwingUtilities.invokeLater(() -> {
+                MainWindow mainWindow = new MainWindow("LAB_PATH");
+                if (args.length > 0) {
+                    try {
+                        InetSocketAddress socketAddress = new InetSocketAddress(InetAddress.getByName(args[0]), Integer.parseInt(args[1]));
+                        mainWindow.setDefaultSocketAdress(socketAddress);
+                    } catch (Exception e) {
+                        MoomintrollsClient.log.warning("Failed to get SocketAddress from " + args[0]);
+                    }
                 }
-            }
-            mainWindow.setVisible(true);
+                mainWindow.setVisible(true);
+            });
         }
     }
 }

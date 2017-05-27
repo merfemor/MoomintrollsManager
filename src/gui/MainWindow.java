@@ -59,7 +59,7 @@ public class MainWindow extends JFrame {
     private String ENV_NAME;
 
     // net
-    private InetSocketAddress inetSocketAddress = new InetSocketAddress("192.168.43.64", 1111);
+    public static InetSocketAddress inetSocketAddress = new InetSocketAddress("192.168.43.64", 1111);
 
 
     public MainWindow(String pathVariableName) {
@@ -268,26 +268,34 @@ public class MainWindow extends JFrame {
                 ncs.getClient().setCommandHandler(new CommandHandler() {
                     @Override
                     public void add(IdentifiedMoomintroll[] moomintrolls) {
-                        for (IdentifiedMoomintroll moomintroll : moomintrolls) {
-                            moomintrollsTable.addRow(moomintroll.id(), moomintroll.moomintroll());
-                        }
+                        EventQueue.invokeLater(() -> {
+                            for (IdentifiedMoomintroll moomintroll : moomintrolls) {
+                                moomintrollsTable.addRow(moomintroll.id(), moomintroll.moomintroll());
+                            }
+                        });
                     }
 
                     @Override
                     public void remove(long[] ids) {
-                        moomintrollsTable.removeIds(ids);
+                        EventQueue.invokeLater(() -> {
+                            moomintrollsTable.removeIds(ids);
+                        });
                     }
 
                     @Override
                     public void update(IdentifiedMoomintroll moomintroll) {
-                        moomintrollsTable.update(moomintroll.id(), moomintroll.moomintroll());
+                        EventQueue.invokeLater(() -> {
+                            moomintrollsTable.update(moomintroll.id(), moomintroll.moomintroll());
+                        });
                     }
 
                     @Override
                     public void reload(IdentifiedMoomintroll[] moomintrolls) {
-                        moomintrollsTable.setMoomintrollsCollection(null);
-                        for (IdentifiedMoomintroll moomintroll : moomintrolls)
-                            moomintrollsTable.addRow(moomintroll.id(), moomintroll.moomintroll());
+                        EventQueue.invokeLater(() -> {
+                            moomintrollsTable.setMoomintrollsCollection(null);
+                            for (IdentifiedMoomintroll moomintroll : moomintrolls)
+                                moomintrollsTable.addRow(moomintroll.id(), moomintroll.moomintroll());
+                        });
                     }
                 });
                 try {
