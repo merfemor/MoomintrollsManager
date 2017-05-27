@@ -2,6 +2,8 @@ package net;
 
 import net.client.MoomintrollsClient;
 import org.junit.Test;
+import trolls.Moomintroll;
+import trolls.utils.Random;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -11,6 +13,7 @@ import java.net.UnknownHostException;
 
 public class TestDOSServer {
     private final long REQUESTS_NUMBER = 100000;
+    private final int CLIENTS_NUMBER = 1000;
     private final InetSocketAddress localhost;
 
     public TestDOSServer() throws UnknownHostException {
@@ -27,6 +30,32 @@ public class TestDOSServer {
             client.collectionRequest();
         }
         client.close();
+    }
+
+    @Test
+    public void addDdosOneClient() throws IOException {
+        MoomintrollsClient client = createNewClient();
+        for (long i = 1; i <= REQUESTS_NUMBER; i++) {
+            Moomintroll[] moomintrolls = {Random.randomTroll()};
+            client.add(moomintrolls);
+        }
+        client.close();
+    }
+
+
+    @Test
+    public void manyCLientsOneThread() throws IOException {
+        MoomintrollsClient[] moomintrollsClients = new MoomintrollsClient[CLIENTS_NUMBER];
+        for (int i = 0; i < CLIENTS_NUMBER; i++) {
+            moomintrollsClients[i] = createNewClient();
+            moomintrollsClients[i].collectionRequest();
+        }
+        Moomintroll[] moomintrolls = {Random.randomTroll()};
+        moomintrollsClients[0].add(moomintrolls);
+
+        for (int i = 0; i < CLIENTS_NUMBER; i++) {
+            moomintrollsClients[i].close();
+        }
     }
 
     public MoomintrollsClient createNewClient() throws SocketException {
