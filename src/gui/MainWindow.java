@@ -36,7 +36,7 @@ public class MainWindow extends JFrame {
             reload = new JMenuItem("Reload");
     private JMenuItem about = new JMenuItem("About"),
             releaseNotes = new JMenuItem("Release Notes");
-    private JCheckBoxMenuItem showTree = new JCheckBoxMenuItem("Show tree", false);
+    private JCheckBoxMenuItem showTree = new JCheckBoxMenuItem("Show tree", true);
     private JPanel toolBarsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
     private JToolBar crudToolBar = new JToolBar(),
             filterToolBar = new JToolBar("filtering");
@@ -52,6 +52,7 @@ public class MainWindow extends JFrame {
             enableFemales = new JCheckBox("female", true);
 
     private JScrollPane treeScrollPane;
+    private JSplitPane treeAndTableSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
     private MoomintrollsTable moomintrollsTable;
     private MoomintrollsTree moomintrollsTree;
     private CollectionSession collectionSession;
@@ -75,6 +76,7 @@ public class MainWindow extends JFrame {
     }
 
     private void initComponents() {
+        this.setMinimumSize(new Dimension(500, 300));
         moomintrollsTable = new MoomintrollsTable();
         moomintrollsTree = new MoomintrollsTree(moomintrollsTable);
         moomintrollsTable.registerMoomintrollsTree(moomintrollsTree);
@@ -105,15 +107,17 @@ public class MainWindow extends JFrame {
         helpMenu.add(about);
         menuBar.add(helpMenu);
 
-        JScrollPane tableScrollPane = new JScrollPane(moomintrollsTable);
         contentPane.add(toolBarsPanel, BorderLayout.NORTH);
         toolBarsPanel.add(crudToolBar);
         toolBarsPanel.add(filterToolBar);
-        contentPane.add(tableScrollPane, BorderLayout.CENTER);
+        JScrollPane tableScrollPane = new JScrollPane(moomintrollsTable);
         treeScrollPane = new JScrollPane(moomintrollsTree);
-        treeScrollPane.setVisible(showTree.getState());
-        contentPane.add(treeScrollPane, BorderLayout.WEST);
+        treeAndTableSplitPane.add(treeScrollPane);
+        treeAndTableSplitPane.add(tableScrollPane);
+        treeAndTableSplitPane.setDividerSize(4);
+        contentPane.add(treeAndTableSplitPane, BorderLayout.CENTER);
         MoomintrollsFrame.setDefaultNewMoomintrollName("Unknown");
+        treeScrollPane.setVisible(showTree.getState());
 
         removeButton.setEnabled(false);
         editButton.setEnabled(false);
@@ -394,7 +398,13 @@ public class MainWindow extends JFrame {
 
         showTree.addActionListener(actionEvent -> {
             treeScrollPane.setVisible(showTree.getState());
-            revalidate();
+            treeAndTableSplitPane.setDividerLocation(0.25);
+            if (showTree.getState()) {
+                treeAndTableSplitPane.setDividerSize(4);
+            } else {
+                treeAndTableSplitPane.setDividerSize(0);
+            }
+            treeAndTableSplitPane.revalidate();
         });
     }
 
