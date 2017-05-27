@@ -31,12 +31,14 @@ public class ClientManager implements Runnable {
     private AnswerHandler answerHandler;
     private ChangesManager changesManager;
     private CommandsCount commandsCounter;
+    private static ThreadLocal<IdentifiedMoomintroll[]> fullData;
 
     public ClientManager(SocketAddress socketAddress, MoomintrollsDatabase database, ChangesManager changesManager) {
         this.socketAddress = socketAddress;
         this.database = database;
         this.changesManager = changesManager;
         packetsQueue = new LinkedBlockingDeque<>();
+        fullData = new ThreadLocal<>();
     }
 
     public SocketAddress getSocketAddress() {
@@ -173,12 +175,12 @@ public class ClientManager implements Runnable {
                 answerHandler.handleAnswer(new MAnswer(command.data()));
                 break;
             case MCommand.Type.SELECT_ALL:
-                IdentifiedMoomintroll[] selectedMoomintrolls = database.toArray();
+                fullData.set(database.toArray());
                 if (log.isLoggable(Level.FINE)) {
                     log.fine("Command from " + socketAddress + ": SELECT_ALL");
                 }
                 changesManager.sendOneAnswer(
-                        MAnswer.createSelectAllAnswer(selectedMoomintrolls),
+                        MAnswer.createSelectAllAnswer(fullData.get()),
                         socketAddress);
                 break;
             default:

@@ -24,11 +24,16 @@ public class MoomintrollsDatabase extends PSQLClient {
     private final String INSERT_FIELDS
             = Arrays.stream(fieldsNames).skip(1).collect(Collectors.joining(", "));
     private final String UPDATE_MOOMINTROLL_FUNCTION = "update_moomintroll";
-
+    private CachedRowSet fullDataRowSet;
+    private IdentifiedMoomintroll[] fullData;
+    private volatile boolean dataChanged = true;
 
     public MoomintrollsDatabase(String hostname, int port, String database, String username, String password, String tableName) throws SQLException {
         super(hostname, port, database, username, password);
         setTableName(tableName);
+        fullDataRowSet = new CachedRowSetImpl();
+        fullDataRowSet.setCommand("SELECT * FROM " + tableName);
+        fullDataRowSet.setReadOnly(true);
     }
 
     public MoomintrollsDatabase(String hostname, int port, String database, String username, String password) throws SQLException {
@@ -67,6 +72,7 @@ public class MoomintrollsDatabase extends PSQLClient {
         }
         connection.commit();
         connection.setAutoCommit(true);
+        dataChanged = true;
         return generatedIds;
     }
 
@@ -79,6 +85,7 @@ public class MoomintrollsDatabase extends PSQLClient {
         );
         ResultSet generatedKeys = statement.getGeneratedKeys();
         generatedKeys.next();
+        dataChanged = true;
         return generatedKeys.getLong(1);
     }
 
@@ -86,6 +93,7 @@ public class MoomintrollsDatabase extends PSQLClient {
         connection.createStatement().executeUpdate(
                 "DELETE FROM " + tableName + " WHERE " + fieldsNames[0] + " = " + moomintrollId
         );
+        dataChanged = true;
     }
 
     public void delete(long[] ids) throws SQLException {
@@ -93,17 +101,21 @@ public class MoomintrollsDatabase extends PSQLClient {
                 "DELETE FROM " + tableName + " WHERE " + fieldsNames[0] + " IN (" +
                         Arrays.toString(ids).replaceAll("[\\[\\]]", "") + ");"
         ).execute();
+        dataChanged = true;
     }
 
-    public IdentifiedMoomintroll[] toArray() throws SQLException {
-        CachedRowSet fullDataRowSet = new CachedRowSetImpl();
-        fullDataRowSet.setCommand("SELECT * FROM " + tableName);
-        fullDataRowSet.setReadOnly(true);
-        fullDataRowSet.execute(connection);
+    public synchronized IdentifiedMoomintroll[] toArray() throws SQLException {
+        if (dataChanged)
+            reloadFullData();
+        return fullData;
+    }
 
-        IdentifiedMoomintroll[] moomintrolls = new IdentifiedMoomintroll[fullDataRowSet.size()];
+    public void reloadFullData() throws SQLException {
+        fullDataRowSet.execute(connection);
+        dataChanged = false;
+        fullData = new IdentifiedMoomintroll[fullDataRowSet.size()];
         for (int i = 0; fullDataRowSet.next(); i++) {
-            moomintrolls[i] = new IdentifiedMoomintroll(fullDataRowSet.getLong(fieldsNames[0]),
+            fullData[i] = new IdentifiedMoomintroll(fullDataRowSet.getLong(fieldsNames[0]),
                     new Moomintroll(
                             fullDataRowSet.getString(fieldsNames[1]),
                             fullDataRowSet.getBoolean(fieldsNames[2]),
@@ -112,7 +124,6 @@ public class MoomintrollsDatabase extends PSQLClient {
                             new Kindness(fullDataRowSet.getInt(fieldsNames[4]))
                     ));
         }
-        return moomintrolls;
     }
 
     public void update(long id, Moomintroll moomintroll) throws SQLException {
@@ -125,5 +136,6 @@ public class MoomintrollsDatabase extends PSQLClient {
         statement.setInt(5, moomintroll.getKindness().value());
         statement.setInt(6, moomintroll.getPosition());
         statement.execute();
+        dataChanged = true;
     }
 }
