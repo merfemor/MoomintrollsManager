@@ -91,25 +91,29 @@ public class ChangesLoader implements Runnable {
                 if (log.isLoggable(Level.INFO)) {
                     log.info("Command: ADD" + Arrays.toString(moomintrolls));
                 }
-                commandHandler.add(moomintrolls);
+                if (commandHandler != null)
+                    commandHandler.add(moomintrolls);
                 break;
             case MCommand.Type.REMOVE:
                 long[] ids = answer.parseRemove();
                 if (log.isLoggable(Level.INFO)) {
                     log.info("Command: REMOVE" + Arrays.toString(ids));
                 }
-                commandHandler.remove(ids);
+                if (commandHandler != null)
+                    commandHandler.remove(ids);
                 break;
             case MCommand.Type.UPDATE:
                 IdentifiedMoomintroll im = answer.parseUpdate();
                 if (log.isLoggable(Level.INFO)) {
                     log.info("Command: UPDATE " + im);
                 }
-                commandHandler.update(im);
+                if (commandHandler != null)
+                    commandHandler.update(im);
                 break;
             case MCommand.Type.SELECT_ALL:
                 IdentifiedMoomintroll[] identifiedMoomintrolls = answer.parseSelectAll();
-                commandHandler.reload(identifiedMoomintrolls);
+                if (commandHandler != null)
+                    commandHandler.reload(identifiedMoomintrolls);
                 if (log.isLoggable(Level.INFO)) {
                     if (log.isLoggable(Level.FINE)) {
                         log.fine("Command: SELECT_ALL" + "\n" + Arrays.toString(identifiedMoomintrolls));
