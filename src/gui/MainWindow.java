@@ -21,6 +21,8 @@ import java.util.logging.Level;
 
 public class MainWindow extends JFrame {
 
+    // net
+    public static InetSocketAddress inetSocketAddress = new InetSocketAddress("192.168.43.64", 1111);
     // components
     private JMenuBar menuBar = new JMenuBar();
     private JMenu fileIOMenu = new JMenu("File"),
@@ -36,7 +38,7 @@ public class MainWindow extends JFrame {
             reload = new JMenuItem("Reload");
     private JMenuItem about = new JMenuItem("About"),
             releaseNotes = new JMenuItem("Release Notes");
-    private JCheckBoxMenuItem showTree = new JCheckBoxMenuItem("Show tree", true);
+    private JCheckBoxMenuItem showTree = new JCheckBoxMenuItem("Show tree", false);
     private JPanel toolBarsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
     private JToolBar crudToolBar = new JToolBar(),
             filterToolBar = new JToolBar("filtering");
@@ -50,16 +52,12 @@ public class MainWindow extends JFrame {
             positionToFilter = new JTextField(8);
     private JCheckBox enableMales = new JCheckBox("male", true),
             enableFemales = new JCheckBox("female", true);
-
     private JScrollPane treeScrollPane;
     private JSplitPane treeAndTableSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
     private MoomintrollsTable moomintrollsTable;
     private MoomintrollsTree moomintrollsTree;
     private CollectionSession collectionSession;
     private String ENV_NAME;
-
-    // net
-    public static InetSocketAddress inetSocketAddress = new InetSocketAddress("192.168.43.64", 1111);
 
 
     public MainWindow(String pathVariableName) {
@@ -114,7 +112,7 @@ public class MainWindow extends JFrame {
         treeScrollPane = new JScrollPane(moomintrollsTree);
         treeAndTableSplitPane.add(treeScrollPane);
         treeAndTableSplitPane.add(tableScrollPane);
-        treeAndTableSplitPane.setDividerSize(4);
+        treeAndTableSplitPane.setDividerSize(0);
         contentPane.add(treeAndTableSplitPane, BorderLayout.CENTER);
         MoomintrollsFrame.setDefaultNewMoomintrollName("Unknown");
         treeScrollPane.setVisible(showTree.getState());
