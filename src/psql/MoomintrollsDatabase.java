@@ -8,6 +8,8 @@ import trolls.Moomintroll;
 import javax.sql.rowset.CachedRowSet;
 import java.awt.*;
 import java.sql.*;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
@@ -18,7 +20,8 @@ public class MoomintrollsDatabase extends PSQLClient {
             "is_male",
             "color",
             "kindness",
-            "position"
+            "position",
+            "creation_date"
     };
 
     private final String INSERT_FIELDS
@@ -45,13 +48,14 @@ public class MoomintrollsDatabase extends PSQLClient {
                 (moomintroll.isMale() ? "true" : "false") + ", " +
                 moomintroll.getRgbBodyColor().getRGB() + ", " +
                 moomintroll.getKindness().value() + ", " +
-                moomintroll.getPosition();
+                moomintroll.getPosition() + ", " +
+                "\'" + Timestamp.from(moomintroll.getCreationDateTime().toInstant()) + "\'";
     }
 
     public long[] insert(Moomintroll[] moomintrolls) throws SQLException {
 
         PreparedStatement preparedInsertStatement = connection.prepareStatement(
-                "INSERT INTO " + tableName + "(" + INSERT_FIELDS + ") VALUES (?, ?, ?, ?, ?);",
+                "INSERT INTO " + tableName + "(" + INSERT_FIELDS + ") VALUES (?, ?, ?, ?, ?, ?);",
                 Statement.RETURN_GENERATED_KEYS);
 
         long[] generatedIds = new long[moomintrolls.length];
@@ -64,6 +68,7 @@ public class MoomintrollsDatabase extends PSQLClient {
             preparedInsertStatement.setInt(3, moomintroll.getRgbBodyColor().getRGB());
             preparedInsertStatement.setInt(4, moomintroll.getKindness().value());
             preparedInsertStatement.setInt(5, moomintroll.getPosition());
+            preparedInsertStatement.setObject(6, moomintroll.getCreationDateTime());
             preparedInsertStatement.executeUpdate();
 
             ResultSet rs = preparedInsertStatement.getGeneratedKeys();
@@ -121,7 +126,8 @@ public class MoomintrollsDatabase extends PSQLClient {
                             fullDataRowSet.getBoolean(fieldsNames[2]),
                             fullDataRowSet.getInt(fieldsNames[5]),
                             new Color(fullDataRowSet.getInt(fieldsNames[3])),
-                            new Kindness(fullDataRowSet.getInt(fieldsNames[4]))
+                            new Kindness(fullDataRowSet.getInt(fieldsNames[4])),
+                            ZonedDateTime.ofInstant(fullDataRowSet.getTimestamp(fieldsNames[6]).toInstant(), ZoneId.systemDefault())
                     ));
         }
     }

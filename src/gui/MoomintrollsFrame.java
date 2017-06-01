@@ -7,6 +7,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.time.ZonedDateTime;
 import java.util.Hashtable;
 
 public class MoomintrollsFrame extends JPanel {
@@ -94,6 +95,10 @@ public class MoomintrollsFrame extends JPanel {
         add(positionSpinner);
     }
 
+    public static void setDefaultNewMoomintrollName(String defaultNewMoomintrollName) {
+        DEFAULT_NEW_MOOMINTROLL_NAME = defaultNewMoomintrollName;
+    }
+
     public int showAddDialog(Component owner) {
         return showEditDialog(owner, null);
     }
@@ -129,14 +134,14 @@ public class MoomintrollsFrame extends JPanel {
                     JOptionPane.OK_CANCEL_OPTION,
                     JOptionPane.PLAIN_MESSAGE
             );
-            if (result != JOptionPane.OK_OPTION || parseMoomintroll()) {
+            if (result != JOptionPane.OK_OPTION || parseMoomintroll(moomintroll)) {
                 break;
             }
         }
         return result;
     }
 
-    private boolean parseMoomintroll() {
+    private boolean parseMoomintroll(Moomintroll oldMoomintroll) {
         if (nameField.getText().trim().isEmpty()) {
             JOptionPane.showMessageDialog(
                     owner,
@@ -149,16 +154,13 @@ public class MoomintrollsFrame extends JPanel {
                 genderMaleButton.isSelected(),
                 (int) positionSpinner.getValue(),
                 colorLabel.getBackground(),
-                new Kindness(kindnessSlider.getValue())
+                new Kindness(kindnessSlider.getValue()),
+                oldMoomintroll == null ? ZonedDateTime.now() : oldMoomintroll.getCreationDateTime()
         );
         return true;
     }
 
     public Moomintroll getMoomintroll() {
         return moomintroll;
-    }
-
-    public static void setDefaultNewMoomintrollName(String defaultNewMoomintrollName) {
-        DEFAULT_NEW_MOOMINTROLL_NAME = defaultNewMoomintrollName;
     }
 }

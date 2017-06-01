@@ -22,7 +22,7 @@ import java.util.logging.Level;
 public class MainWindow extends JFrame {
 
     // net
-    public static InetSocketAddress inetSocketAddress = new InetSocketAddress("192.168.43.64", 1111);
+    public static InetSocketAddress inetSocketAddress = new InetSocketAddress("127.0.0.1", 1111);
     // components
     private JMenuBar menuBar = new JMenuBar();
     private JMenu fileIOMenu = new JMenu("File"),

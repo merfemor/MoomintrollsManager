@@ -2,6 +2,7 @@ package trolls;
 
 import java.awt.*;
 import java.io.Serializable;
+import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -9,33 +10,12 @@ import java.util.Vector;
 
 public class Moomintroll extends Wight implements BowTo, Emotionable, Comparable<Moomintroll>, Serializable {
 
-    private enum TongueCondition {
-        normal, paralyzed
-    }
-    public enum Action {
-        bow, movement, generalBow, handshake, hug
-    }
-    protected class ActionLog {
-        private Vector<Action> log = new Vector <>();
-        public void push(Action action) {
-            this.log.add(action);
-        }
-        public int countAction(Action actionToCount) {
-            int answer = 0;
-            for(Action action: log) {
-                if(action == actionToCount) {
-                    answer++;
-                }
-            }
-            return answer;
-        }
-    }
+    private final ZonedDateTime creationDateTime;
     public transient ActionLog actionLog;
     private transient TongueCondition tongueCondition;
     private transient Emotion emotionalCondition;
     private Kindness kindness;
     private transient Map<Action, Integer> maxDistance;
-
     public Moomintroll(String name, boolean isMale, int position, Wight.BodyColor bodyColor) {
         super(name, isMale, position, bodyColor);
         actionLog = new ActionLog();
@@ -46,14 +26,20 @@ public class Moomintroll extends Wight implements BowTo, Emotionable, Comparable
         maxDistance.put(Action.handshake, 0);
         maxDistance.put(Action.hug, 0);
         this.kindness = Kindness.NORMAL;
+        creationDateTime = ZonedDateTime.now();
     }
 
     public Moomintroll(String name, boolean isMale, int position, Color bodyColor, Kindness kindness) {
+        this(name, isMale, position, bodyColor, kindness, ZonedDateTime.now());
+    }
+
+    public Moomintroll(String name, boolean isMale, int position, Color bodyColor, Kindness kindness, ZonedDateTime creationDateTime) {
         super(name);
         this.isMale = isMale;
         this.position = position;
         this.rgbBodyColor = bodyColor;
         this.kindness = kindness;
+        this.creationDateTime = creationDateTime;
     }
 
     public void stepForward() {
@@ -89,6 +75,10 @@ public class Moomintroll extends Wight implements BowTo, Emotionable, Comparable
         // после того как проверили все исключительне ситуации, устанавливаем новое настроение
         this.emotionalCondition = emotionalCondition;
         System.out.println(name + " " + this.emotionalCondition.toString());
+    }
+
+    public ZonedDateTime getCreationDateTime() {
+        return creationDateTime;
     }
 
     public Kindness getKindness() {
@@ -192,5 +182,31 @@ public class Moomintroll extends Wight implements BowTo, Emotionable, Comparable
                 rgbBodyColor.getRGB() + ", " +
                 kindness.value() + ", " +
                 position + "]";
+    }
+
+    private enum TongueCondition {
+        normal, paralyzed
+    }
+
+    public enum Action {
+        bow, movement, generalBow, handshake, hug
+    }
+
+    protected class ActionLog {
+        private Vector<Action> log = new Vector<>();
+
+        public void push(Action action) {
+            this.log.add(action);
+        }
+
+        public int countAction(Action actionToCount) {
+            int answer = 0;
+            for (Action action : log) {
+                if (action == actionToCount) {
+                    answer++;
+                }
+            }
+            return answer;
+        }
     }
 }
