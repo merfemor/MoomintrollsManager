@@ -3,6 +3,7 @@ package gui;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import net.client.MoomintrollsClient;
+import trolls.Kindness;
 import trolls.Moomintroll;
 import trolls.MoomintrollsCollection;
 
@@ -12,6 +13,7 @@ import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.time.ZonedDateTime;
 import java.util.Collections;
+import java.util.ResourceBundle;
 import java.util.stream.LongStream;
 
 public class MoomintrollsTable extends JTable{
@@ -19,14 +21,19 @@ public class MoomintrollsTable extends JTable{
     private MoomintrollsCollection moomintrollsCollection;
     private MoomintrollsTableModel moomintrollsDataModel;
     private MoomintrollsTree moomintrollsTree;
+    private ResourceBundle bundle;
+
     MoomintrollsTable() {
         super(new MoomintrollsTableModel());
         moomintrollsDataModel = (MoomintrollsTableModel) dataModel;
         rowById = HashBiMap.create();
-        setDefaultRenderer(Color.class, new ColorRenderer());
-        setDefaultRenderer(String.class, new ColorRenderer());
-        setDefaultRenderer(Integer.class, new ColorRenderer());
-        setDefaultRenderer(ZonedDateTime.class, new ColorRenderer());
+        ColorRenderer cr = new ColorRenderer();
+        setDefaultRenderer(Color.class, cr);
+        setDefaultRenderer(String.class, cr);
+        setDefaultRenderer(Boolean.class, cr);
+        setDefaultRenderer(Integer.class, cr);
+        setDefaultRenderer(ZonedDateTime.class, cr);
+        setDefaultRenderer(Kindness.class, cr);
         moomintrollsDataModel.registerTable(this);
         setAutoCreateRowSorter(true);
         getTableHeader().setReorderingAllowed(false);
@@ -34,7 +41,7 @@ public class MoomintrollsTable extends JTable{
         setMoomintrollsCollection(null);
     }
 
-    public void setRowSorter(MoomintrollsRowFilter moomintrollsRowFilter) {
+    public void setRowSorter(MainWindow.MoomintrollsRowFilter moomintrollsRowFilter) {
         ((TableRowSorter)getRowSorter()).setRowFilter(moomintrollsRowFilter);
         moomintrollsDataModel.fireTableDataChanged();
     }
@@ -162,6 +169,11 @@ public class MoomintrollsTable extends JTable{
         moomintrollsDataModel.fireTableDataChanged();
     }
 
+    public void updateLanguage(ResourceBundle bundle) {
+        this.bundle = bundle;
+        moomintrollsDataModel.fireTableDataChanged();
+    }
+
     class ColorRenderer extends DefaultTableCellRenderer {
         public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int col) {
             Color color = table.getBackground();
@@ -169,12 +181,27 @@ public class MoomintrollsTable extends JTable{
             if (value instanceof ZonedDateTime)
                 value = ((ZonedDateTime) value).format(moomintrollsDataModel.dateTimeFormatter);
 
+            if (value instanceof Boolean) {
+                if ((Boolean) value) {
+                    value = bundle.getString("genderMale");
+                } else {
+                    value = bundle.getString("genderFemale");
+                }
+            }
+
+
+            if (value instanceof Kindness) {
+                value = ((Kindness) value).toString(bundle, moomintrollsDataModel.getValueAt(
+                        convertRowIndexToModel(row), 1).toString().equals("true"));
+            }
+
             boolean isColorCell = false;
             if (value instanceof Color) {
                 isColorCell = true;
                 color = (Color) value;
                 value = Integer.toString(color.getRGB());
             }
+
             Component c = super.getTableCellRendererComponent(table, value, isSelected, false, row, col);
             if (isSelected) {
                 color = color.darker();

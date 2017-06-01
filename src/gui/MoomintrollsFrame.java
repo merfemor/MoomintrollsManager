@@ -9,13 +9,16 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.time.ZonedDateTime;
 import java.util.Hashtable;
+import java.util.ResourceBundle;
 
 public class MoomintrollsFrame extends JPanel {
     public static int OK = JOptionPane.OK_OPTION;
     public static int CANCEL = JOptionPane.CANCEL_OPTION;
     private static String DEFAULT_NEW_MOOMINTROLL_NAME = "Moomintroll";
+    private ResourceBundle bundle;
     private Moomintroll moomintroll;
 
+    private String addTitle = "Add", editTitle = "Edit";
     private JLabel nameLabel = new JLabel("Name"),
             positionLabel = new JLabel("Position"),
             kindnessLabel = new JLabel("Kindness"),
@@ -25,23 +28,24 @@ public class MoomintrollsFrame extends JPanel {
     private JColorChooser colorChooser = new JColorChooser();
     private JTextField nameField = new JTextField(13);
     private JSpinner positionSpinner;
-    private JButton okButton = new JButton("OK"),
-            cancelButton = new JButton("Cancel"),
-            colorButton = new JButton("Choose");
+    private JButton colorButton = new JButton("Choose");
     private JSlider kindnessSlider = new JSlider(
             JSlider.HORIZONTAL,
             Kindness.DEVIL.value(),
             Kindness.ANGEL.value(),
             Kindness.NORMAL.value()
     );
-    private JToolBar buttonsToolBar = new JToolBar();
+
     private ButtonGroup genderButtons = new ButtonGroup();
     private JRadioButton genderMaleButton = new JRadioButton("male"),
             genderFemaleButton = new JRadioButton("female");
     private Component owner;
 
-    public MoomintrollsFrame() {
+    private Hashtable<Integer, JLabel> kindnessValues;
+
+    public MoomintrollsFrame(ResourceBundle resourceBundle) {
         super(new GridLayout(5, 0, 0, 8));
+        this.bundle = resourceBundle;
         add(nameLabel);
         add(nameField);
 
@@ -54,7 +58,7 @@ public class MoomintrollsFrame extends JPanel {
         add(genderButtonsPanel);
 
         add(colorTextLabel);
-        JPanel colorPanel = new JPanel(new GridLayout(1, 2, 45, 15));
+        JPanel colorPanel = new JPanel(new GridLayout(1, 2, 20, 10));
         colorPanel.add(colorLabel);
         colorLabel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         colorLabel.setOpaque(true);
@@ -66,7 +70,7 @@ public class MoomintrollsFrame extends JPanel {
                 int res = JOptionPane.showConfirmDialog(
                         colorButton,
                         colorChooser,
-                        "Choose color",
+                        bundle.getString("chooseColor"),
                         JOptionPane.OK_CANCEL_OPTION,
                         JOptionPane.PLAIN_MESSAGE
                 );
@@ -76,14 +80,13 @@ public class MoomintrollsFrame extends JPanel {
             }
         });
         add(colorPanel);
-
         add(kindnessLabel);
-        Hashtable <Integer, JLabel> values = new Hashtable<>();
-        values.put(kindnessSlider.getMaximum(), new JLabel("angel"));
-        values.put((kindnessSlider.getMaximum() + kindnessSlider.getMinimum()) / 2,
-                new JLabel(Kindness.NORMAL.toString()));
-        values.put(kindnessSlider.getMinimum(), new JLabel("devil"));
-        kindnessSlider.setLabelTable(values);
+        kindnessValues = new Hashtable<>();
+        kindnessValues.put(kindnessSlider.getMaximum(), new JLabel(Kindness.DEVIL.toString(resourceBundle, true)));
+        kindnessValues.put((kindnessSlider.getMaximum() + kindnessSlider.getMinimum()) / 2,
+                new JLabel(Kindness.NORMAL.toString(resourceBundle, true)));
+        kindnessValues.put(kindnessSlider.getMinimum(), new JLabel(Kindness.DEVIL.toString(resourceBundle, true)));
+        kindnessSlider.setLabelTable(kindnessValues);
         kindnessSlider.setPaintLabels(true);
         add(kindnessSlider);
 
@@ -93,6 +96,15 @@ public class MoomintrollsFrame extends JPanel {
                 new NumbericFieldKeyAdapter()
         );
         add(positionSpinner);
+        genderMaleButton.addActionListener((e) -> {
+            updateKindnessValues(genderMaleButton.isSelected());
+            kindnessSlider.repaint();
+        });
+        genderFemaleButton.addActionListener((e) -> {
+            updateKindnessValues(genderMaleButton.isSelected());
+            kindnessSlider.repaint();
+        });
+        updateLocale(resourceBundle);
     }
 
     public static void setDefaultNewMoomintrollName(String defaultNewMoomintrollName) {
@@ -107,7 +119,7 @@ public class MoomintrollsFrame extends JPanel {
         this.owner = owner;
         String title;
         if(moomintroll == null) {
-            title = "Add";
+            title = addTitle;
             // set defaults
             nameField.setText(DEFAULT_NEW_MOOMINTROLL_NAME);
             genderMaleButton.setSelected(true);
@@ -115,7 +127,7 @@ public class MoomintrollsFrame extends JPanel {
             colorLabel.setBackground(Color.LIGHT_GRAY);
             kindnessSlider.setValue((kindnessSlider.getMaximum() + kindnessSlider.getMinimum()) / 2);
         } else {
-            title = "Edit " + moomintroll.getName();
+            title = editTitle + " " + moomintroll.getName();
             nameField.setText(moomintroll.getName());
             if(moomintroll.isMale())
                 genderMaleButton.setSelected(true);
@@ -124,6 +136,7 @@ public class MoomintrollsFrame extends JPanel {
             positionSpinner.setValue(moomintroll.getPosition());
             colorLabel.setBackground(moomintroll.getRgbBodyColor());
             kindnessSlider.setValue(moomintroll.getKindness().value());
+            updateKindnessValues(moomintroll.isMale());
         }
         int result;
         while (true) {
@@ -145,8 +158,8 @@ public class MoomintrollsFrame extends JPanel {
         if (nameField.getText().trim().isEmpty()) {
             JOptionPane.showMessageDialog(
                     owner,
-                    "Error: the name of the moomintroll can't be empty!",
-                    "Error: empty name",
+                    bundle.getString("emptyStringErrorMessage"),
+                    bundle.getString("emptyStringErrorTitle"),
                     JOptionPane.ERROR_MESSAGE);
             return false;
         }
@@ -162,5 +175,29 @@ public class MoomintrollsFrame extends JPanel {
 
     public Moomintroll getMoomintroll() {
         return moomintroll;
+    }
+
+    private void updateKindnessValues(boolean isMale) {
+        kindnessValues.get(kindnessSlider.getMaximum()).setText(Kindness.ANGEL.toString(bundle, isMale));
+        kindnessValues.get(kindnessSlider.getMinimum()).setText(Kindness.DEVIL.toString(bundle, isMale));
+        kindnessValues.get((kindnessSlider.getMaximum() + kindnessSlider.getMinimum()) / 2)
+                .setText(Kindness.NORMAL.toString(bundle, isMale));
+        kindnessSlider.setLabelTable(kindnessValues);
+    }
+
+    public void updateLocale(ResourceBundle bundle) {
+        this.bundle = bundle;
+        nameLabel.setText(bundle.getString("nameAttribute"));
+        genderLabel.setText(bundle.getString("genderAttribute"));
+        colorButton.setText(bundle.getString("chooseColorButton"));
+        kindnessLabel.setText(bundle.getString("kindnessAttribute"));
+        genderMaleButton.setText(bundle.getString("genderMale"));
+        genderFemaleButton.setText(bundle.getString("genderFemale"));
+        colorTextLabel.setText(bundle.getString("bodyColorAttribute"));
+        positionLabel.setText(bundle.getString("positionAttribute"));
+        setDefaultNewMoomintrollName(bundle.getString("defaultNewMoomintrollName"));
+        addTitle = bundle.getString("adding");
+        editTitle = bundle.getString("editing");
+        updateKindnessValues(true);
     }
 }

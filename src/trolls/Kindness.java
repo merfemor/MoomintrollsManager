@@ -1,9 +1,9 @@
 package trolls;
 
 import java.io.Serializable;
+import java.util.ResourceBundle;
 
 public class Kindness implements Comparable<Kindness>, Serializable {
-    protected int kindness;
     public transient static final Kindness DEVIL = new Kindness(-666);
     public transient static final Kindness VERY_BAD = new Kindness(-500);
     public transient static final Kindness BULLY = new Kindness(-320);
@@ -14,6 +14,7 @@ public class Kindness implements Comparable<Kindness>, Serializable {
     public transient static final Kindness BEAUTIFUL = new Kindness(420);
     public transient static final Kindness BRILLIANT = new Kindness(560);
     public transient static final Kindness ANGEL = new Kindness(700);
+    protected int kindness;
 
     public Kindness(final int kindness) {
         this.kindness = kindness;
@@ -36,6 +37,10 @@ public class Kindness implements Comparable<Kindness>, Serializable {
         else if(kindness <= BRILLIANT.kindness) return "brilliant";
         else if(kindness <= ANGEL.kindness) return "angel";
         else return "MOST KIND!!";
+    }
+
+    public String toString(ResourceBundle rb, boolean isMale) {
+        return rb.getString("kindness:" + this.toString() + ":" + (isMale ? "m" : "f"));
     }
 
     @Override

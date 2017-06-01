@@ -7,6 +7,7 @@ import trolls.Moomintroll;
 import trolls.utils.Random;
 
 import javax.swing.*;
+import javax.swing.table.TableColumnModel;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
@@ -15,6 +16,9 @@ import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.text.MessageFormat;
+import java.util.Locale;
+import java.util.ResourceBundle;
 import java.util.logging.Level;
 
 // TODO: program license security
@@ -23,6 +27,12 @@ public class MainWindow extends JFrame {
 
     // net
     public static InetSocketAddress inetSocketAddress = new InetSocketAddress("127.0.0.1", 1111);
+    private final Locale RU_RU = new Locale("ru", "RU"),
+            EN_NZ = new Locale("en", "NZ"),
+            SL_SI = new Locale("sl", "SI"),
+            SQ_AL = new Locale("sq", "AL");
+    // i18n
+    public ResourceBundle resourceBundle;
     // components
     private JMenuBar menuBar = new JMenuBar();
     private JMenu fileIOMenu = new JMenu("File"),
@@ -47,9 +57,14 @@ public class MainWindow extends JFrame {
             removeButton = new JButton("Remove"),
             editButton = new JButton("Edit");
     // Filtering:
-    private JTextField nameFilter = new JTextField(15),
-            positionFromFilter = new JTextField(8),
-            positionToFilter = new JTextField(8);
+    private JLabel nameLabel = new JLabel("Name: "),
+            genderLabel = new JLabel("Gender: "),
+            positionLabel = new JLabel("Position: "),
+            positionFromLabel = new JLabel("from"),
+            positionToLabel = new JLabel("to");
+    private JTextField nameFilter = new JTextField(13),
+            positionFromFilter = new JTextField(6),
+            positionToFilter = new JTextField(6);
     private JCheckBox enableMales = new JCheckBox("male", true),
             enableFemales = new JCheckBox("female", true);
     private JScrollPane treeScrollPane;
@@ -58,19 +73,38 @@ public class MainWindow extends JFrame {
     private MoomintrollsTree moomintrollsTree;
     private CollectionSession collectionSession;
     private String ENV_NAME;
+    private JRadioButtonMenuItem russianLanguage = new JRadioButtonMenuItem("Русский", false),
+            englishLanguage = new JRadioButtonMenuItem("English (New Zealand)", true),
+            slovenianLanguage = new JRadioButtonMenuItem("Slovenski", false),
+            albanianLanguage = new JRadioButtonMenuItem("Shqiptar", false);
 
 
     public MainWindow(String pathVariableName) {
         super("Moomintrolls Manager");
         setName("Moomintrolls Manager");
         this.ENV_NAME = pathVariableName;
-        //setSize(900, 500);
+        setSize(900, 500);
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         initComponents();
         initActions();
         initHiddenFunctions();
+        Locale locale;
+        if (Locale.getDefault().equals(SQ_AL)) {
+            albanianLanguage.setSelected(true);
+            locale = SQ_AL;
+        } else if (Locale.getDefault().equals(RU_RU)) {
+            russianLanguage.setSelected(true);
+            locale = RU_RU;
+        } else if (Locale.getDefault().equals(SL_SI)) {
+            slovenianLanguage.setSelected(true);
+            locale = SL_SI;
+        } else {
+            englishLanguage.setSelected(true);
+            locale = EN_NZ;
+        }
+        updateInterfaceLanguage(locale);
         updateTitle();
-        pack();
+        // pack();
     }
 
     private void initComponents() {
@@ -105,6 +139,18 @@ public class MainWindow extends JFrame {
         helpMenu.add(about);
         menuBar.add(helpMenu);
 
+        ButtonGroup languages = new ButtonGroup();
+        languages.add(englishLanguage);
+        languages.add(russianLanguage);
+        languages.add(slovenianLanguage);
+        languages.add(albanianLanguage);
+        viewMenu.addSeparator();
+        viewMenu.add(englishLanguage);
+        viewMenu.add(russianLanguage);
+        viewMenu.add(slovenianLanguage);
+        viewMenu.add(albanianLanguage);
+
+
         contentPane.add(toolBarsPanel, BorderLayout.NORTH);
         toolBarsPanel.add(crudToolBar);
         toolBarsPanel.add(filterToolBar);
@@ -125,15 +171,15 @@ public class MainWindow extends JFrame {
         crudToolBar.setFloatable(false);
 
         filterToolBar.setFloatable(false);
-        filterToolBar.add(new JLabel("Name: "));
+        filterToolBar.add(nameLabel);
         filterToolBar.add(nameFilter);
-        filterToolBar.add(new JLabel("Gender: "));
+        filterToolBar.add(genderLabel);
         filterToolBar.add(enableMales);
         filterToolBar.add(enableFemales);
-        filterToolBar.add(new JLabel("Position: "));
-        filterToolBar.add(new JLabel("from"));
+        filterToolBar.add(positionLabel);
+        filterToolBar.add(positionFromLabel);
         filterToolBar.add(positionFromFilter);
-        filterToolBar.add(new JLabel("to"));
+        filterToolBar.add(positionToLabel);
         filterToolBar.add(positionToFilter);
         positionFromFilter.setTransferHandler(null);
         positionToFilter.setTransferHandler(null);
@@ -211,20 +257,20 @@ public class MainWindow extends JFrame {
             jTextArea.setEditable(false);
             JOptionPane.showMessageDialog(this,
                     jTextArea,
-                    "Help",
+                    resourceBundle.getString("releaseNotesMenuItem"),
                     JOptionPane.PLAIN_MESSAGE
             );
 
 
         });
         about.addActionListener(actionEvent -> {
-            Object[] options = {"Open Team Support Page"};
+            Object[] options = {resourceBundle.getString("teamSupportButton")};
             int reply = JOptionPane.showOptionDialog(
                     this,
                     "Moomintrolls Manager v1.2\n" +
                             "by Moomintrolls Studio®\n" +
                             "SpB ITMO, 2017",
-                    "About",
+                    resourceBundle.getString("aboutMenuItem"),
                     JOptionPane.DEFAULT_OPTION,
                     JOptionPane.PLAIN_MESSAGE,
                     null,
@@ -330,6 +376,11 @@ public class MainWindow extends JFrame {
                 updateTitle();
             }
         });
+
+        englishLanguage.addActionListener(e -> updateInterfaceLanguage(EN_NZ));
+        russianLanguage.addActionListener(e -> updateInterfaceLanguage(RU_RU));
+        albanianLanguage.addActionListener(e -> updateInterfaceLanguage(SQ_AL));
+        slovenianLanguage.addActionListener(e -> updateInterfaceLanguage(SL_SI));
 
         // shortcuts
         save.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK));
@@ -437,7 +488,7 @@ public class MainWindow extends JFrame {
     }
 
     public void add() {
-        MoomintrollsFrame moomintrollsFrame = new MoomintrollsFrame();
+        MoomintrollsFrame moomintrollsFrame = new MoomintrollsFrame(resourceBundle);
         if(moomintrollsFrame.showAddDialog(this) == MoomintrollsFrame.OK) {
             Moomintroll[] moomintroll = {moomintrollsFrame.getMoomintroll()};
             if (collectionSession instanceof NetworkCollectionSession) {
@@ -466,11 +517,11 @@ public class MainWindow extends JFrame {
         } catch (Exception e) {
             posTo = Integer.MAX_VALUE;
         }
+        //moomintrollsTable.setRowSorter(new MoomintrollsRowFilter());
         moomintrollsTable.setRowSorter(new MoomintrollsRowFilter(
                 nameFilter.getText(),
                 enableMales.isSelected(),
                 enableFemales.isSelected(),
-                null,
                 posFrom,
                 posTo
         ));
@@ -486,15 +537,21 @@ public class MainWindow extends JFrame {
             );
             return;
         }
-        String trollsCountMessage = "moomintroll";
-        if(seletedRowsCount > 1) {
-            trollsCountMessage += "s [" + seletedRowsCount + "]";
+        int reply;
+        if (seletedRowsCount == 1) {
+            reply = JOptionPane.showConfirmDialog(this,
+                    MessageFormat.format(resourceBundle.getString("removeDialogMessage"),
+                            moomintrollsTable.getRow(moomintrollsTable.getSelectedRow()).getName()),
+                    resourceBundle.getString("removeDialogTitle"),
+                    JOptionPane.YES_NO_OPTION
+            );
+        } else {
+            reply = JOptionPane.showConfirmDialog(this,
+                    MessageFormat.format(resourceBundle.getString("removeManyDialogMessage"), seletedRowsCount),
+                    resourceBundle.getString("removeDialogTitle"),
+                    JOptionPane.YES_NO_OPTION
+            );
         }
-        int reply = JOptionPane.showConfirmDialog(this,
-                "Are you sure want to remove " + trollsCountMessage + " from the collection?",
-                "Confirm removing",
-                JOptionPane.YES_NO_OPTION
-        );
         if (reply == JOptionPane.YES_OPTION) {
             int[] selRows = moomintrollsTable.getSelectedRows();
             if (selRows.length == 0) {
@@ -530,7 +587,7 @@ public class MainWindow extends JFrame {
             id = moomintrollsTable.getRowId(moomintrollsTable.convertRowIndexToModel(row));
         }
         Moomintroll oldTroll = moomintrollsTable.getRow(row);
-        MoomintrollsFrame editFrame = new MoomintrollsFrame();
+        MoomintrollsFrame editFrame = new MoomintrollsFrame(resourceBundle);
         if (editFrame.showEditDialog(this, oldTroll) == MoomintrollsFrame.OK) {
             Moomintroll newTroll = editFrame.getMoomintroll();
             if (collectionSession instanceof NetworkCollectionSession) {
@@ -562,7 +619,6 @@ public class MainWindow extends JFrame {
                 System.out.println("Failed to load from env \"" + envName + "\"");
             } finally {
                 setEditEnabled(true);
-                updateTitle();
             }
         }).start();
     }
@@ -590,9 +646,9 @@ public class MainWindow extends JFrame {
             collectionName = ((NetworkCollectionSession) collectionSession).getClient().getAddress();
         } else if (collectionSession.getFile() == null) {
             if (collectionSession.isSaved()) {
-                collectionName = "New Collection";
+                collectionName = resourceBundle.getString("newCollectionName");
             } else {
-                collectionName = "Unsaved Collection";
+                collectionName = resourceBundle.getString("changedCollectionName");
             }
         } else {
             if (!collectionSession.isSaved()) {
@@ -603,7 +659,96 @@ public class MainWindow extends JFrame {
         setTitle(collectionName + " - " + getName());
     }
 
-    public void setDefaultSocketAdress(InetSocketAddress socketAdress) {
-        this.inetSocketAddress = socketAdress;
+    public void updateInterfaceLanguage(Locale locale) {
+        if (resourceBundle == null || resourceBundle.getLocale() != locale) {
+            resourceBundle = ResourceBundle.getBundle("internalization.Translation", locale);
+        }
+
+        // JOptionPane
+        UIManager.put("OptionPane.okButtonText", resourceBundle.getString("ok"));
+        UIManager.put("OptionPane.yesButtonText", resourceBundle.getString("yes"));
+        UIManager.put("OptionPane.noButtonText", resourceBundle.getString("no"));
+        UIManager.put("OptionPane.cancelButtonText", resourceBundle.getString("cancel"));
+
+        // buttons
+        addButton.setText(resourceBundle.getString("addButton"));
+        removeButton.setText(resourceBundle.getString("removeButton"));
+        editButton.setText(resourceBundle.getString("editButton"));
+
+        // menus
+        fileIOMenu.setText(resourceBundle.getString("fileMenu"));
+        open.setText(resourceBundle.getString("openMenuItem"));
+        save.setText(resourceBundle.getString("saveMenuItem"));
+        saveAs.setText(resourceBundle.getString("saveAsMenuItem"));
+        close.setText(resourceBundle.getString("closeMenuItem"));
+
+        viewMenu.setText(resourceBundle.getString("viewMenu"));
+        showTree.setText(resourceBundle.getString("showTreeMenuItem"));
+
+        remoteMenu.setText(resourceBundle.getString("remoteMenu"));
+        connect.setText(resourceBundle.getString("connectMenuItem"));
+        reload.setText(resourceBundle.getString("reloadMenuItem"));
+        disconnect.setText(resourceBundle.getString("disconnectItem"));
+
+        helpMenu.setText(resourceBundle.getString("helpMenu"));
+        releaseNotes.setText(resourceBundle.getString("releaseNotesMenuItem"));
+        about.setText(resourceBundle.getString("aboutMenuItem"));
+
+        // table column header
+        TableColumnModel columnModel = moomintrollsTable.getTableHeader().getColumnModel();
+        columnModel.getColumn(0).setHeaderValue(resourceBundle.getString("nameAttribute"));
+        columnModel.getColumn(1).setHeaderValue(resourceBundle.getString("genderAttribute"));
+        columnModel.getColumn(2).setHeaderValue(resourceBundle.getString("bodyColorAttribute"));
+        columnModel.getColumn(3).setHeaderValue(resourceBundle.getString("kindnessAttribute"));
+        columnModel.getColumn(4).setHeaderValue(resourceBundle.getString("positionAttribute"));
+        columnModel.getColumn(5).setHeaderValue(resourceBundle.getString("creationDateAttribute"));
+
+        // filter tool bar
+        nameLabel.setText(resourceBundle.getString("nameAttribute") + ": ");
+        genderLabel.setText(resourceBundle.getString("genderAttribute") + ": ");
+        positionLabel.setText(resourceBundle.getString("positionAttribute") + ": ");
+        positionFromLabel.setText(resourceBundle.getString("from") + " ");
+        positionToLabel.setText(" " + resourceBundle.getString("to") + " ");
+        enableMales.setText(resourceBundle.getString("genderMale"));
+        enableFemales.setText(resourceBundle.getString("genderFemale"));
+
+        moomintrollsTable.updateLanguage(resourceBundle);
+
+        updateTitle();
+        pack();
     }
+
+    public void setDefaultSocketAdress(InetSocketAddress socketAdress) {
+        inetSocketAddress = socketAdress;
+    }
+
+    public class MoomintrollsRowFilter extends RowFilter<MoomintrollsTableModel, Object> {
+
+        private String pattern;
+        private boolean enableMale, enableFemale;
+        private int positionFrom, positionTo;
+
+        public MoomintrollsRowFilter(String pattern, boolean enableMale, boolean enableFemale, int positionFrom, int positionTo) {
+            this.pattern = pattern;
+            this.enableMale = enableMale;
+            this.enableFemale = enableFemale;
+            this.positionFrom = positionFrom;
+            this.positionTo = positionTo;
+        }
+
+        @Override
+        public boolean include(Entry<? extends MoomintrollsTableModel, ?> entry) {
+            String name = entry.getStringValue(0);
+            if (!pattern.isEmpty() && !name.startsWith(pattern))
+                return false;
+            boolean isMale = entry.getStringValue(1).equals("true");
+            if ((isMale && !enableMale) || (!isMale && !enableFemale))
+                return false;
+            int position = Integer.parseInt(entry.getStringValue(4));
+            if (position < positionFrom || position > positionTo)
+                return false;
+            return true;
+        }
+    }
+
 }

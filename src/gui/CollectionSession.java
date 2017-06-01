@@ -19,6 +19,18 @@ public class CollectionSession {
         this.moomintrollsCollection = moomintrollsCollection;
     }
 
+    // method for testing
+    public static void sleep(int seconds) {
+        for (int i = seconds; i > 0; i--) {
+            System.out.print(i + "...");
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     public void setOwner(Component owner) {
         this.owner = owner;
     }
@@ -57,6 +69,7 @@ public class CollectionSession {
         }
         file = null;
         moomintrollsCollection = new MoomintrollsCollection();
+        isSaved = true;
         return true;
     }
 
@@ -167,38 +180,27 @@ public class CollectionSession {
         isSaved = true;
     }
 
-    public void setFile(File file) {
-        this.file = file;
-    }
-
     public File getFile() {
         return file;
+    }
+
+    public void setFile(File file) {
+        this.file = file;
     }
 
     public void reportChange() {
         isSaved = false;
     }
 
-    public synchronized void setMoomintrollsCollection(MoomintrollsCollection moomintrollsCollection) {
-        this.moomintrollsCollection = moomintrollsCollection;
-    }
     public MoomintrollsCollection getMoomintrollsCollection() {
         return moomintrollsCollection;
     }
 
-    public boolean isSaved() {
-        return isSaved;
+    public synchronized void setMoomintrollsCollection(MoomintrollsCollection moomintrollsCollection) {
+        this.moomintrollsCollection = moomintrollsCollection;
     }
 
-    // method for testing
-    public static void sleep(int seconds) {
-        for(int i = seconds; i > 0; i--) {
-            System.out.print(i + "...");
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
+    public boolean isSaved() {
+        return isSaved;
     }
 }

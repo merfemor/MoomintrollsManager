@@ -8,10 +8,12 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ResourceBundle;
 
 public class MoomintrollsTableModel extends DefaultTableModel {
     public final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.uuuu HH:mm");
     private JTable table;
+    private ResourceBundle bundle;
 
     MoomintrollsTableModel() {
         super();
@@ -25,6 +27,10 @@ public class MoomintrollsTableModel extends DefaultTableModel {
         addColumn("Creation Date/Time");
     }
 
+    public void setColumnNames(String[] names) {
+        setColumnIdentifiers(names);
+    }
+
     public void registerTable(JTable table) {
         this.table= table;
     }
@@ -32,9 +38,9 @@ public class MoomintrollsTableModel extends DefaultTableModel {
     public Object[] moomintrollToData(Moomintroll moomintroll) {
         return new Object[]{
                 moomintroll.getName(),
-                moomintroll.isMale() ? "male" : "female",
+                moomintroll.isMale(),
                 moomintroll.getRgbBodyColor(),
-                moomintroll.getKindness().toString() + " [" + moomintroll.getKindness().value() + "]",
+                moomintroll.getKindness(),
                 moomintroll.getPosition(),
                 moomintroll.getCreationDateTime()
         };
@@ -42,15 +48,13 @@ public class MoomintrollsTableModel extends DefaultTableModel {
 
     public Moomintroll getRow(int row) {
         row = table.getRowSorter().convertRowIndexToModel(row);
-        String kindness = getValueAt(row, 3).toString();
-        kindness = kindness.substring(kindness.indexOf('[') + 1, kindness.indexOf(']'));
-        
+
         return new Moomintroll(
                 getValueAt(row, 0).toString(),
-                getValueAt(row, 1).toString().equals("male"),
+                (Boolean) getValueAt(row, 1),
                 Integer.parseInt(getValueAt(row,4).toString()),
                 (Color) getValueAt(row, 2),
-                new Kindness(Integer.parseInt(kindness)),
+                (Kindness) getValueAt(row, 3),
                 (ZonedDateTime) getValueAt(row, 5)
         );
     }
@@ -81,11 +85,11 @@ public class MoomintrollsTableModel extends DefaultTableModel {
             case 0:
                 return String.class;
             case 1:
-                return String.class;
+                return Boolean.class;
             case 2:
                 return Color.class;
             case 3:
-                return String.class; // TODO: replace with Kindness class
+                return Kindness.class;
             case 4:
                 return Integer.class;
             case 5:
