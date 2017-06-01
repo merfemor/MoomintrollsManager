@@ -1,0 +1,78 @@
+package internalization;
+
+import java.util.ListResourceBundle;
+
+public class Translation_en extends ListResourceBundle {
+    private Object[][] content = {
+            {"addButton", "Add"},
+            {"removeButton", "Remove"},
+            {"editButton", "Edit"},
+            {"fileMenu", "File"},
+            {"openMenuItem", "Open"},
+            {"saveMenuItem", "Save"},
+            {"saveAsMenuItem", "Save As"},
+            {"closeMenuItem", "Close"},
+            {"viewMenu", "View"},
+            {"showTreeMenuItem", "Show Tree"},
+            {"remoteMenu", "Remote"},
+            {"connectMenuItem", "Connect"},
+            {"reloadMenuItem", "Reload"},
+            {"disconnectItem", "Disconnect"},
+            {"helpMenu", "Help"},
+            {"releaseNotesMenuItem", "Release Notes"},
+            {"aboutMenuItem", "About"},
+            {"nameAttribute", "Name"},
+            {"genderAttribute", "Gender"},
+            {"genderMale", "male"},
+            {"genderFemale", "female"},
+            {"bodyColorAttribute", "Body Color"},
+            {"chooseColorButton", "Choose"},
+            {"kindnessAttribute", "Kindness"},
+            {"positionAttribute", "Position"},
+            {"teamSupportButton", "Open Team Support Page"},
+            {"creationDateAttribute", "Creation Date/Time"},
+            {"newCollectionName", "New Collection"},
+            {"changedCollectionName", "Unsaved Collection"},
+            {"rootNodeName", "Moomintrolls Collection"},
+            {"from", "from"},
+            {"to", "to"},
+            {"ok", "OK"},
+            {"no", "No"},
+            {"yes", "Yes"},
+            {"cancel", "Cancel"},
+            {"defaultNewMoomintrollName", "Unknown"},
+            {"adding", "Add"},
+            {"editing", "Edit"},
+            {"kindness:devil:m", "devil"},
+            {"kindness:devil:f", "devil"},
+            {"kindness:very bad:m", "very bad"},
+            {"kindness:very bad:f", "very bad"},
+            {"kindness:bully:m", "bully"},
+            {"kindness:bully:f", "bully"},
+            {"kindness:bad:m", "bad"},
+            {"kindness:bad:f", "bad"},
+            {"kindness:normal:m", "normal"},
+            {"kindness:normal:f", "normal"},
+            {"kindness:good:m", "good"},
+            {"kindness:good:f", "good"},
+            {"kindness:great:m", "great"},
+            {"kindness:great:f", "great"},
+            {"kindness:beautiful:m", "beautiful"},
+            {"kindness:beautiful:f", "beautiful"},
+            {"kindness:brilliant:m", "brilliant"},
+            {"kindness:brilliant:f", "brilliant"},
+            {"kindness:angel:m", "angel"},
+            {"kindness:angel:f", "angel"},
+            {"removeDialogTitle", "Confirm removing"},
+            {"removeDialogMessage", "Are you sure want to remove {0} from the collection?"},
+            {"removeManyDialogMessage", "Are you sure want to remove moomintrolls[{0}] from the collection?"},
+            {"chooseColor", "Choose color"},
+            {"emptyStringErrorMessage", "Error: the name of the moomintroll can't be empty!"},
+            {"emptyStringErrorTitle", "Error: empty name"}
+    };
+
+    @Override
+    public Object[][] getContents() {
+        return content;
+    }
+}

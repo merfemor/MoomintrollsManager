@@ -1,0 +1,78 @@
+package internalization;
+
+import java.util.ListResourceBundle;
+
+public class Translation_ru extends ListResourceBundle {
+    private Object[][] content = {
+            {"addButton", "Добавить"},
+            {"removeButton", "Удалить"},
+            {"editButton", "Изменить"},
+            {"fileMenu", "Файл"},
+            {"openMenuItem", "Открыть"},
+            {"saveMenuItem", "Сохранить"},
+            {"saveAsMenuItem", "Сохранить как"},
+            {"closeMenuItem", "Закрыть"},
+            {"viewMenu", "Вид"},
+            {"showTreeMenuItem", "Показывать дерево"},
+            {"remoteMenu", "Удаленный сервер"},
+            {"connectMenuItem", "Присоединиться"},
+            {"reloadMenuItem", "Перезагрузить"},
+            {"disconnectItem", "Отключиться"},
+            {"helpMenu", "Помощь"},
+            {"releaseNotesMenuItem", "Изменения"},
+            {"aboutMenuItem", "О программе"},
+            {"nameAttribute", "Имя"},
+            {"genderAttribute", "Пол"},
+            {"genderMale", "муж"},
+            {"genderFemale", "жен"},
+            {"bodyColorAttribute", "Цвет тела"},
+            {"chooseColorButton", "Выбрать"},
+            {"kindnessAttribute", "Характер"},
+            {"positionAttribute", "Позиция"},
+            {"teamSupportButton", "Открыть страницу техподдержки"},
+            {"creationDateAttribute", "Дата/Время создания"},
+            {"newCollectionName", "Новая коллекция"},
+            {"changedCollectionName", "Несохраненная коллекция"},
+            {"rootNodeName", "Коллекция муми-троллей"},
+            {"from", "с"},
+            {"to", "по"},
+            {"ok", "OK"},
+            {"no", "Нет"},
+            {"yes", "Да"},
+            {"cancel", "Отмена"},
+            {"defaultNewMoomintrollName", "Безымянный"},
+            {"adding", "Добавление"},
+            {"editing", "Редактирование"},
+            {"kindness:devil:m", "дьявол"},
+            {"kindness:devil:f", "дьявол"},
+            {"kindness:very bad:m", "очень плохой"},
+            {"kindness:very bad:f", "очень плохая"},
+            {"kindness:bully:m", "хулиган"},
+            {"kindness:bully:f", "хулиганка"},
+            {"kindness:bad:m", "плохой"},
+            {"kindness:bad:f", "плохая"},
+            {"kindness:normal:m", "нормальный"},
+            {"kindness:normal:f", "нормальная"},
+            {"kindness:good:m", "хороший"},
+            {"kindness:good:f", "хорошая"},
+            {"kindness:great:m", "отличный"},
+            {"kindness:great:f", "отличная"},
+            {"kindness:beautiful:m", "прекрасный"},
+            {"kindness:beautiful:f", "прекрасная"},
+            {"kindness:brilliant:m", "превосходный"},
+            {"kindness:brilliant:f", "превосходная"},
+            {"kindness:angel:m", "ангел"},
+            {"kindness:angel:f", "ангел"},
+            {"removeDialogTitle", "Потверждение удаления"},
+            {"removeDialogMessage", "Вы действительно хотите удалить {0} из коллекции?"},
+            {"removeManyDialogMessage", "Вы действительно хотите удалить муми-троллей[{0}] из коллекции?"},
+            {"chooseColor", "Выберите цвет"},
+            {"emptyStringErrorMessage", "Ошибка: имя муми-тролля не может быть пустым!"},
+            {"emptyStringErrorTitle", "Ошибка: пустое имя"}
+    };
+
+    @Override
+    public Object[][] getContents() {
+        return content;
+    }
+}
