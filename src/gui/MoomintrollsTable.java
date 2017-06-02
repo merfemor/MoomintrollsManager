@@ -91,13 +91,7 @@ public class MoomintrollsTable extends JTable{
     }
 
     public Moomintroll getRow(int row) {
-        int[] selectedRows = getSelectedRows();
-        clearSelection();
-        Moomintroll moomintroll = moomintrollsDataModel.getRow(row);
-        for (int selectedRow : selectedRows) {
-            setRowSelectionInterval(selectedRow, selectedRow);
-        }
-        return moomintroll;
+        return moomintrollsDataModel.getRow(getRowSorter().convertRowIndexToModel(row));
     }
 
     public long getRowId(int row) {
@@ -115,7 +109,7 @@ public class MoomintrollsTable extends JTable{
         clearSelection();
 
         for(int i = 0; i < rows; i++) {
-            moomintrollsCollection.add(moomintrollsDataModel.getRow(i));
+            moomintrollsCollection.add(moomintrollsDataModel.getRow(getRowSorter().convertRowIndexToModel(i)));
         }
         return moomintrollsCollection;
     }

@@ -7,6 +7,7 @@ import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ResourceBundle;
 
 public class MoomintrollsTree extends JTree {
     MoomintrollsTable moomintrollsTable;
@@ -16,7 +17,7 @@ public class MoomintrollsTree extends JTree {
         super(new MoomintrollsTreeModel());
         this.moomintrollsTable = moomintrollsTable;
         this.moomintrollsTreeModel = (MoomintrollsTreeModel) treeModel;
-
+        this.reloadFromTable();
         this.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent mouseEvent) {
@@ -47,21 +48,26 @@ public class MoomintrollsTree extends JTree {
         });
     }
 
+    public void setBundle(ResourceBundle resourceBundle) {
+        moomintrollsTreeModel.setBundle(resourceBundle);
+        reloadFromTable();
+    }
+
     public void removeAll() {
         super.removeAll();
         moomintrollsTreeModel.removeAll();
     }
 
     public void insert(Moomintroll moomintroll) {
-        // TODO: add icons
         moomintrollsTreeModel.insert(moomintrollsTreeModel.getRootChildCount(), moomintroll);
         expandRow(0);
     }
 
     public void reloadFromTable() {
         removeAll();
-        for(int i = 0; i < moomintrollsTable.getRowCount(); i++)
-            insert(moomintrollsTable.getRow(i));
+
+        for (int i = 0; i < moomintrollsTable.getModel().getRowCount(); i++)
+            insert(((MoomintrollsTableModel) moomintrollsTable.getModel()).getRow(i));
     }
 
     public void remove(int node) {

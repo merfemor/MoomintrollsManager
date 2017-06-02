@@ -2,13 +2,14 @@ package gui;
 
 import trolls.Moomintroll;
 
-import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.MutableTreeNode;
+import java.util.ResourceBundle;
 
 class MoomintrollsTreeModel extends DefaultTreeModel {
     private MutableTreeNode muteRoot;
+    private ResourceBundle bundle;
 
     public MoomintrollsTreeModel() {
         super(new DefaultMutableTreeNode("Moomintrolls Collection"));
@@ -16,13 +17,33 @@ class MoomintrollsTreeModel extends DefaultTreeModel {
         this.setRoot(muteRoot);
     }
 
+    public void setBundle(ResourceBundle bundle) {
+        this.bundle = bundle;
+        muteRoot.setUserObject(bundle.getObject("rootNodeName"));
+        //reload();
+    }
+
     private MutableTreeNode toTreeNode(Moomintroll moomintroll) {
         MutableTreeNode node = new DefaultMutableTreeNode(moomintroll.getName());
-        node.insert(new DefaultMutableTreeNode("gender: " + (moomintroll.isMale()? "male" : "female") ), 0);
-        node.insert(new DefaultMutableTreeNode("position: " + moomintroll.getPosition()), 1);
-        node.insert(new DefaultMutableTreeNode("kindness: " + moomintroll.getKindness().toString()), 2);
+        node.insert(new DefaultMutableTreeNode(
+                        bundle.getString("genderAttribute") + ": " +
+                                (moomintroll.isMale() ?
+                                        bundle.getString("genderMale") :
+                                        bundle.getString("genderFemale"))),
+                0
+        );
+        node.insert(new DefaultMutableTreeNode(
+                bundle.getString("positionAttribute") + ": " + moomintroll.getPosition()), 1);
+        node.insert(new DefaultMutableTreeNode(
+                bundle.getString("kindnessAttribute") + ": " +
+                        moomintroll.getKindness().toString(bundle, moomintroll.isMale())), 2);
+        node.insert(new DefaultMutableTreeNode(
+                bundle.getString("creationDateAttribute") + ": " +
+                        moomintroll.getCreationDateTime().format(MoomintrollsTableModel.dateTimeFormatter)), 3);
+
         // TODO: make color property view
-        node.insert(new DefaultMutableTreeNode("color"), 3);
+        //node.insert(new DefaultMutableTreeNode(
+        //        bundle.getString("bodyColorAttribute") + ": "), 3);
         return node;
     }
 

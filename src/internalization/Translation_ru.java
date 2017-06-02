@@ -30,7 +30,7 @@ public class Translation_ru extends ListResourceBundle {
             {"chooseColorButton", "Выбрать"},
             {"kindnessAttribute", "Характер"},
             {"positionAttribute", "Позиция"},
-            {"creationDateAttribute", "Дата/Время создания"},
+            {"creationDateAttribute", "Создан"},
 
             {"teamSupportButton", "Открыть страницу техподдержки"},
             {"newCollectionName", "Новая коллекция"},

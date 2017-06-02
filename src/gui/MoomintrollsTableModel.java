@@ -11,7 +11,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ResourceBundle;
 
 public class MoomintrollsTableModel extends DefaultTableModel {
-    public final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.uuuu HH:mm");
+    public static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.uuuu HH:mm");
     private JTable table;
     private ResourceBundle bundle;
 
@@ -47,8 +47,6 @@ public class MoomintrollsTableModel extends DefaultTableModel {
     }
 
     public Moomintroll getRow(int row) {
-        row = table.getRowSorter().convertRowIndexToModel(row);
-
         return new Moomintroll(
                 getValueAt(row, 0).toString(),
                 (Boolean) getValueAt(row, 1),

@@ -725,7 +725,7 @@ public class MainWindow extends JFrame {
 
         moomintrollsTable.updateLanguage(resourceBundle);
         collectionSession.setResourceBundle(resourceBundle);
-        
+        moomintrollsTree.setBundle(resourceBundle);
         updateTitle();
         pack();
     }

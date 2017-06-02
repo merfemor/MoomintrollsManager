@@ -30,7 +30,7 @@ public class Translation_en extends ListResourceBundle {
             {"chooseColorButton", "Choose"},
             {"kindnessAttribute", "Kindness"},
             {"positionAttribute", "Position"},
-            {"creationDateAttribute", "Creation Date/Time"},
+            {"creationDateAttribute", "Created"},
 
             {"teamSupportButton", "Open Team Support Page"},
             {"newCollectionName", "New Collection"},
