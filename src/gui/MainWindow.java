@@ -668,12 +668,6 @@ public class MainWindow extends JFrame {
             resourceBundle = ResourceBundle.getBundle("internalization.Translation", locale);
         }
 
-        // JOptionPane
-        UIManager.put("OptionPane.okButtonText", resourceBundle.getString("ok"));
-        UIManager.put("OptionPane.yesButtonText", resourceBundle.getString("yes"));
-        UIManager.put("OptionPane.noButtonText", resourceBundle.getString("no"));
-        UIManager.put("OptionPane.cancelButtonText", resourceBundle.getString("cancel"));
-
         // buttons
         addButton.setText(resourceBundle.getString("addButton"));
         removeButton.setText(resourceBundle.getString("removeButton"));
@@ -716,17 +710,22 @@ public class MainWindow extends JFrame {
         enableMales.setText(resourceBundle.getString("genderMale"));
         enableFemales.setText(resourceBundle.getString("genderFemale"));
 
-        // JFileChooser
+        // JFileChooser / JOptionPane
         Enumeration<String> keys = resourceBundle.getKeys();
         while (keys.hasMoreElements()) {
             String key = keys.nextElement();
-            if (key.startsWith("FileChooser.")) {
+            if (key.startsWith("FileChooser.") || key.startsWith("OptionPane.")) {
                 UIManager.put(key, resourceBundle.getString(key));
             }
         }
 
+        // TODO: add context menu and new directory error l10n
+        UIManager.put("FileChooser.readOnly", Boolean.TRUE);
+        // TODO: JColorChooser l10n
+
         moomintrollsTable.updateLanguage(resourceBundle);
         collectionSession.setResourceBundle(resourceBundle);
+        
         updateTitle();
         pack();
     }

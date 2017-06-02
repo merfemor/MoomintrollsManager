@@ -7,6 +7,7 @@ import trolls.MoomintrollsCollection;
 import javax.swing.*;
 import java.awt.*;
 import java.io.*;
+import java.text.MessageFormat;
 import java.util.ResourceBundle;
 import java.util.Scanner;
 
@@ -20,18 +21,6 @@ public class CollectionSession {
 
     public CollectionSession(MoomintrollsCollection moomintrollsCollection) {
         this.moomintrollsCollection = moomintrollsCollection;
-    }
-
-    // method for testing
-    public static void sleep(int seconds) {
-        for (int i = seconds; i > 0; i--) {
-            System.out.print(i + "...");
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
     }
 
     public void setResourceBundle(ResourceBundle bundle) {
@@ -102,8 +91,8 @@ public class CollectionSession {
             if (newFile.exists() && file == null) {
                 int reply = JOptionPane.showConfirmDialog(
                         owner,
-                        "File is already exists.\nOverwrite it?",
-                        "Warning: overwriting file",
+                        bundle.getString("fileExistsWarningMessage"),
+                        bundle.getString("fileExistsWarningTitle"),
                         JOptionPane.YES_NO_OPTION,
                         JOptionPane.QUESTION_MESSAGE
                 );
@@ -113,24 +102,19 @@ public class CollectionSession {
             }
             try {
                 saveToFile(newFile);
-                Object[] options = {"OK"};
-                JOptionPane.showOptionDialog(
+                JOptionPane.showMessageDialog(
                         owner,
-                        "Successfully saved into\n" + newFile.getPath(),
-                        "Successfully saved",
-                        JOptionPane.DEFAULT_OPTION,
-                        JOptionPane.INFORMATION_MESSAGE,
-                        null,
-                        options,
-                        options[0]
+                        MessageFormat.format(bundle.getString("successfullySavedDialogMessage"), newFile.getPath()),
+                        bundle.getString("successfullySavedDialogTitle"),
+                        JOptionPane.INFORMATION_MESSAGE
                 );
                 file = newFile;
                 return true;
             } catch (Exception e) {
                 JOptionPane.showMessageDialog(
                         owner,
-                        "Failed to save into \n" + newFile.getPath() + "\nSelect file again.",
-                        "Error: failed to save",
+                        MessageFormat.format(bundle.getString("failedToSaveErrorMessage"), newFile.getPath()),
+                        bundle.getString("failedToSaveErrorTitle"),
                         JOptionPane.ERROR_MESSAGE
                 );
                 newFile = chooseSaveFile(newFile);
@@ -149,15 +133,16 @@ public class CollectionSession {
             } catch (IOException e) {
                 JOptionPane.showMessageDialog(
                         owner,
-                        "Failed to open " + newFile.getPath() + "\nSelect file again.",
-                        "Error: failed to open",
+                        MessageFormat.format(bundle.getString("failedToOpenErrorMessage"), newFile.getPath()),
+                        bundle.getString("failedToOpenErrorTitle"),
                         JOptionPane.ERROR_MESSAGE
                 );
             } catch (Exception e) {
+                e.printStackTrace();
                 JOptionPane.showMessageDialog(
                         owner,
-                        "Failed to read " + newFile.getPath() + "\nFile is in the wrong format.\nSelect file again.",
-                        "Error: failed to read",
+                        MessageFormat.format(bundle.getString("wrongFileFormatErrorMessage"), newFile.getPath()),
+                        bundle.getString("wrongFileFormatErrorTitle"),
                         JOptionPane.ERROR_MESSAGE
                 );
             }
