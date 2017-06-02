@@ -7,6 +7,7 @@ import trolls.MoomintrollsCollection;
 import javax.swing.*;
 import java.awt.*;
 import java.io.*;
+import java.util.ResourceBundle;
 import java.util.Scanner;
 
 public class CollectionSession {
@@ -14,6 +15,8 @@ public class CollectionSession {
     private MoomintrollsCollection moomintrollsCollection;
     private File file;
     private Component owner;
+    private ResourceBundle bundle;
+
 
     public CollectionSession(MoomintrollsCollection moomintrollsCollection) {
         this.moomintrollsCollection = moomintrollsCollection;
@@ -29,6 +32,10 @@ public class CollectionSession {
                 e.printStackTrace();
             }
         }
+    }
+
+    public void setResourceBundle(ResourceBundle bundle) {
+        this.bundle = bundle;
     }
 
     public void setOwner(Component owner) {
@@ -55,8 +62,8 @@ public class CollectionSession {
         if (!isSaved) {
             int reply = JOptionPane.showConfirmDialog(
                     owner,
-                    "Current collection is not saved.\nDo you want to save it before closing?",
-                    "Warning: unsaved collection",
+                    bundle.getString("collectionCloseDialogMessage"),
+                    bundle.getString("collectionCloseDialogTitle"),
                     JOptionPane.YES_NO_CANCEL_OPTION,
                     JOptionPane.QUESTION_MESSAGE
             );

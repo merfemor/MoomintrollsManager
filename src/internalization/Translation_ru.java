@@ -68,7 +68,29 @@ public class Translation_ru extends ListResourceBundle {
             {"removeManyDialogMessage", "Вы действительно хотите удалить муми-троллей[{0}] из коллекции?"},
             {"chooseColor", "Выберите цвет"},
             {"emptyStringErrorMessage", "Ошибка: имя муми-тролля не может быть пустым!"},
-            {"emptyStringErrorTitle", "Ошибка: пустое имя"}
+            {"emptyStringErrorTitle", "Ошибка: пустое имя"},
+            {"collectionCloseDialogTitle", "Предупреждение: несохраненная коллекция"},
+            {"collectionCloseDialogMessage", "Текущая коллекция не сохранена.\nСохранить её перед закрытием?"},
+
+            {"FileChooser.acceptAllFileFilterText", "Все файлы"},
+            {"FileChooser.lookInLabelText", "Смотреть в:"},
+            {"FileChooser.cancelButtonText", "Отмена"},
+            {"FileChooser.openButtonText", "Открыть"},
+            {"FileChooser.saveButtonText", "Сохранить"},
+            {"FileChooser.filesOfTypeLabelText", "Тип файла:"},
+            {"FileChooser.fileNameLabelText", "Имя файла:"},
+            {"FileChooser.openButtonToolTipText", "Открыть файл"},
+            {"FileChooser.saveButtonToolTipText", "Сохранить файл"},
+            {"FileChooser.cancelButtonToolTipText", "Отмена"},
+            {"FileChooser.openDialogTitleText", "Открыть"},
+            {"FileChooser.upFolderToolTipText", "Вверх на один каталог"},
+            {"FileChooser.homeFolderToolTipText", "Домашняя директория"},
+            {"FileChooser.listViewButtonToolTipText", "Список"},
+            {"FileChooser.detailsViewButtonToolTipText", "Детализированный вид"},
+            {"FileChooser.fileSizeHeaderText", "Размер"},
+            {"FileChooser.fileTypeHeaderText", "Тип"},
+            {"FileChooser.fileDateHeaderText", "Дата"},
+            {"FileChooser.newFolderToolTipText", "Создать новую директорию"}
     };
 
     @Override

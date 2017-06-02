@@ -68,7 +68,29 @@ public class Translation_en extends ListResourceBundle {
             {"removeManyDialogMessage", "Are you sure want to remove moomintrolls[{0}] from the collection?"},
             {"chooseColor", "Choose color"},
             {"emptyStringErrorMessage", "Error: the name of the moomintroll can't be empty!"},
-            {"emptyStringErrorTitle", "Error: empty name"}
+            {"emptyStringErrorTitle", "Error: empty name"},
+            {"collectionCloseDialogTitle", "Warning: unsaved collection"},
+            {"collectionCloseDialogMessage", "Current collection is not saved.\nDo you want to save it before closing?"},
+
+            {"FileChooser.acceptAllFileFilterText", "All Files"},
+            {"FileChooser.lookInLabelText", "Look in:"},
+            {"FileChooser.cancelButtonText", "Cancel"},
+            {"FileChooser.openButtonText", "Open"},
+            {"FileChooser.saveButtonText", "Save"},
+            {"FileChooser.filesOfTypeLabelText", "File Type:"},
+            {"FileChooser.fileNameLabelText", "File Name:"},
+            {"FileChooser.openButtonToolTipText", "Open file"},
+            {"FileChooser.saveButtonToolTipText", "Save file"},
+            {"FileChooser.cancelButtonToolTipText", "Cancel"},
+            {"FileChooser.openDialogTitleText", "Open"},
+            {"FileChooser.upFolderToolTipText", "Up One Level"},
+            {"FileChooser.homeFolderToolTipText", "Home Folder"},
+            {"FileChooser.listViewButtonToolTipText", "List View"},
+            {"FileChooser.detailsViewButtonToolTipText", "Detailed View"},
+            {"FileChooser.fileSizeHeaderText", "Size"},
+            {"FileChooser.fileTypeHeaderText", "Type"},
+            {"FileChooser.fileDateHeaderText", "Date"},
+            {"FileChooser.newFolderToolTipText", "Create New Folder"}
     };
 
     @Override

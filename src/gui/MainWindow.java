@@ -17,6 +17,7 @@ import java.net.SocketException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.text.MessageFormat;
+import java.util.Enumeration;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
@@ -113,6 +114,7 @@ public class MainWindow extends JFrame {
         moomintrollsTree = new MoomintrollsTree(moomintrollsTable);
         moomintrollsTable.registerMoomintrollsTree(moomintrollsTree);
         collectionSession = new CollectionSession(moomintrollsTable.getMoomintrollsCollection());
+        collectionSession.setResourceBundle(resourceBundle);
         collectionSession.setOwner(this);
         loadSessionFromEnv(ENV_NAME);
 
@@ -288,7 +290,7 @@ public class MainWindow extends JFrame {
         });
 
 
-        // TODO: dialog for choosing adress
+        // TODO: dialog for choosing address
         connect.addActionListener(actionEvent -> {
             if (connect.isEnabled()) {
                 if (collectionSession != null && !collectionSession.close()) {
@@ -309,6 +311,7 @@ public class MainWindow extends JFrame {
                     e.printStackTrace();
                     return;
                 }
+                ncs.setResourceBundle(resourceBundle);
                 ncs.getClient().setCommandHandler(new CommandHandler() {
                     @Override
                     public void add(IdentifiedMoomintroll[] moomintrolls) {
@@ -371,6 +374,7 @@ public class MainWindow extends JFrame {
                 collectionSession.close();
                 moomintrollsTable.setMoomintrollsCollection(null);
                 collectionSession = new CollectionSession(moomintrollsTable.getMoomintrollsCollection());
+                collectionSession.setResourceBundle(resourceBundle);
                 setEditEnabled(true);
                 connect.setEnabled(true);
                 updateTitle();
@@ -712,8 +716,17 @@ public class MainWindow extends JFrame {
         enableMales.setText(resourceBundle.getString("genderMale"));
         enableFemales.setText(resourceBundle.getString("genderFemale"));
 
-        moomintrollsTable.updateLanguage(resourceBundle);
+        // JFileChooser
+        Enumeration<String> keys = resourceBundle.getKeys();
+        while (keys.hasMoreElements()) {
+            String key = keys.nextElement();
+            if (key.startsWith("FileChooser.")) {
+                UIManager.put(key, resourceBundle.getString(key));
+            }
+        }
 
+        moomintrollsTable.updateLanguage(resourceBundle);
+        collectionSession.setResourceBundle(resourceBundle);
         updateTitle();
         pack();
     }
