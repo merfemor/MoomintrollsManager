@@ -665,7 +665,7 @@ public class MainWindow extends JFrame {
 
     public void updateInterfaceLanguage(Locale locale) {
         if (resourceBundle == null || resourceBundle.getLocale() != locale) {
-            resourceBundle = ResourceBundle.getBundle("internalization.Translation", locale);
+            resourceBundle = ResourceBundle.getBundle("gui.internalization.Translation", locale);
         }
 
         // buttons

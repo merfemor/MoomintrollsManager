@@ -1,4 +1,4 @@
-package internalization;
+package gui.internalization;
 
 import java.util.ListResourceBundle;
 

@@ -11,7 +11,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ResourceBundle;
 
 public class MoomintrollsTableModel extends DefaultTableModel {
-    public static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.uuuu HH:mm");
+    public static DateTimeFormatter dateTimeFormatter;
     private JTable table;
     private ResourceBundle bundle;
 

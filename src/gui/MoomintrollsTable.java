@@ -12,6 +12,8 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.Collections;
 import java.util.ResourceBundle;
 import java.util.stream.LongStream;
@@ -165,6 +167,8 @@ public class MoomintrollsTable extends JTable{
 
     public void updateLanguage(ResourceBundle bundle) {
         this.bundle = bundle;
+        MoomintrollsTableModel.dateTimeFormatter =
+                DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT).withLocale(bundle.getLocale());
         moomintrollsDataModel.fireTableDataChanged();
     }
 
