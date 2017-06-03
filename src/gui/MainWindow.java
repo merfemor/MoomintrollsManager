@@ -1,6 +1,5 @@
 package gui;
 
-import net.IdentifiedMoomintroll;
 import net.client.CommandHandler;
 import net.client.MoomintrollsClient;
 import trolls.Moomintroll;
@@ -314,10 +313,10 @@ public class MainWindow extends JFrame {
                 ncs.setResourceBundle(resourceBundle);
                 ncs.getClient().setCommandHandler(new CommandHandler() {
                     @Override
-                    public void add(IdentifiedMoomintroll[] moomintrolls) {
+                    public void add(Moomintroll[] moomintrolls) {
                         EventQueue.invokeLater(() -> {
-                            for (IdentifiedMoomintroll moomintroll : moomintrolls) {
-                                moomintrollsTable.addRow(moomintroll.id(), moomintroll.moomintroll());
+                            for (Moomintroll moomintroll : moomintrolls) {
+                                moomintrollsTable.addRow(moomintroll.getId(), moomintroll);
                             }
                         });
                     }
@@ -330,18 +329,18 @@ public class MainWindow extends JFrame {
                     }
 
                     @Override
-                    public void update(IdentifiedMoomintroll moomintroll) {
+                    public void update(Moomintroll moomintroll) {
                         EventQueue.invokeLater(() -> {
-                            moomintrollsTable.update(moomintroll.id(), moomintroll.moomintroll());
+                            moomintrollsTable.update(moomintroll.getId(), moomintroll);
                         });
                     }
 
                     @Override
-                    public void reload(IdentifiedMoomintroll[] moomintrolls) {
+                    public void reload(Moomintroll[] moomintrolls) {
                         EventQueue.invokeLater(() -> {
                             moomintrollsTable.setMoomintrollsCollection(null);
-                            for (IdentifiedMoomintroll moomintroll : moomintrolls)
-                                moomintrollsTable.addRow(moomintroll.id(), moomintroll.moomintroll());
+                            for (Moomintroll moomintroll : moomintrolls)
+                                moomintrollsTable.addRow(moomintroll.getId(), moomintroll);
                         });
                     }
                 });
@@ -494,7 +493,7 @@ public class MainWindow extends JFrame {
     public void add() {
         MoomintrollsFrame moomintrollsFrame = new MoomintrollsFrame(resourceBundle);
         if(moomintrollsFrame.showAddDialog(this) == MoomintrollsFrame.OK) {
-            Moomintroll[] moomintroll = {moomintrollsFrame.getMoomintroll()};
+            trolls.Moomintroll[] moomintroll = {moomintrollsFrame.getMoomintroll()};
             if (collectionSession instanceof NetworkCollectionSession) {
                 try {
                     ((NetworkCollectionSession) collectionSession).getClient().add(moomintroll);
@@ -590,10 +589,10 @@ public class MainWindow extends JFrame {
         if (collectionSession instanceof NetworkCollectionSession) {
             id = moomintrollsTable.getRowId(moomintrollsTable.convertRowIndexToModel(row));
         }
-        Moomintroll oldTroll = moomintrollsTable.getRow(row);
+        trolls.Moomintroll oldTroll = moomintrollsTable.getRow(row);
         MoomintrollsFrame editFrame = new MoomintrollsFrame(resourceBundle);
         if (editFrame.showEditDialog(this, oldTroll) == MoomintrollsFrame.OK) {
-            Moomintroll newTroll = editFrame.getMoomintroll();
+            trolls.Moomintroll newTroll = editFrame.getMoomintroll();
             if (collectionSession instanceof NetworkCollectionSession) {
                 try {
                     ((NetworkCollectionSession) collectionSession)

@@ -1,6 +1,5 @@
 package net.client;
 
-import net.IdentifiedMoomintroll;
 import net.protocol.MPacket;
 import net.protocol.MRequest;
 import trolls.Moomintroll;
@@ -66,7 +65,9 @@ public class MoomintrollsClient {
         if (log.isLoggable(Level.INFO)) {
             log.info("Command: UPDATE " + id + ": " + moomintroll);
         }
-        sendPackets(MRequest.createUpdateRequest(new IdentifiedMoomintroll(id, moomintroll)).toPackets());
+        Moomintroll m = new Moomintroll(moomintroll.getName(), moomintroll.isMale(), moomintroll.getPosition(), moomintroll.getRgbBodyColor(), moomintroll.getKindness(), moomintroll.getCreationDateTime());
+        m.setId(id);
+        sendPackets(MRequest.createUpdateRequest(m).toPackets());
     }
 
     public void collectionRequest() throws IOException {

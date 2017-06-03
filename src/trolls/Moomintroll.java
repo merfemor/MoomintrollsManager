@@ -12,15 +12,17 @@ public class Moomintroll extends Wight implements BowTo, Emotionable, Comparable
 
     private final ZonedDateTime creationDateTime;
     public transient ActionLog actionLog;
+    private long id;
     private transient TongueCondition tongueCondition;
     private transient Emotion emotionalCondition;
     private Kindness kindness;
     private transient Map<Action, Integer> maxDistance;
+
     public Moomintroll(String name, boolean isMale, int position, Wight.BodyColor bodyColor) {
         super(name, isMale, position, bodyColor);
         actionLog = new ActionLog();
-        this.emotionalCondition =  Emotion.normal;
-        this.tongueCondition =  TongueCondition.normal;
+        this.emotionalCondition = Emotion.normal;
+        this.tongueCondition = TongueCondition.normal;
         maxDistance = new HashMap<>();
         maxDistance.put(Action.bow, 1);
         maxDistance.put(Action.handshake, 0);
@@ -59,22 +61,30 @@ public class Moomintroll extends Wight implements BowTo, Emotionable, Comparable
     }
 
     public void setEmotionalCondition(Emotion emotionalCondition) {
-        if(this.emotionalCondition == Emotion.embarrassment && emotionalCondition == Emotion.embarrassment) {
+        if (this.emotionalCondition == Emotion.embarrassment && emotionalCondition == Emotion.embarrassment) {
             emotionalCondition = Emotion.bigEmbrassment;
         }
         // когда Тролль-мальчик чему-то сильно удивляется, у него отнимается язык
-        if(Moomintroll.this.isMale && emotionalCondition == Emotion.wonder &&
+        if (Moomintroll.this.isMale && emotionalCondition == Emotion.wonder &&
                 Moomintroll.this.tongueCondition != TongueCondition.paralyzed) {
             Moomintroll.this.tongueCondition = TongueCondition.paralyzed;
             System.out.println("У " + Moomintroll.this.name + " язык отнялся от неожиданности");
         }
         // Тролли-мальчики при смущении краснеют
-        if(Moomintroll.this.isMale && emotionalCondition == Emotion.embarrassment) {
+        if (Moomintroll.this.isMale && emotionalCondition == Emotion.embarrassment) {
             setBodyColor(Wight.BodyColor.redAsLobster);
         }
         // после того как проверили все исключительне ситуации, устанавливаем новое настроение
         this.emotionalCondition = emotionalCondition;
         System.out.println(name + " " + this.emotionalCondition.toString());
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 
     public ZonedDateTime getCreationDateTime() {
@@ -91,27 +101,26 @@ public class Moomintroll extends Wight implements BowTo, Emotionable, Comparable
 
     @Override
     public void bowTo(Wight wight) throws SelfBowException {
-        if(!(wight instanceof Emotionable)) { // если существо не эмоционально
+        if (!(wight instanceof Emotionable)) { // если существо не эмоционально
             System.out.println(wight.getName() + " игнорирует " + this.getName());
             return;
         }
-        if(this == wight) { // если нужно поздороваться с самим собой
+        if (this == wight) { // если нужно поздороваться с самим собой
             throw new SelfBowException(this);
         }
-        if(this.isMale != wight.isMale) { // если нужно поклониться противоположному полу
+        if (this.isMale != wight.isMale) { // если нужно поклониться противоположному полу
             this.setEmotionalCondition(Emotion.embarrassment); // тролль смущается
         }
-        if(this.isMale == wight.isMale) {
+        if (this.isMale == wight.isMale) {
             this.setEmotionalCondition(Emotion.friendliness);
-            moveTo(wight.getPosition(), maxDistance.get((this.isMale)? Action.handshake : Action.hug));
-            System.out.println(this.name + " и " + wight.name + (this.isMale? " пожали друг другу руки": " обнялись"));
-            actionLog.push(this.isMale? Action.handshake: Action.hug);
-        }
-        else { // противоположный пол
+            moveTo(wight.getPosition(), maxDistance.get((this.isMale) ? Action.handshake : Action.hug));
+            System.out.println(this.name + " и " + wight.name + (this.isMale ? " пожали друг другу руки" : " обнялись"));
+            actionLog.push(this.isMale ? Action.handshake : Action.hug);
+        } else { // противоположный пол
             moveTo(wight.getPosition(), maxDistance.get(Action.bow)); // подходит на расстояние достатоное для поклона
-            System.out.println(this.name + (this.isMale? " отвесил низкий поклон": " сделала книксен"));
+            System.out.println(this.name + (this.isMale ? " отвесил низкий поклон" : " сделала книксен"));
             this.actionLog.push(Action.bow);
-            if(!wight.isMale) {
+            if (!wight.isMale) {
                 ((Emotionable) wight).setEmotionalCondition(Emotion.embarrassment);
             }
         }
@@ -119,25 +128,24 @@ public class Moomintroll extends Wight implements BowTo, Emotionable, Comparable
 
     @Override
     public void bowTo(Set<Wight> wights) throws SelfBowException {
-        int numberOfMen= 0, numberOfWomen = 0;
-        for(Wight wight: wights) {
+        int numberOfMen = 0, numberOfWomen = 0;
+        for (Wight wight : wights) {
             if (wight.isMale()) {
                 numberOfMen++;
             } else {
                 numberOfWomen++;
             }
         }
-        if(numberOfMen != 0 && numberOfWomen != 0) { // если есть оба пола
+        if (numberOfMen != 0 && numberOfWomen != 0) { // если есть оба пола
             this.setEmotionalCondition(Emotion.friendliness);
             String sentence = this.name + " сделал(-а) общий поклон ";
-            for(Wight wight: wights) {
+            for (Wight wight : wights) {
                 sentence += (wight.name + ", ");
             }
             System.out.println(sentence.substring(0, sentence.length() - 2));
             this.actionLog.push(Action.generalBow);
-        }
-        else { // иначе приветствует каждого отдельно
-            for(Wight wight: wights) {
+        } else { // иначе приветствует каждого отдельно
+            for (Wight wight : wights) {
                 this.bowTo(wight);
             }
         }
@@ -157,10 +165,9 @@ public class Moomintroll extends Wight implements BowTo, Emotionable, Comparable
     @Override
     public void moveTo(int position, int maxDistance) {
         while (Math.abs(this.position - position) > maxDistance) {
-            if(this.position > position) {
+            if (this.position > position) {
                 stepBack();
-            }
-            else {
+            } else {
                 stepForward();
             }
         }
@@ -168,7 +175,7 @@ public class Moomintroll extends Wight implements BowTo, Emotionable, Comparable
 
     @Override
     public int compareTo(Moomintroll moomintroll) {
-        if(moomintroll == null) {
+        if (moomintroll == null) {
             return -1;
         }
         return moomintroll.position - this.position;
@@ -176,7 +183,7 @@ public class Moomintroll extends Wight implements BowTo, Emotionable, Comparable
 
     @Override
     public String toString() {
-        return "Moomintroll [" +
+        return Long.toString(getId()) + ": " + "Moomintroll [" +
                 name + ", " +
                 isMale + ", " +
                 rgbBodyColor.getRGB() + ", " +

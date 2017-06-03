@@ -1,7 +1,6 @@
 package psql;
 
 import com.sun.rowset.CachedRowSetImpl;
-import net.IdentifiedMoomintroll;
 import trolls.Kindness;
 import trolls.Moomintroll;
 
@@ -28,7 +27,7 @@ public class MoomintrollsDatabase extends PSQLClient {
             = Arrays.stream(fieldsNames).skip(1).collect(Collectors.joining(", "));
     private final String UPDATE_MOOMINTROLL_FUNCTION = "update_moomintroll";
     private CachedRowSet fullDataRowSet;
-    private IdentifiedMoomintroll[] fullData;
+    private Moomintroll[] fullData;
     private volatile boolean dataChanged = true;
 
     public MoomintrollsDatabase(String hostname, int port, String database, String username, String password, String tableName) throws SQLException {
@@ -109,7 +108,7 @@ public class MoomintrollsDatabase extends PSQLClient {
         dataChanged = true;
     }
 
-    public synchronized IdentifiedMoomintroll[] toArray() throws SQLException {
+    public synchronized Moomintroll[] toArray() throws SQLException {
         if (dataChanged)
             reloadFullData();
         return fullData;
@@ -118,17 +117,19 @@ public class MoomintrollsDatabase extends PSQLClient {
     public void reloadFullData() throws SQLException {
         fullDataRowSet.execute(connection);
         dataChanged = false;
-        fullData = new IdentifiedMoomintroll[fullDataRowSet.size()];
+        fullData = new Moomintroll[fullDataRowSet.size()];
         for (int i = 0; fullDataRowSet.next(); i++) {
-            fullData[i] = new IdentifiedMoomintroll(fullDataRowSet.getLong(fieldsNames[0]),
-                    new Moomintroll(
-                            fullDataRowSet.getString(fieldsNames[1]),
-                            fullDataRowSet.getBoolean(fieldsNames[2]),
-                            fullDataRowSet.getInt(fieldsNames[5]),
-                            new Color(fullDataRowSet.getInt(fieldsNames[3])),
-                            new Kindness(fullDataRowSet.getInt(fieldsNames[4])),
-                            ZonedDateTime.ofInstant(fullDataRowSet.getTimestamp(fieldsNames[6]).toInstant(), ZoneId.systemDefault())
-                    ));
+            Moomintroll moomintroll = new Moomintroll(
+                    fullDataRowSet.getString(fieldsNames[1]),
+                    fullDataRowSet.getBoolean(fieldsNames[2]),
+                    fullDataRowSet.getInt(fieldsNames[5]),
+                    new Color(fullDataRowSet.getInt(fieldsNames[3])),
+                    new Kindness(fullDataRowSet.getInt(fieldsNames[4])),
+                    ZonedDateTime.ofInstant(fullDataRowSet.getTimestamp(fieldsNames[6]).toInstant(), ZoneId.systemDefault())
+            );
+            Moomintroll m = new Moomintroll(moomintroll.getName(), moomintroll.isMale(), moomintroll.getPosition(), moomintroll.getRgbBodyColor(), moomintroll.getKindness(), moomintroll.getCreationDateTime());
+            m.setId(fullDataRowSet.getLong(fieldsNames[0]));
+            fullData[i] = m;
         }
     }
 

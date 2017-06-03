@@ -1,10 +1,10 @@
 package net.client;
 
-import net.IdentifiedMoomintroll;
 import net.protocol.MAnswer;
 import net.protocol.MCommand;
 import net.protocol.MPacket;
 import net.server.MoomintrollsServer;
+import trolls.Moomintroll;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -87,7 +87,7 @@ public class ChangesLoader implements Runnable {
     private void executeCommand(MAnswer answer) throws IOException, ClassNotFoundException {
         switch (answer.type()) {
             case MCommand.Type.ADD:
-                IdentifiedMoomintroll[] moomintrolls = answer.parseAdd();
+                Moomintroll[] moomintrolls = answer.parseAdd();
                 if (log.isLoggable(Level.INFO)) {
                     log.info("Command: ADD" + Arrays.toString(moomintrolls));
                 }
@@ -103,7 +103,7 @@ public class ChangesLoader implements Runnable {
                     commandHandler.remove(ids);
                 break;
             case MCommand.Type.UPDATE:
-                IdentifiedMoomintroll im = answer.parseUpdate();
+                Moomintroll im = answer.parseUpdate();
                 if (log.isLoggable(Level.INFO)) {
                     log.info("Command: UPDATE " + im);
                 }
@@ -111,7 +111,7 @@ public class ChangesLoader implements Runnable {
                     commandHandler.update(im);
                 break;
             case MCommand.Type.SELECT_ALL:
-                IdentifiedMoomintroll[] identifiedMoomintrolls = answer.parseSelectAll();
+                Moomintroll[] identifiedMoomintrolls = answer.parseSelectAll();
                 if (commandHandler != null)
                     commandHandler.reload(identifiedMoomintrolls);
                 if (log.isLoggable(Level.INFO)) {

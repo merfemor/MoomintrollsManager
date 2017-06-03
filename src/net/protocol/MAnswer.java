@@ -1,6 +1,6 @@
 package net.protocol;
 
-import net.IdentifiedMoomintroll;
+import trolls.Moomintroll;
 
 import java.io.IOException;
 
@@ -10,20 +10,20 @@ public class MAnswer extends MCommand {
         super(data);
     }
 
-    public static MAnswer createSelectAllAnswer(IdentifiedMoomintroll[] moomintrolls) throws IOException {
+    public static MAnswer createSelectAllAnswer(Moomintroll[] moomintrolls) throws IOException {
         return new MAnswer(createCommand(Type.SELECT_ALL, moomintrolls).data());
     }
 
-    public static MAnswer createAddAnswer(IdentifiedMoomintroll[] moomintrolls) throws IOException {
+    public static MAnswer createAddAnswer(Moomintroll[] moomintrolls) throws IOException {
         return new MAnswer(createCommand(Type.ADD, moomintrolls).data());
     }
 
-    public IdentifiedMoomintroll[] parseAdd() throws IllegalArgumentException, IOException, ClassNotFoundException {
+    public Moomintroll[] parseAdd() throws IllegalArgumentException, IOException, ClassNotFoundException {
         if (type != Type.ADD) {
             throw new IllegalArgumentException(
                     "Bad type of command: expected \"ADD\", received " + type);
         }
-        return (IdentifiedMoomintroll[]) parseCommand(this);
+        return (Moomintroll[]) parseCommand(this);
     }
 
     public long[] parseRemove() throws IllegalArgumentException, IOException, ClassNotFoundException {
@@ -34,19 +34,19 @@ public class MAnswer extends MCommand {
         return (long[]) parseCommand(this);
     }
 
-    public IdentifiedMoomintroll parseUpdate() throws IllegalArgumentException, IOException, ClassNotFoundException {
+    public Moomintroll parseUpdate() throws IllegalArgumentException, IOException, ClassNotFoundException {
         if (type != Type.UPDATE) {
             throw new IllegalArgumentException(
                     "Bad type of command: expected \"UPDATE\", received " + type);
         }
-        return (IdentifiedMoomintroll) parseCommand(this);
+        return (Moomintroll) parseCommand(this);
     }
 
-    public IdentifiedMoomintroll[] parseSelectAll() throws IllegalArgumentException, IOException, ClassNotFoundException {
+    public Moomintroll[] parseSelectAll() throws IllegalArgumentException, IOException, ClassNotFoundException {
         if (type != Type.SELECT_ALL) {
             throw new IllegalArgumentException(
                     "Bad type of command: expected \"SELECT_ALL\", received " + type);
         }
-        return (IdentifiedMoomintroll[]) parseCommand(this);
+        return (Moomintroll[]) parseCommand(this);
     }
 }

@@ -1,7 +1,6 @@
 package net.server;
 
 import mbean.CommandsCount;
-import net.IdentifiedMoomintroll;
 import net.protocol.MAnswer;
 import net.protocol.MCommand;
 import net.protocol.MPacket;
@@ -23,6 +22,7 @@ import java.util.logging.Level;
 import static net.server.MoomintrollsServer.log;
 
 public class ClientManager implements Runnable {
+    private static ThreadLocal<Moomintroll[]> fullData;
     protected final SocketAddress socketAddress;
     private BlockingQueue<MPacket> packetsQueue;
     private boolean stop = false;
@@ -31,7 +31,6 @@ public class ClientManager implements Runnable {
     private AnswerHandler answerHandler;
     private ChangesManager changesManager;
     private CommandsCount commandsCounter;
-    private static ThreadLocal<IdentifiedMoomintroll[]> fullData;
 
     public ClientManager(SocketAddress socketAddress, MoomintrollsDatabase database, ChangesManager changesManager) {
         this.socketAddress = socketAddress;
@@ -124,8 +123,8 @@ public class ClientManager implements Runnable {
                     log.warning("ADD canceled: nothing to add");
                     break;
                 }
-                IdentifiedMoomintroll[] identifiedMoomintrolls =
-                        new IdentifiedMoomintroll[moomintrolls.length];
+                Moomintroll[] identifiedMoomintrolls =
+                        new Moomintroll[moomintrolls.length];
 
                 long addedIds[] = new long[moomintrolls.length];
                 numberOfCommands = addedIds.length;
@@ -143,7 +142,9 @@ public class ClientManager implements Runnable {
                     }
                 }
                 for (int i = 0; i < moomintrolls.length; i++) {
-                    identifiedMoomintrolls[i] = new IdentifiedMoomintroll(addedIds[i], moomintrolls[i]);
+                    Moomintroll m = new Moomintroll(moomintrolls[i].getName(), moomintrolls[i].isMale(), moomintrolls[i].getPosition(), moomintrolls[i].getRgbBodyColor(), moomintrolls[i].getKindness(), moomintrolls[i].getCreationDateTime());
+                    m.setId(addedIds[i]);
+                    identifiedMoomintrolls[i] = m;
                 }
                 answerHandler.handleAnswer(MAnswer.createAddAnswer(identifiedMoomintrolls));
                 break;
@@ -166,10 +167,10 @@ public class ClientManager implements Runnable {
                 answerHandler.handleAnswer(new MAnswer(command.data()));
                 break;
             case MCommand.Type.UPDATE:
-                IdentifiedMoomintroll im = MRequest.parseUpdateRequest(command);
-                database.update(im.id(), im.moomintroll());
+                Moomintroll im = MRequest.parseUpdateRequest(command);
+                database.update(im.getId(), im);
                 if (log.isLoggable(Level.FINE)) {
-                    log.fine("Command from " + socketAddress + ": UPDATE " + im.id() + " " + im.moomintroll());
+                    log.fine("Command from " + socketAddress + ": UPDATE " + im.getId() + " " + im);
                 }
 
                 answerHandler.handleAnswer(new MAnswer(command.data()));

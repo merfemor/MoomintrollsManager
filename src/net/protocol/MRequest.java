@@ -1,6 +1,5 @@
 package net.protocol;
 
-import net.IdentifiedMoomintroll;
 import trolls.Moomintroll;
 
 import java.io.IOException;
@@ -27,7 +26,7 @@ public class MRequest extends MCommand {
         return createCommand(Type.ADD, moomintrolls);
     }
 
-    public static MCommand createUpdateRequest(IdentifiedMoomintroll moomintroll) throws IOException {
+    public static MCommand createUpdateRequest(Moomintroll moomintroll) throws IOException {
         return createCommand(Type.UPDATE, moomintroll);
     }
 
@@ -47,11 +46,11 @@ public class MRequest extends MCommand {
         return (Moomintroll[]) parseCommand(command);
     }
 
-    public static IdentifiedMoomintroll parseUpdateRequest(MCommand command) throws IllegalArgumentException, IOException, ClassNotFoundException {
+    public static Moomintroll parseUpdateRequest(MCommand command) throws IllegalArgumentException, IOException, ClassNotFoundException {
         if (command.type() != Type.UPDATE) {
             throw new IllegalArgumentException(
                     "Bad type of command: expected \"UPDATE\", received " + command.type());
         }
-        return (IdentifiedMoomintroll) parseCommand(command);
+        return (Moomintroll) parseCommand(command);
     }
 }

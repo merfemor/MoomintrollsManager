@@ -69,13 +69,16 @@ public class TestMCommand {
 
     @Test
     public void testSerializingUpdate() {
-        IdentifiedMoomintroll im = new IdentifiedMoomintroll(248, trolls.utils.Random.randomTroll());
+        Moomintroll moomintroll = trolls.utils.Random.randomTroll();
+        Moomintroll m = new Moomintroll(moomintroll.getName(), moomintroll.isMale(), moomintroll.getPosition(), moomintroll.getRgbBodyColor(), moomintroll.getKindness(), moomintroll.getCreationDateTime());
+        m.setId((long) 248);
+        Moomintroll im = m;
 
         try {
             MCommand command = MRequest.createUpdateRequest(im);
-            IdentifiedMoomintroll im1 = MRequest.parseUpdateRequest(command);
-            assertEquals(im.id(), im1.id());
-            assertTrue(im.moomintroll().equals(im1.moomintroll()));
+            Moomintroll im1 = MRequest.parseUpdateRequest(command);
+            assertEquals(im.getId(), im1.getId());
+            assertTrue(im.equals(im1));
         } catch (IOException | ClassNotFoundException e) {
             fail();
         }

@@ -1,13 +1,13 @@
 package net.client;
 
-import net.IdentifiedMoomintroll;
+import trolls.Moomintroll;
 
 public interface CommandHandler {
-    void add(IdentifiedMoomintroll[] moomintrolls);
+    void add(Moomintroll[] moomintrolls);
 
     void remove(long[] ids);
 
-    void update(IdentifiedMoomintroll moomintroll);
+    void update(Moomintroll moomintroll);
 
-    void reload(IdentifiedMoomintroll[] moomintrolls);
+    void reload(Moomintroll[] moomintrolls);
 }
