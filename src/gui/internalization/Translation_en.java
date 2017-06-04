@@ -2,7 +2,7 @@ package gui.internalization;
 
 import java.util.ListResourceBundle;
 
-public class Translation extends ListResourceBundle {
+public class Translation_en extends ListResourceBundle {
     private Object[][] content = {
             {"addButton", "Add"},
             {"removeButton", "Remove"},
