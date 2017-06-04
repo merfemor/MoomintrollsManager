@@ -65,9 +65,8 @@ public class MoomintrollsClient {
         if (log.isLoggable(Level.INFO)) {
             log.info("Command: UPDATE " + id + ": " + moomintroll);
         }
-        Moomintroll m = new Moomintroll(moomintroll.getName(), moomintroll.isMale(), moomintroll.getPosition(), moomintroll.getRgbBodyColor(), moomintroll.getKindness(), moomintroll.getCreationDateTime());
-        m.setId(id);
-        sendPackets(MRequest.createUpdateRequest(m).toPackets());
+        moomintroll.setId(id);
+        sendPackets(MRequest.createUpdateRequest(moomintroll).toPackets());
     }
 
     public void collectionRequest() throws IOException {

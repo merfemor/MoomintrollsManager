@@ -8,18 +8,18 @@ import java.awt.event.KeyEvent;
 // TODO: works bad on JSpinner: overflow
 public class NumbericFieldKeyAdapter extends KeyAdapter{
 
-    NumbericFieldKeyAdapter() {
+    public NumbericFieldKeyAdapter() {
         super();
     }
 
     @Override
     public void keyTyped(KeyEvent keyEvent) {
         JTextField component = (JTextField) keyEvent.getComponent();
-        int oldValue = 0, newValue = 0;
+        long oldValue = 0, newValue = 0;
         try {
             if (component.getText().length() != 0)
-                oldValue = Integer.parseInt(component.getText());
-            newValue = Integer.parseInt(new StringBuilder(component.getText())
+                oldValue = Long.parseLong(component.getText());
+            newValue = Long.parseLong(new StringBuilder(component.getText())
                     .insert(component.getSelectionStart(), keyEvent.getKeyChar()).toString());
         } catch (NumberFormatException e) {
             keyEvent.consume();

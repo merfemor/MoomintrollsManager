@@ -27,7 +27,7 @@ class MoomintrollsTreeModel extends DefaultTreeModel {
         MutableTreeNode node = new DefaultMutableTreeNode(moomintroll.getName());
         node.insert(new DefaultMutableTreeNode(
                         bundle.getString("genderAttribute") + ": " +
-                                (moomintroll.isMale() ?
+                                (moomintroll.getIsMale() ?
                                         bundle.getString("genderMale") :
                                         bundle.getString("genderFemale"))),
                 0
@@ -36,7 +36,7 @@ class MoomintrollsTreeModel extends DefaultTreeModel {
                 bundle.getString("positionAttribute") + ": " + moomintroll.getPosition()), 1);
         node.insert(new DefaultMutableTreeNode(
                 bundle.getString("kindnessAttribute") + ": " +
-                        moomintroll.getKindness().toString(bundle, moomintroll.isMale())), 2);
+                        moomintroll.getKindness().toString(bundle, moomintroll.getIsMale())), 2);
         node.insert(new DefaultMutableTreeNode(
                 bundle.getString("creationDateAttribute") + ": " +
                         moomintroll.getCreationDateTime().format(MoomintrollsTableModel.dateTimeFormatter)), 3);

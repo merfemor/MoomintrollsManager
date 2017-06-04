@@ -38,7 +38,7 @@ public class MoomintrollsTableModel extends DefaultTableModel {
     public Object[] moomintrollToData(Moomintroll moomintroll) {
         return new Object[]{
                 moomintroll.getName(),
-                moomintroll.isMale(),
+                moomintroll.getIsMale(),
                 moomintroll.getRgbBodyColor(),
                 moomintroll.getKindness(),
                 moomintroll.getPosition(),

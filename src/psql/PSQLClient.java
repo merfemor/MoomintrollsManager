@@ -31,6 +31,10 @@ public class PSQLClient {
         return url.split("\\?user")[0];
     }
 
+    public Connection getConnection() {
+        return connection;
+    }
+
     public void close() throws SQLException {
         connection.close();
     }

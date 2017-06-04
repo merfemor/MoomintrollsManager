@@ -4,6 +4,8 @@ import mbean.CommandsCount;
 import mbean.UsersInfo;
 import net.protocol.MPacket;
 import psql.MoomintrollsDatabase;
+import ru.ifmo.cs.korm.Session;
+import trolls.Moomintroll;
 
 import javax.management.*;
 import java.io.IOException;
@@ -22,21 +24,19 @@ import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 public class MoomintrollsServer {
+    public static Logger log = Logger.getLogger(MoomintrollsServer.class.getName());
+    public Map<InetSocketAddress, ClientManager> clientManagers;
     private DatagramChannel datagramChannel;
     private MoomintrollsDatabase database;
-
-    public static Logger log = Logger.getLogger(MoomintrollsServer.class.getName());
-
     private byte[] inputData;
     private ByteBuffer inputDataBuffer;
-
     private boolean isAlive;
-
-    public Map<InetSocketAddress, ClientManager> clientManagers;
     private ChangesManager changesManager;
 
     private UsersInfo usersInfo;
     private CommandsCount commandsCount;
+
+    private Session databaseSession;
 
     public MoomintrollsServer(InetSocketAddress inetSocketAddress, MoomintrollsDatabase database) throws IOException {
         datagramChannel = DatagramChannel.open();
@@ -48,6 +48,76 @@ public class MoomintrollsServer {
         clientManagers = new ConcurrentHashMap<>();
         changesManager = new ChangesManager(datagramChannel);
         new Thread(changesManager).start();
+    }
+
+    public MoomintrollsServer(InetSocketAddress inetSocketAddress, MoomintrollsDatabase database, Session databaseSession) throws IOException, SQLException {
+        datagramChannel = DatagramChannel.open();
+        datagramChannel.socket().bind(inetSocketAddress);
+        this.database = database;
+        this.databaseSession = databaseSession.addClass(Moomintroll.class);
+        inputData = new byte[MPacket.PACKETS_LENGTH];
+        inputDataBuffer = ByteBuffer.wrap(inputData);
+        isAlive = true;
+        clientManagers = new ConcurrentHashMap<>();
+        changesManager = new ChangesManager(datagramChannel);
+        new Thread(changesManager).start();
+    }
+
+    public static void main(String[] args) {
+        try {
+            // TODO: replace logging.properties
+            LogManager.getLogManager().readConfiguration(MoomintrollsServer.class.getResourceAsStream(
+                    "logging.properties"));
+        } catch (Exception e) {
+            log.warning("Could not setup logger configuration");
+        }
+        InetSocketAddress isa = new InetSocketAddress(1111);
+        MoomintrollsServer moomintrollsServer;
+        MoomintrollsDatabase database = null;
+        try {
+            log.info("Connecting to database...");
+            database = new MoomintrollsDatabase(
+                    "localhost",
+                    5432,
+                    "mooman",
+                    "usr",
+                    "123456"
+            );
+            log.info("Connected to database " + database.getUrl());
+
+            if (args.length >= 2) {
+                try {
+                    isa = new InetSocketAddress(InetAddress.getByName(args[0]), Integer.parseInt(args[1]));
+                } catch (Exception ignored) {
+                }
+            }
+            moomintrollsServer = new MoomintrollsServer(
+                    isa, database, new Session(database.getConnection(), MPostgreSQLSyntax.get()));
+            log.info("Started UDP server " + isa);
+
+        } catch (IOException e) {
+            log.log(Level.SEVERE, "Failed to start server " + isa + ": failed to create channel", e);
+            return;
+        } catch (SQLException e) {
+            log.log(Level.SEVERE, "Failed to start server " + isa +
+                    ": failed to connect to database\n" + "URL: " + database.getUrl(), e);
+            return;
+        }
+
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            log.info("The server was stopped");
+            moomintrollsServer.close();
+        }));
+
+        try {
+            moomintrollsServer.registerMBean();
+        } catch (MalformedObjectNameException | NotCompliantMBeanException | InstanceAlreadyExistsException | MBeanRegistrationException e) {
+            log.log(Level.SEVERE, "Failed to init MBean utils", e);
+        }
+
+        while (moomintrollsServer.isAlive()) {
+            moomintrollsServer.receivePacket();
+        }
     }
 
     public void registerMBean() throws MalformedObjectNameException, NotCompliantMBeanException, InstanceAlreadyExistsException, MBeanRegistrationException {
@@ -90,7 +160,7 @@ public class MoomintrollsServer {
             }
         }
 
-        ClientManager ce = new ClientManager(receiverAddress, database, changesManager);
+        ClientManager ce = new ClientManager(receiverAddress, database, changesManager, databaseSession);
         ce.registerCommandsCounter(commandsCount);
         clientManagers.put(sReceiverAddress, ce);
         changesManager.addRecipient(ce);
@@ -128,63 +198,6 @@ public class MoomintrollsServer {
             log.log(Level.SEVERE, "Failed to close database on url " + database.getUrl(), e);
         } catch (IOException e) {
             log.log(Level.SEVERE, "Failed to close channel", e);
-        }
-    }
-
-    public static void main(String[] args) {
-        try {
-            // TODO: replace logging.properties
-            LogManager.getLogManager().readConfiguration(MoomintrollsServer.class.getResourceAsStream(
-                    "logging.properties"));
-        } catch (Exception e) {
-            log.warning("Could not setup logger configuration");
-        }
-        InetSocketAddress isa = new InetSocketAddress(1111);
-        MoomintrollsServer moomintrollsServer;
-        MoomintrollsDatabase database = null;
-        try {
-            log.info("Connecting to database...");
-            database = new MoomintrollsDatabase(
-                    "localhost",
-                    5432,
-                    "mooman",
-                    "usr",
-                    "123456"
-            );
-            log.info("Connected to database " + database.getUrl());
-
-
-            if (args.length >= 2) {
-                try {
-                    isa = new InetSocketAddress(InetAddress.getByName(args[0]), Integer.parseInt(args[1]));
-                } catch (Exception ignored) {
-                }
-            }
-            moomintrollsServer = new MoomintrollsServer(isa, database);
-            log.info("Started UDP server " + isa);
-
-        } catch (IOException e) {
-            log.log(Level.SEVERE, "Failed to start server " + isa + ": failed to create channel", e);
-            return;
-        } catch (SQLException e) {
-            log.log(Level.SEVERE, "Failed to start server " + isa +
-                    ": failed to connect to database\n" + "URL: " + database.getUrl(), e);
-            return;
-        }
-
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            log.info("The server was stopped");
-            moomintrollsServer.close();
-        }));
-
-        try {
-            moomintrollsServer.registerMBean();
-        } catch (MalformedObjectNameException | NotCompliantMBeanException | InstanceAlreadyExistsException | MBeanRegistrationException e) {
-            log.log(Level.SEVERE, "Failed to init MBean utils", e);
-        }
-
-        while (moomintrollsServer.isAlive()) {
-            moomintrollsServer.receivePacket();
         }
     }
 }

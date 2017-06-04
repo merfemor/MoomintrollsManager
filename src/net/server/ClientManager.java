@@ -6,6 +6,7 @@ import net.protocol.MCommand;
 import net.protocol.MPacket;
 import net.protocol.MRequest;
 import psql.MoomintrollsDatabase;
+import ru.ifmo.cs.korm.Session;
 import trolls.Moomintroll;
 
 import java.io.IOException;
@@ -27,18 +28,21 @@ public class ClientManager implements Runnable {
     private BlockingQueue<MPacket> packetsQueue;
     private boolean stop = false;
     private MoomintrollsDatabase database;
+    private Session databaseSession;
     private Runnable disconnectionHandler;
     private AnswerHandler answerHandler;
     private ChangesManager changesManager;
     private CommandsCount commandsCounter;
 
-    public ClientManager(SocketAddress socketAddress, MoomintrollsDatabase database, ChangesManager changesManager) {
+    public ClientManager(SocketAddress socketAddress, MoomintrollsDatabase database, ChangesManager changesManager, Session databaseSession) {
         this.socketAddress = socketAddress;
         this.database = database;
         this.changesManager = changesManager;
+        this.databaseSession = databaseSession;
         packetsQueue = new LinkedBlockingDeque<>();
         fullData = new ThreadLocal<>();
     }
+
 
     public SocketAddress getSocketAddress() {
         return socketAddress;
@@ -123,30 +127,9 @@ public class ClientManager implements Runnable {
                     log.warning("ADD canceled: nothing to add");
                     break;
                 }
-                Moomintroll[] identifiedMoomintrolls =
-                        new Moomintroll[moomintrolls.length];
-
-                long addedIds[] = new long[moomintrolls.length];
-                numberOfCommands = addedIds.length;
-                if (moomintrolls.length == 1) {
-                    addedIds[0] = database.insert(moomintrolls[0]);
-                    if (log.isLoggable(Level.FINE)) {
-                        log.fine("Command from " + socketAddress + ": ADD" + Arrays.toString(moomintrolls));
-                        log.fine("Get id = " + addedIds[0]);
-                    }
-                } else {
-                    addedIds = database.insert(moomintrolls);
-                    if (log.isLoggable(Level.FINE)) {
-                        log.fine("Command from " + socketAddress + ": ADD" + Arrays.toString(moomintrolls));
-                        log.fine("Get ids = " + Arrays.toString(addedIds));
-                    }
-                }
-                for (int i = 0; i < moomintrolls.length; i++) {
-                    Moomintroll m = new Moomintroll(moomintrolls[i].getName(), moomintrolls[i].isMale(), moomintrolls[i].getPosition(), moomintrolls[i].getRgbBodyColor(), moomintrolls[i].getKindness(), moomintrolls[i].getCreationDateTime());
-                    m.setId(addedIds[i]);
-                    identifiedMoomintrolls[i] = m;
-                }
-                answerHandler.handleAnswer(MAnswer.createAddAnswer(identifiedMoomintrolls));
+                databaseSession.add(moomintrolls);
+                log.fine("Command from " + socketAddress + ": ADD" + Arrays.toString(moomintrolls));
+                answerHandler.handleAnswer(MAnswer.createAddAnswer(moomintrolls));
                 break;
             case MCommand.Type.REMOVE:
                 long[] removedIds = MRequest.parseRemoveRequest(command);
@@ -176,7 +159,7 @@ public class ClientManager implements Runnable {
                 answerHandler.handleAnswer(new MAnswer(command.data()));
                 break;
             case MCommand.Type.SELECT_ALL:
-                fullData.set(database.toArray());
+                fullData.set(databaseSession.getData(Moomintroll.class));
                 if (log.isLoggable(Level.FINE)) {
                     log.fine("Command from " + socketAddress + ": SELECT_ALL");
                 }

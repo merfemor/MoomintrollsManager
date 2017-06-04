@@ -69,10 +69,8 @@ public class TestMCommand {
 
     @Test
     public void testSerializingUpdate() {
-        Moomintroll moomintroll = trolls.utils.Random.randomTroll();
-        Moomintroll m = new Moomintroll(moomintroll.getName(), moomintroll.isMale(), moomintroll.getPosition(), moomintroll.getRgbBodyColor(), moomintroll.getKindness(), moomintroll.getCreationDateTime());
-        m.setId((long) 248);
-        Moomintroll im = m;
+        Moomintroll im = trolls.utils.Random.randomTroll();
+        im.setId((long) 248);
 
         try {
             MCommand command = MRequest.createUpdateRequest(im);

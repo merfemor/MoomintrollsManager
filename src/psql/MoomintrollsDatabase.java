@@ -44,7 +44,7 @@ public class MoomintrollsDatabase extends PSQLClient {
 
     protected String getFields(Moomintroll moomintroll) {
         return "\'" + moomintroll.getName() + "\', " +
-                (moomintroll.isMale() ? "true" : "false") + ", " +
+                (moomintroll.getIsMale() ? "true" : "false") + ", " +
                 moomintroll.getRgbBodyColor().getRGB() + ", " +
                 moomintroll.getKindness().value() + ", " +
                 moomintroll.getPosition() + ", " +
@@ -63,10 +63,10 @@ public class MoomintrollsDatabase extends PSQLClient {
         for (int i = 0; i < moomintrolls.length; i++) {
             Moomintroll moomintroll = moomintrolls[i];
             preparedInsertStatement.setString(1, moomintroll.getName());
-            preparedInsertStatement.setBoolean(2, moomintroll.isMale());
+            preparedInsertStatement.setBoolean(2, moomintroll.getIsMale());
             preparedInsertStatement.setInt(3, moomintroll.getRgbBodyColor().getRGB());
             preparedInsertStatement.setInt(4, moomintroll.getKindness().value());
-            preparedInsertStatement.setInt(5, moomintroll.getPosition());
+            preparedInsertStatement.setLong(5, moomintroll.getPosition());
             preparedInsertStatement.setObject(6, moomintroll.getCreationDateTime());
             preparedInsertStatement.executeUpdate();
 
@@ -127,9 +127,8 @@ public class MoomintrollsDatabase extends PSQLClient {
                     new Kindness(fullDataRowSet.getInt(fieldsNames[4])),
                     ZonedDateTime.ofInstant(fullDataRowSet.getTimestamp(fieldsNames[6]).toInstant(), ZoneId.systemDefault())
             );
-            Moomintroll m = new Moomintroll(moomintroll.getName(), moomintroll.isMale(), moomintroll.getPosition(), moomintroll.getRgbBodyColor(), moomintroll.getKindness(), moomintroll.getCreationDateTime());
-            m.setId(fullDataRowSet.getLong(fieldsNames[0]));
-            fullData[i] = m;
+            moomintroll.setId(fullDataRowSet.getLong(fieldsNames[0]));
+            fullData[i] = moomintroll;
         }
     }
 
@@ -138,10 +137,10 @@ public class MoomintrollsDatabase extends PSQLClient {
                 "{call " + UPDATE_MOOMINTROLL_FUNCTION + "(?, ?, ?, ?, ?, ?)}");
         statement.setLong(1, id);
         statement.setString(2, moomintroll.getName());
-        statement.setBoolean(3, moomintroll.isMale());
+        statement.setBoolean(3, moomintroll.getIsMale());
         statement.setInt(4, moomintroll.getRgbBodyColor().getRGB());
         statement.setInt(5, moomintroll.getKindness().value());
-        statement.setInt(6, moomintroll.getPosition());
+        statement.setLong(6, moomintroll.getPosition());
         statement.execute();
         dataChanged = true;
     }

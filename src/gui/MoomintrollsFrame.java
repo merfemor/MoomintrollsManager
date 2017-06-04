@@ -91,7 +91,10 @@ public class MoomintrollsFrame extends JPanel {
         add(kindnessSlider);
 
         add(positionLabel);
-        positionSpinner= new JSpinner();
+
+        // TODO: fix JSpinner
+        positionSpinner = new JSpinner();
+
         ((JSpinner.NumberEditor)positionSpinner.getEditor()).getTextField().addKeyListener(
                 new NumbericFieldKeyAdapter()
         );
@@ -129,14 +132,14 @@ public class MoomintrollsFrame extends JPanel {
         } else {
             title = editTitle + " " + moomintroll.getName();
             nameField.setText(moomintroll.getName());
-            if(moomintroll.isMale())
+            if (moomintroll.getIsMale())
                 genderMaleButton.setSelected(true);
             else
                 genderFemaleButton.setSelected(true);
             positionSpinner.setValue(moomintroll.getPosition());
             colorLabel.setBackground(moomintroll.getRgbBodyColor());
             kindnessSlider.setValue(moomintroll.getKindness().value());
-            updateKindnessValues(moomintroll.isMale());
+            updateKindnessValues(moomintroll.getIsMale());
         }
         int result;
         while (true) {
@@ -165,7 +168,7 @@ public class MoomintrollsFrame extends JPanel {
         }
         moomintroll = new Moomintroll(nameField.getText().trim(),
                 genderMaleButton.isSelected(),
-                (int) positionSpinner.getValue(),
+                Long.parseLong(positionSpinner.getValue().toString()),
                 colorLabel.getBackground(),
                 new Kindness(kindnessSlider.getValue()),
                 oldMoomintroll == null ? ZonedDateTime.now() : oldMoomintroll.getCreationDateTime()
