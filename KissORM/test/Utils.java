@@ -1,5 +1,5 @@
+import ru.ifmo.cs.korm.SQLSyntax;
 import ru.ifmo.cs.korm.Session;
-import ru.ifmo.cs.korm.syntax.PostgreSQLSyntax;
 
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -14,7 +14,7 @@ public class Utils {
             return null;
         }
         try {
-            return new Session(DriverManager.getConnection(URL), PostgreSQLSyntax.get());
+            return new Session(DriverManager.getConnection(URL), SQLSyntax.get());
         } catch (SQLException e) {
             return null;
         }
