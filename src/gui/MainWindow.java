@@ -254,7 +254,7 @@ public class MainWindow extends JFrame {
             Object[] options = {resourceBundle.getString("teamSupportButton")};
             int reply = JOptionPane.showOptionDialog(
                     this,
-                    "Moomintrolls Manager v1.2\n" +
+                    "Moomintrolls Manager v1.3\n" +
                             "by Moomintrolls Studio®\n" +
                             "SpB ITMO, 2017",
                     resourceBundle.getString("aboutMenuItem"),
