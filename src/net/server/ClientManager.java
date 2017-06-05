@@ -151,11 +151,10 @@ public class ClientManager implements Runnable {
                 break;
             case MCommand.Type.UPDATE:
                 Moomintroll im = MRequest.parseUpdateRequest(command);
-                database.update(im.getId(), im);
+                databaseSession.update(new Moomintroll[]{im});
                 if (log.isLoggable(Level.FINE)) {
                     log.fine("Command from " + socketAddress + ": UPDATE " + im.getId() + " " + im);
                 }
-
                 answerHandler.handleAnswer(new MAnswer(command.data()));
                 break;
             case MCommand.Type.SELECT_ALL:
