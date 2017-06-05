@@ -171,5 +171,31 @@ public class Session {
         }
     }
 
-    // TODO: remove() method
+    public void remove(Object[] objects) {
+        if (objects == null || objects.length == 0)
+            return;
+        MappingTable table = mapping.get(objects[0].getClass());
+        if (table == null)
+            throw new IllegalArgumentException("No mapping for class " + objects[0].getClass());
+
+        String sql = "DELETE FROM " + table.getName() +
+                " WHERE " +
+                table.getIdAttributes()
+                        .stream()
+                        .map(ma -> ma.tName)
+                        .collect(Collectors.joining(" = ? AND ")) + " = ?;";
+        try {
+            connection.setAutoCommit(false);
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            for (Object o : objects) {
+                fillWithAttributes(o, preparedStatement, table.getIdAttributes());
+                preparedStatement.addBatch();
+            }
+            preparedStatement.executeBatch();
+            connection.commit();
+            connection.setAutoCommit(true);
+        } catch (SQLException | IllegalAccessException | InvocationTargetException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

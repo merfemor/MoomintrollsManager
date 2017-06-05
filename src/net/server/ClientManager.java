@@ -138,11 +138,13 @@ public class ClientManager implements Runnable {
                     log.warning("REMOVE canceled: nothing to remove");
                     break;
                 }
-                if (removedIds.length == 1) {
-                    database.delete(removedIds[0]);
-                } else {
-                    database.delete(removedIds);
+                Moomintroll[] deadSouls = new Moomintroll[removedIds.length];
+                for (int i = 0; i < deadSouls.length; i++) {
+                    deadSouls[i] = new Moomintroll();
+                    deadSouls[i].setId(removedIds[i]);
                 }
+                databaseSession.remove(deadSouls);
+
                 if (log.isLoggable(Level.FINE)) {
                     log.fine("Command from " + socketAddress + ": REMOVE" + Arrays.toString(removedIds));
                 }
