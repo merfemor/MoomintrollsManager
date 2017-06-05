@@ -11,13 +11,15 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Session {
+    private final String url;
     private SQLSyntax sqlSyntax;
     private Connection connection;
     private Map<Class, MappingTable> mapping = new HashMap<>();
 
-    public Session(Connection connection, SQLSyntax sqlSyntax) {
+    public Session(Connection connection, SQLSyntax sqlSyntax) throws SQLException {
         this.connection = connection;
         this.sqlSyntax = sqlSyntax;
+        this.url = connection.getMetaData().getURL();
     }
 
     public void close() throws SQLException {
@@ -197,5 +199,9 @@ public class Session {
         } catch (SQLException | IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public String getUrl() {
+        return url;
     }
 }

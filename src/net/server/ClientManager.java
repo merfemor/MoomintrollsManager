@@ -5,7 +5,6 @@ import net.protocol.MAnswer;
 import net.protocol.MCommand;
 import net.protocol.MPacket;
 import net.protocol.MRequest;
-import psql.MoomintrollsDatabase;
 import ru.ifmo.cs.korm.Session;
 import trolls.Moomintroll;
 
@@ -27,16 +26,14 @@ public class ClientManager implements Runnable {
     protected final SocketAddress socketAddress;
     private BlockingQueue<MPacket> packetsQueue;
     private boolean stop = false;
-    private MoomintrollsDatabase database;
     private Session databaseSession;
     private Runnable disconnectionHandler;
     private AnswerHandler answerHandler;
     private ChangesManager changesManager;
     private CommandsCount commandsCounter;
 
-    public ClientManager(SocketAddress socketAddress, MoomintrollsDatabase database, ChangesManager changesManager, Session databaseSession) {
+    public ClientManager(SocketAddress socketAddress, ChangesManager changesManager, Session databaseSession) {
         this.socketAddress = socketAddress;
-        this.database = database;
         this.changesManager = changesManager;
         this.databaseSession = databaseSession;
         packetsQueue = new LinkedBlockingDeque<>();

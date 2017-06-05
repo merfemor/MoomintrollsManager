@@ -3,7 +3,6 @@ package net.server;
 import mbean.CommandsCount;
 import mbean.UsersInfo;
 import net.protocol.MPacket;
-import psql.MoomintrollsDatabase;
 import ru.ifmo.cs.korm.Session;
 import trolls.Moomintroll;
 
@@ -15,6 +14,7 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
+import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Map;
@@ -27,7 +27,6 @@ public class MoomintrollsServer {
     public static Logger log = Logger.getLogger(MoomintrollsServer.class.getName());
     public Map<InetSocketAddress, ClientManager> clientManagers;
     private DatagramChannel datagramChannel;
-    private MoomintrollsDatabase database;
     private byte[] inputData;
     private ByteBuffer inputDataBuffer;
     private boolean isAlive;
@@ -38,22 +37,9 @@ public class MoomintrollsServer {
 
     private Session databaseSession;
 
-    public MoomintrollsServer(InetSocketAddress inetSocketAddress, MoomintrollsDatabase database) throws IOException {
+    public MoomintrollsServer(InetSocketAddress inetSocketAddress, Session databaseSession) throws IOException, SQLException {
         datagramChannel = DatagramChannel.open();
         datagramChannel.socket().bind(inetSocketAddress);
-        this.database = database;
-        inputData = new byte[MPacket.PACKETS_LENGTH];
-        inputDataBuffer = ByteBuffer.wrap(inputData);
-        isAlive = true;
-        clientManagers = new ConcurrentHashMap<>();
-        changesManager = new ChangesManager(datagramChannel);
-        new Thread(changesManager).start();
-    }
-
-    public MoomintrollsServer(InetSocketAddress inetSocketAddress, MoomintrollsDatabase database, Session databaseSession) throws IOException, SQLException {
-        datagramChannel = DatagramChannel.open();
-        datagramChannel.socket().bind(inetSocketAddress);
-        this.database = database;
         this.databaseSession = databaseSession.addClass(Moomintroll.class);
         inputData = new byte[MPacket.PACKETS_LENGTH];
         inputDataBuffer = ByteBuffer.wrap(inputData);
@@ -72,18 +58,13 @@ public class MoomintrollsServer {
             log.warning("Could not setup logger configuration");
         }
         InetSocketAddress isa = new InetSocketAddress(1111);
-        MoomintrollsServer moomintrollsServer;
-        MoomintrollsDatabase database = null;
+        MoomintrollsServer moomintrollsServer = null;
         try {
             log.info("Connecting to database...");
-            database = new MoomintrollsDatabase(
-                    "localhost",
-                    5432,
-                    "mooman",
-                    "usr",
-                    "123456"
-            );
-            log.info("Connected to database " + database.getUrl());
+            DriverManager.registerDriver(new org.postgresql.Driver());
+            String url = "jdbc:postgresql://localhost:5432/mooman?user=usr&password=123456";
+            Session session = new Session(DriverManager.getConnection(url), MPostgreSQLSyntax.get());
+            log.info("Connected to database " + session.getUrl());
 
             if (args.length >= 2) {
                 try {
@@ -91,8 +72,7 @@ public class MoomintrollsServer {
                 } catch (Exception ignored) {
                 }
             }
-            moomintrollsServer = new MoomintrollsServer(
-                    isa, database, new Session(database.getConnection(), MPostgreSQLSyntax.get()));
+            moomintrollsServer = new MoomintrollsServer(isa, session);
             log.info("Started UDP server " + isa);
 
         } catch (IOException e) {
@@ -100,13 +80,14 @@ public class MoomintrollsServer {
             return;
         } catch (SQLException e) {
             log.log(Level.SEVERE, "Failed to start server " + isa +
-                    ": failed to connect to database\n" + "URL: " + database.getUrl(), e);
+                    ": failed to connect to database", e);
             return;
         }
 
+        MoomintrollsServer finalMoomintrollsServer = moomintrollsServer;
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             log.info("The server was stopped");
-            moomintrollsServer.close();
+            finalMoomintrollsServer.close();
         }));
 
         try {
@@ -160,7 +141,7 @@ public class MoomintrollsServer {
             }
         }
 
-        ClientManager ce = new ClientManager(receiverAddress, database, changesManager, databaseSession);
+        ClientManager ce = new ClientManager(receiverAddress, changesManager, databaseSession);
         ce.registerCommandsCounter(commandsCount);
         clientManagers.put(sReceiverAddress, ce);
         changesManager.addRecipient(ce);
@@ -188,14 +169,13 @@ public class MoomintrollsServer {
         clientManagers.values().forEach(ClientManager::stop);
         changesManager.stop();
         log.info("Client managers stopped");
-
         try {
-            database.close();
-            log.info("Database on " + database.getUrl() + " stopped");
+            databaseSession.close();
+            log.info("Database on " + databaseSession.getUrl() + " stopped");
             datagramChannel.close();
             log.info("Channel on " + datagramChannel.getLocalAddress() + " closed");
         } catch (SQLException e) {
-            log.log(Level.SEVERE, "Failed to close database on url " + database.getUrl(), e);
+            log.log(Level.SEVERE, "Failed to close database session", e);
         } catch (IOException e) {
             log.log(Level.SEVERE, "Failed to close channel", e);
         }
