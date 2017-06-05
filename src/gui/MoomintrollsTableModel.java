@@ -32,7 +32,7 @@ public class MoomintrollsTableModel extends DefaultTableModel {
     }
 
     public void registerTable(JTable table) {
-        this.table= table;
+        this.table = table;
     }
 
     public Object[] moomintrollToData(Moomintroll moomintroll) {
@@ -50,7 +50,7 @@ public class MoomintrollsTableModel extends DefaultTableModel {
         return new Moomintroll(
                 getValueAt(row, 0).toString(),
                 (Boolean) getValueAt(row, 1),
-                Integer.parseInt(getValueAt(row,4).toString()),
+                Integer.parseInt(getValueAt(row, 4).toString()),
                 (Color) getValueAt(row, 2),
                 (Kindness) getValueAt(row, 3),
                 (ZonedDateTime) getValueAt(row, 5)
@@ -66,7 +66,7 @@ public class MoomintrollsTableModel extends DefaultTableModel {
     }
 
     public void clear() {
-        for(int i = getRowCount() - 1; i >= 0; i--) {
+        for (int i = getRowCount() - 1; i >= 0; i--) {
             removeRow(i);
         }
     }

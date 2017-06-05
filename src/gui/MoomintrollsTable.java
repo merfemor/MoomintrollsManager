@@ -11,6 +11,7 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableRowSorter;
 import java.awt.*;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
@@ -18,7 +19,7 @@ import java.util.Collections;
 import java.util.ResourceBundle;
 import java.util.stream.LongStream;
 
-public class MoomintrollsTable extends JTable{
+public class MoomintrollsTable extends JTable {
     private BiMap<Long, Integer> rowById;
     private MoomintrollsCollection moomintrollsCollection;
     private MoomintrollsTableModel moomintrollsDataModel;
@@ -44,7 +45,7 @@ public class MoomintrollsTable extends JTable{
     }
 
     public void setRowSorter(MainWindow.MoomintrollsRowFilter moomintrollsRowFilter) {
-        ((TableRowSorter)getRowSorter()).setRowFilter(moomintrollsRowFilter);
+        ((TableRowSorter) getRowSorter()).setRowFilter(moomintrollsRowFilter);
         moomintrollsDataModel.fireTableDataChanged();
     }
 
@@ -87,7 +88,7 @@ public class MoomintrollsTable extends JTable{
         int row = rowById.get(id);
         moomintrollsDataModel.removeRow(row);
         moomintrollsDataModel.insertRow(row, moomintroll);
-        if(moomintrollsTree != null) {
+        if (moomintrollsTree != null) {
             moomintrollsTree.setNode(row, moomintroll);
         }
     }
@@ -110,7 +111,7 @@ public class MoomintrollsTable extends JTable{
         int rows = moomintrollsDataModel.getRowCount();
         clearSelection();
 
-        for(int i = 0; i < rows; i++) {
+        for (int i = 0; i < rows; i++) {
             moomintrollsCollection.add(moomintrollsDataModel.getRow(getRowSorter().convertRowIndexToModel(i)));
         }
         return moomintrollsCollection;
@@ -135,7 +136,7 @@ public class MoomintrollsTable extends JTable{
         for (int i = rows.length - 1; i >= 0; i--) {
             int currentRow = convertRowIndexToModel(rows[i]);
             moomintrollsDataModel.removeRow(currentRow);
-            if(moomintrollsTree != null) {
+            if (moomintrollsTree != null) {
                 moomintrollsTree.remove(currentRow);
             }
         }
@@ -168,7 +169,7 @@ public class MoomintrollsTable extends JTable{
     public void updateLanguage(ResourceBundle bundle) {
         this.bundle = bundle;
         MoomintrollsTableModel.dateTimeFormatter =
-                DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT).withLocale(bundle.getLocale());
+                DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT).withLocale(bundle.getLocale()).withZone(ZoneId.systemDefault());
         moomintrollsDataModel.fireTableDataChanged();
     }
 
