@@ -110,7 +110,24 @@ public class Translation_sq extends ListResourceBundle {
             {"successfullySavedDialogTitle", "Ruajtur me sukses"},
             {"successfullySavedDialogMessage", "Ruajtur me sukses {0}"},
             {"wrongFileFormatErrorTitle", "Gabim: format i pavlefshëm skedari"},
-            {"wrongFileFormatErrorMessage", "Nuk mundën të lexojnë {0} fotografi\nNë format të gabuar.\nJu lutem zgjidhni një tjetër fotografi."}
+            {"wrongFileFormatErrorMessage", "Nuk mundën të lexojnë {0} fotografi\nNë format të gabuar.\nJu lutem zgjidhni një tjetër fotografi."},
+            {"releaseNotesContent", "Historia:\n" +
+                    "v1.3:\n" +
+                    "- lokalizimi për Rusisht, Sllovenisht, në gjuhën shqipe\n" +
+                    "- Fixed a bug me n pema\n\n" +
+                    "v1.2:\n" +
+                    "- lidhje të largët\n" +
+                    "- multi-user qasje\n" +
+                    "- pema është fshehur nga parazgjedhur\n\n" +
+                    "v1.1:\n" +
+                    "- \" zgjuar \"shpëtuar files\n" +
+                    "- fixes bug\n" +
+                    "- përmirësimin e performancës\n\n" +
+                    "v1.0.1:\n" +
+                    "- shtoi gabim\n" +
+                    "- përkeqësimin e performancës\n\n" +
+                    "v1.0\n" +
+                    "- versioni i parë i\n"}
     };
 
     @Override

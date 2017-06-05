@@ -110,7 +110,24 @@ public class Translation_en extends ListResourceBundle {
             {"successfullySavedDialogTitle", "Successfully saved"},
             {"successfullySavedDialogMessage", "Successfully saved into {0}"},
             {"wrongFileFormatErrorTitle", "Error: failed to read"},
-            {"wrongFileFormatErrorMessage", "Failed to read {0}\nFile is in the wrong format.\nSelect file again."}
+            {"wrongFileFormatErrorMessage", "Failed to read {0}\nFile is in the wrong format.\nSelect file again."},
+            {"releaseNotesContent", "Release notes:\n" +
+                    "v1.3:\n" +
+                    "- localization for Russian, Slovenian, Albanian languages\n" +
+                    "- fixed bug with tree\n\n" +
+                    "v1.2:\n" +
+                    "- remote connection\n" +
+                    "- multi-user access\n" +
+                    "- tree now hidden by default\n\n" +
+                    "v1.1:\n" +
+                    "- \"clever\" files saving\n" +
+                    "- bugs fixed\n" +
+                    "- performance improvements\n\n" +
+                    "v1.0.1:\n" +
+                    "- bugs added\n" +
+                    "- performance impaired\n\n" +
+                    "v1.0\n" +
+                    "- first working version\n"}
     };
 
     @Override

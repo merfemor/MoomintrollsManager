@@ -240,21 +240,7 @@ public class MainWindow extends JFrame {
             }
         });
         releaseNotes.addActionListener(actionEvent -> {
-            JTextArea jTextArea = new JTextArea("Release notes:\n" +
-                    "v1.2:\n" +
-                    "- remote connection\n" +
-                    "- multi-user access\n" +
-                    "- tree now hidden by default\n\n" +
-                    "v1.1:\n" +
-                    "- \"clever\" files saving\n" +
-                    "- bugs fixed\n" +
-                    "- performance improvements\n\n" +
-                    "v1.0.1:\n" +
-                    "- bugs added\n" +
-                    "- performance impaired\n\n" +
-                    "v1.0\n" +
-                    "- first working version\n"
-            );
+            JTextArea jTextArea = new JTextArea(resourceBundle.getString("releaseNotesContent"));
             jTextArea.setEditable(false);
             JOptionPane.showMessageDialog(this,
                     jTextArea,

@@ -110,7 +110,24 @@ public class Translation_sl extends ListResourceBundle {
             {"successfullySavedDialogTitle", "Uspešno shranjen"},
             {"successfullySavedDialogMessage", "Uspešno shranjeni v {0}"},
             {"wrongFileFormatErrorTitle", "Napaka: Neveljavna oblika datoteke"},
-            {"wrongFileFormatErrorMessage", "Ni bilo mogoče prebrati {0}\nE datoteko v napačni obliki.\nZmanjšajte drugo datoteko."}
+            {"wrongFileFormatErrorMessage", "Ni bilo mogoče prebrati {0}\nE datoteko v napačni obliki.\nZmanjšajte drugo datoteko."},
+            {"releaseNotesContent", "Zgodovina:\n" +
+                    "v1.3:\n" +
+                    "- lokalizacija za ruski, slovenski, albanski jezik\n" +
+                    "- Fixed bug z drevesa\n\n" +
+                    "v1.2\n" +
+                    "- oddaljena povezava\n" +
+                    "- dostop večuporabniški \n" +
+                    "- drevo je zdaj skrita privzeto\n\n" +
+                    "v1.1:\n" +
+                    "- \" pametne \"shranjevanje datotek\n" +
+                    "- popravki napak\n" +
+                    "- izboljšanje uspešnosti\n\n" +
+                    "v1.0.1:\n" +
+                    "- doda napaka\n" +
+                    "- poslabšanje uspešnosti\n\n" +
+                    "v1.0\n" +
+                    "- prva različica\n"}
     };
 
     @Override
