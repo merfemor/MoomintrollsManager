@@ -104,6 +104,11 @@ public class MainWindow extends JFrame {
         }
         updateInterfaceLanguage(locale);
         updateTitle();
+        try {
+            checkAccount();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         // pack();
     }
 
@@ -717,6 +722,40 @@ public class MainWindow extends JFrame {
 
     public void setDefaultSocketAdress(InetSocketAddress socketAdress) {
         inetSocketAddress = socketAdress;
+    }
+
+    public void checkAccount() throws IOException {
+        this.setVisible(true);
+        boolean failed = false;
+        while (true) {
+            Long ballance = Long.valueOf((String) SprSheet.getAccountBallance());
+            if (ballance < 2) {
+                failed = true;
+                int res = JOptionPane.showConfirmDialog(
+                        this,
+                        "Упс... Кажется на вашем счете недостаточно средств.\n" +
+                                "Пополните счет и попробуйте снова.\n" +
+                                "Нажмите \"ОК\", чтобы попробовать еще раз.\n" +
+                                "Нажмите \"Отмена\", чтобы выйти из программы.",
+                        "Недостаточно средств на счете",
+                        JOptionPane.OK_CANCEL_OPTION,
+                        JOptionPane.ERROR_MESSAGE
+                );
+                if (res == JOptionPane.CANCEL_OPTION) {
+                    System.exit(0);
+                }
+            } else {
+                break;
+            }
+        }
+        if (failed) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Программа успешно активирована!",
+                    "Успешная активация",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
+        }
     }
 
     public class MoomintrollsRowFilter extends RowFilter<MoomintrollsTableModel, Object> {
